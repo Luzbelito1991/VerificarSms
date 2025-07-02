@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    "./static/**/*.html",
     "./templates/**/*.html",
     "./static/js/**/*.js"
   ],
@@ -30,4 +31,6 @@ module.exports = {
     'delay-200'
   ],
   plugins: []
-}
+};
+// This configuration file sets up Tailwind CSS with custom animations and safelists for specific classes.
+// It includes content paths for HTML and JavaScript files, extends the theme with fade-in animations

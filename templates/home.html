@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block contenido %}
+<div class="max-w-6xl mx-auto space-y-8 px-4 sm:px-6 md:px-8 animate-fade-in-up">
+
+  <!-- Encabezado amplio -->
+  <header class="bg-white/5 ring-1 ring-white/10 rounded-xl px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">👋 ¡Hola {{ user }}!</h1>
+      <p class="text-sm text-gray-400 mt-1">Bienvenido a tu panel de gestión interna</p>
+    </div>
+    <span class="text-sm text-white/70 bg-[#4DA874]/10 border border-[#4DA874]/20 px-3 py-1.5 rounded-full font-medium shadow-sm">Versión 1.0.0</span>
+  </header>
+
+  <!-- Cards métricas -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Usuarios activos -->
+    <div class="flex items-center gap-4 bg-white/5 ring-1 ring-white/10 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
+      <div class="bg-[#4DA874]/20 text-[#4DA874] p-2.5 rounded-full">
+        <i data-lucide="users" class="w-6 h-6 stroke-current"></i>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-lg leading-snug">12</p>
+        <p class="text-sm text-gray-400">Usuarios activos</p>
+      </div>
+    </div>
+
+    <!-- Códigos enviados -->
+    <div class="flex items-center gap-4 bg-white/5 ring-1 ring-white/10 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
+      <div class="bg-blue-600/20 text-blue-400 p-2.5 rounded-full">
+        <i data-lucide="message-square-dots" class="w-6 h-6 stroke-current"></i>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-lg leading-snug">34</p>
+        <p class="text-sm text-gray-400">Códigos enviados hoy</p>
+      </div>
+    </div>
+
+    <!-- Última actividad -->
+    <div class="flex items-center gap-4 bg-white/5 ring-1 ring-white/10 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
+      <div class="bg-zinc-500/20 text-gray-300 p-2.5 rounded-full">
+        <i data-lucide="clock" class="w-6 h-6 stroke-current"></i>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-lg leading-snug">10:42 AM</p>
+        <p class="text-sm text-gray-400">Última actividad</p>
+      </div>
+    </div>
+
+  </section>
+</div>
+{% endblock %}

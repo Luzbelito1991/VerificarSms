@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" class="dark" id="rootHtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Quilmes{% endblock %}</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind + Iconos -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Alpine.js para comportamiento del submenú -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="bg-gray-950 text-gray-100 font-inter min-h-screen overflow-y-auto">
+
+  {% if user %}
+  <!-- Sidebar -->
+  <aside class="fixed top-0 left-0 w-[22rem] h-screen bg-white/5 backdrop-blur-md border-r border-white/10 flex flex-col justify-between py-6 px-6 z-50 shadow-xl">
+    <div class="space-y-8">
+      <!-- Branding -->
+      <div class="flex items-center gap-3 group">
+        <img src="/static/images/q.png"
+             alt="Logo Quilmes"
+             class="w-8 h-8 sm:w-9 sm:h-9 object-contain transition-transform duration-200 group-hover:scale-105 group-hover:drop-shadow-sm" />
+        <span class="text-2xl font-bold text-white tracking-wide transition-colors duration-200 group-hover:text-emerald-300">
+          {% block brand %}LOS QUILMES S.A{% endblock %}
+        </span>
+      </div>
+
+      <!-- Navegación -->
+      <nav class="flex flex-col gap-3 text-sm font-medium" x-data="{ mantenimientoOpen: window.location.pathname.startsWith('/mantenimiento') }">
+        <a href="/verificar"
+           class="flex items-center justify-between py-2.5 px-4 rounded-md bg-[#4DA874]/90 hover:bg-[#4DA874] text-white transition">
+          📱 Verificación SMS
+        </a>
+
+        <!-- Mantenimiento con submenú -->
+        <div>
+          <button @click="mantenimientoOpen = !mantenimientoOpen"
+                  class="w-full flex items-center justify-between py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer">
+            👤 Administración del sistema
+            <i :class="{ 'rotate-180': mantenimientoOpen }" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+          </button>
+          <div x-show="mantenimientoOpen" class="ml-4 mt-1 space-y-1 pt-1" x-transition>
+            <a href="/mantenimiento/usuarios"
+               class="block px-4 py-2 rounded-md text-white hover:bg-white/10 text-sm transition
+                      {% if request.path == '/mantenimiento/usuarios' %}bg-white/10 text-emerald-400{% endif %}">
+              👥 Mantenimiento de Usuarios
+            </a>
+            <!-- Más subitems a futuro -->
+          </div>
+        </div>
+
+        <a href="/logout"
+           class="flex items-center justify-between py-2.5 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white transition">
+          🚪 Salir
+        </a>
+      </nav>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-xs text-gray-400 border-t border-white/10 pt-4 leading-snug">
+      👋 {{ user }}<br />
+      Versión 1.0.0<br />
+      Soporte: soporte@quilmes.com
+    </footer>
+  </aside>
+  {% endif %}
+
+  <!-- Contenido principal -->
+  <main class="{% if user %}ml-[22rem]{% endif %} px-4 pt-6 pb-10 space-y-6 animate-fade-in-up transition-all duration-300 ease-out">
+    {% block contenido %}{% endblock %}
+
+    {% block scripts %}
+      <script>lucide.createIcons();</script>
+    {% endblock %}
+  </main>
+
+</body>
+</html>

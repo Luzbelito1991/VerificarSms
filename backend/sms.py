@@ -1,42 +1,39 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel, constr
-from dotenv import load_dotenv
-from datetime import date
-from db import Verificacion, SessionLocal, init_db
+# backend/sms.py
 
-import os
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, constr
+from backend.database import SessionLocal, Verificacion
+from datetime import date
+from dotenv import load_dotenv
+import unicodedata
+import hashlib
 import random
 import requests
-import unicodedata
+import os
 
-# Cargar variables de entorno
 load_dotenv()
 
-# Inicializar app y base de datos
-app = FastAPI()
-init_db()
-
-# Leer API KEY desde .env
 API_KEY = os.getenv("SMS_API_KEY")
+MODO_SIMULADO = os.getenv("SMS_MODO_SIMULADO", "false").lower() == "true"
 
-# Esquema de datos del formulario
+router = APIRouter()
+
+# 📦 Datos que se esperan del frontend para enviar un SMS
 class SmsRequest(BaseModel):
     personId: constr(min_length=7, max_length=15)
     phoneNumber: constr(min_length=10, max_length=15)
     merchantCode: constr(min_length=3, max_length=3)
     verificationCode: str | None = None
 
-# Generar código de verificación manual
+# 🔢 Generar código aleatorio de 4 dígitos
 def generate_code() -> str:
     return str(random.randint(1000, 9999))
 
-# Eliminar tildes
+# 🔤 Eliminar tildes del mensaje SMS
 def limpiar_mensaje(texto: str) -> str:
     return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
 
-# Mapear nombre de sucursal
+# 🏪 Traducir código de sucursal a nombre
 def nombre_sucursal(codigo: str) -> str:
     mapa = {
         "776": "Alberdi",
@@ -47,8 +44,12 @@ def nombre_sucursal(codigo: str) -> str:
     }
     return mapa.get(codigo, "Sucursal desconocida")
 
-# Enviar SMS
+# 📡 Enviar el SMS real, o simulado si está activado
 def send_sms(phone: str, message: str):
+    if MODO_SIMULADO:
+        print(f"[SIMULADO] SMS a {phone}: {message}")
+        return True, "SMS simulado correctamente"
+
     try:
         url = "http://servicio.smsmasivos.com.ar/enviar_sms.asp"
         params = {
@@ -57,40 +58,32 @@ def send_sms(phone: str, message: str):
             "TOS": phone,
             "TEXTO": message
         }
-
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
-
-        if "OK" in response.text.upper():
-            return True, response.text
-        else:
-            return False, response.text
-
+        return ("OK" in response.text.upper(), response.text)
     except Exception as e:
         return False, str(e)
 
-# Endpoint principal
-@app.post("/send-sms")
+# 📲 Endpoint para manejar el envío y registrar en base
+@router.post("/send-sms")
 def handle_sms(data: SmsRequest):
     code = data.verificationCode or generate_code()
+    texto = f"{data.merchantCode} Limite Deportes {nombre_sucursal(data.merchantCode)} - DNI: {data.personId} - Su Codigo es: {code}"
+    mensaje = limpiar_mensaje(texto)
 
-    mensaje_original = f"{data.merchantCode} Limite Deportes {nombre_sucursal(data.merchantCode)} - DNI: {data.personId} - Su Codigo es: {code}"
-    message = limpiar_mensaje(mensaje_original)
-
-    success, result = send_sms(data.phoneNumber, message)
-
-    if not success:
-        raise HTTPException(status_code=400, detail=str(result))
+    ok, respuesta = send_sms(data.phoneNumber, mensaje)
+    if not ok:
+        raise HTTPException(status_code=400, detail=respuesta)
 
     db = SessionLocal()
     try:
-        registro = Verificacion(
+        verif = Verificacion(
             person_id=data.personId,
             merchant_code=data.merchantCode,
             verification_code=code,
             fecha=date.today()
         )
-        db.add(registro)
+        db.add(verif)
         db.commit()
     finally:
         db.close()
@@ -100,12 +93,6 @@ def handle_sms(data: SmsRequest):
         "verificationCode": code,
         "personId": data.personId,
         "merchantCode": data.merchantCode,
-        "smsBody": message
+        "smsBody": mensaje,
+        "modoSimulado": MODO_SIMULADO
     }
-
-# Servir HTML
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.get("/formulario")
-def show_form():
-    return FileResponse(os.path.join("static", "formulario.html"))

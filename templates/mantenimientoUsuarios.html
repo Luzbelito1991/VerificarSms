@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+{% block title %}Mantenimiento de Usuarios{% endblock %}
+
+{% block contenido %}
+<div class="min-h-[80vh] flex items-center justify-center px-4">
+  <section class="w-full max-w-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-emerald-400 rounded-xl shadow-xl p-5 space-y-6 transition duration-300 animate-fade-in-up">
+
+    <!-- Encabezado -->
+    <header class="flex items-center gap-2 text-white text-sm font-medium pb-1">
+      <i data-lucide="user-cog" class="w-4 h-4 text-emerald-400"></i>
+      <h2 class="text-sm tracking-wide">Mantenimiento de Usuarios</h2>
+    </header>
+
+    <!-- Buscar -->
+    <div class="space-y-3">
+      <label for="buscar" class="block text-sm font-medium text-white">🔍 Buscar usuario</label>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <input id="buscar" type="text" placeholder="usuario123"
+               class="flex-1 bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-md text-white placeholder-gray-500 outline-none text-sm" />
+        <button type="button" onclick="buscarUsuario()"
+                class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-md transition text-sm">
+          Buscar
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <form id="userForm" autocomplete="off" class="space-y-4">
+      <input type="hidden" id="modo" value="crear" />
+      <input type="hidden" id="originalUsuario" />
+
+      <div>
+        <label for="usuario" class="block text-sm font-medium text-white mb-1">Usuario</label>
+        <input id="usuario" type="text" required placeholder="Nombre de usuario"
+               class="w-full bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#4DA874]" />
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-white mb-1">Contraseña</label>
+        <input id="password" type="password" placeholder="(dejar en blanco para mantener)"
+               class="w-full bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#4DA874]" />
+      </div>
+
+      <div>
+        <label for="rol" class="block text-sm font-medium text-white mb-1">Rol</label>
+        <select id="rol" required
+                class="w-full bg-gray-800 border border-gray-700 px-4 py-1.5 rounded-md text-sm text-white outline-none focus:ring-2 focus:ring-[#4DA874]">
+          <option value="">Seleccioná un rol</option>
+          <option value="admin">Administrador</option>
+          <option value="operador">Operador</option>
+        </select>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-4 pt-1">
+        <button type="submit"
+                class="px-3 py-1.5 text-sm bg-[#4DA874] hover:bg-emerald-600 text-white font-semibold rounded-md transition inline-flex items-center justify-center min-w-[110px]">
+          <i data-lucide="save" class="w-4 h-4 mr-1.5 text-white/90"></i>
+          <span id="submitLabel">Crear usuario</span>
+        </button>
+        <button type="button" onclick="eliminarUsuarioManual()"
+                class="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white font-semibold rounded-md transition inline-flex items-center justify-center min-w-[110px]">
+          <i data-lucide="trash-2" class="w-4 h-4 mr-1.5 text-white/90"></i>
+          Eliminar
+        </button>
+        <button type="button" onclick="reiniciarFormulario()"
+                class="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-md transition inline-flex items-center justify-center min-w-[110px]">
+          <i data-lucide="refresh-ccw" class="w-4 h-4 mr-1.5 text-white/90"></i>
+          Limpiar
+        </button>
+      </div>
+
+      <p id="msg" class="text-sm text-center text-gray-300 mt-1 transition-opacity duration-300 opacity-0"></p>
+    </form>
+
+    <!-- Tabla -->
+    <section id="tablaUsuariosContainer" class="space-y-3 pt-6">
+      <div class="flex items-center gap-2 text-white text-sm font-medium">
+        <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+        <h3 class="text-sm tracking-wide">Usuarios registrados</h3>
+      </div>
+      <div class="overflow-auto max-h-[300px] rounded-md border border-white/10">
+        <table class="min-w-full text-sm text-white font-mono bg-gray-900/80">
+          <thead class="sticky top-0 bg-gray-800 text-gray-300 uppercase text-xs border-b border-white/10">
+            <tr>
+              <th class="px-4 py-2 text-left">Usuario</th>
+              <th class="px-4 py-2 text-left">Rol</th>
+              <th class="px-4 py-2 text-left">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaUsuariosBody">
+            <tr>
+              <td class="px-4 py-2 text-gray-400 italic" colspan="3">Cargando usuarios...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/mantenimientoUsuarios.js"></script>
+<script>lucide.createIcons();</script>
+{% endblock %}

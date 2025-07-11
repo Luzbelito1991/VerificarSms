@@ -2,7 +2,8 @@
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, constr
-from backend.database import SessionLocal, Verificacion
+from backend.database import SessionLocal
+from backend.models import Verificacion
 from datetime import date
 from dotenv import load_dotenv
 import unicodedata

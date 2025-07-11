@@ -6,7 +6,7 @@
 <div class="flex justify-center items-center min-h-[85vh] px-4 animate-fade-in-up">
   <section class="w-full max-w-sm bg-gray-900/70 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl p-6 space-y-6">
 
-    <!-- Encabezado con ícono -->
+    <!-- Encabezado -->
     <header class="text-center space-y-1">
       <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-[#4DA874]/10 ring-1 ring-[#4DA874]/30 shadow-sm animate-fade-in">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 stroke-[#4DA874]" fill="none" viewBox="0 0 24 24" stroke-width="2">
@@ -19,9 +19,8 @@
     </header>
 
     <!-- Formulario -->
-    <form id="loginForm" method="POST" autocomplete="off" class="space-y-4">
-
-      <!-- Campo usuario con ícono -->
+    <form id="loginForm" autocomplete="off" class="space-y-4">
+      <!-- Campo usuario -->
       <div class="relative">
         <label for="username" class="block text-sm text-gray-300 mb-1">Usuario</label>
         <input id="username" name="username" type="text" required autocomplete="username" autofocus
@@ -60,24 +59,18 @@
       <span class="text-[#4DA874] font-semibold">Los Quilmes S.A</span><br>
       <span class="italic text-white text-[11px]">By Fernando Valle</span>
     </footer>
+
+    <!-- Toast flotante -->
+    <div id="toastLoginError" class="fixed bottom-6 right-6 bg-red-600 text-white py-2 px-4 rounded-lg shadow-lg text-sm flex items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+      <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+      <span id="toastMessage">Error</span>
+    </div>
+
   </section>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggle = document.getElementById("togglePassword");
-    const pwd = document.getElementById("password");
-    const icon = document.getElementById("eyeIcon");
-
-    toggle.addEventListener("click", () => {
-      const visible = pwd.type === "text";
-      pwd.type = visible ? "password" : "text";
-      icon.setAttribute("data-lucide", visible ? "eye" : "eye-off");
-      lucide.createIcons(); // re-render
-    });
-  });
-</script>
+<script src="/static/js/login.js"></script>
 <script>lucide.createIcons();</script>
 {% endblock %}

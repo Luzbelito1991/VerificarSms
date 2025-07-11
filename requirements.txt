@@ -3,3 +3,4 @@ uvicorn
 requests
 python-dotenv
 sqlalchemy
+itsdangerous>=2.1.0

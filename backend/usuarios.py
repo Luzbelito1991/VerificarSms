@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from backend.database import SessionLocal
+from sqlalchemy.orm import Session
+from backend.database import get_db, SessionLocal
 from backend.models import Usuario
 import hashlib
 
@@ -11,6 +12,11 @@ router = APIRouter()
 class UsuarioCreate(BaseModel):
     usuario: str
     password: str
+    rol: str | None = None
+
+class UsuarioUpdate(BaseModel):
+    nuevo_usuario: str
+    password: str | None = None
     rol: str | None = None
 
 class LoginRequest(BaseModel):
@@ -36,7 +42,6 @@ async def login(data: LoginRequest, request: Request):
             "usuario": user.usuario,
             "rol": user.rol
         }
-
     finally:
         db.close()
 
@@ -61,34 +66,42 @@ def crear_usuario(data: UsuarioCreate):
 
 # 🗑️ Eliminar usuario
 @router.delete("/eliminar-usuario/{nombre}")
-def eliminar_usuario(nombre: str):
-    db = SessionLocal()
-    try:
-        usuario = db.query(Usuario).filter_by(usuario=nombre).first()
-        if not usuario:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+def eliminar_usuario(nombre: str, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter_by(usuario=nombre).first()
+    if not usuario:
+        return {"ok": False, "detail": f"El usuario '{nombre}' no existe"}
 
-        db.delete(usuario)
-        db.commit()
-        return {"ok": True}
-    finally:
-        db.close()
+    db.delete(usuario)
+    db.commit()
+    return {"ok": True, "mensaje": f"Usuario '{nombre}' eliminado correctamente"}
 
-# ✏️ Editar usuario existente
+# ✏️ Editar usuario existente (nombre, password, rol)
 @router.put("/editar-usuario/{nombre}")
-def editar_usuario(nombre: str, data: UsuarioCreate):
-    db = SessionLocal()
-    try:
-        usuario = db.query(Usuario).filter_by(usuario=nombre).first()
-        if not usuario:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+def editar_usuario(nombre: str, data: UsuarioUpdate, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter_by(usuario=nombre).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-        if data.password:
-            usuario.hash_password = hashlib.sha256(data.password.encode()).hexdigest()
+    # Validar si el nuevo nombre ya existe
+    if data.nuevo_usuario != nombre:
+        existe = db.query(Usuario).filter_by(usuario=data.nuevo_usuario).first()
+        if existe:
+            raise HTTPException(status_code=400, detail="El nuevo nombre ya está en uso")
+        usuario.usuario = data.nuevo_usuario
 
-        usuario.rol = data.rol or usuario.rol
-        db.commit()
+    if data.password:
+        nuevo_hash = hashlib.sha256(data.password.encode()).hexdigest()
+        if usuario.hash_password != nuevo_hash:
+            usuario.hash_password = nuevo_hash
 
-        return {"ok": True, "usuario": usuario.usuario, "rol": usuario.rol}
-    finally:
-        db.close()
+    if data.rol and data.rol != usuario.rol:
+        usuario.rol = data.rol
+
+    db.commit()
+
+    return {
+        "ok": True,
+        "usuario": usuario.usuario,
+        "rol": usuario.rol,
+        "mensaje": "Usuario actualizado correctamente"
+    }

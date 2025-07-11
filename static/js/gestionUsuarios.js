@@ -3,19 +3,18 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarFormulario();
   iniciarPaginacion();
   iniciarModal();
+  cargarUsuariosEnTabla();
   lucide.createIcons();
 });
 
 /* ==================== 🔍 BÚSQUEDA ==================== */
 function iniciarBusqueda() {
-  const inputBusqueda = document.getElementById("buscarUsuarioTabla");
-  if (!inputBusqueda) return;
+  const input = document.getElementById("buscarUsuarioTabla");
+  if (!input) return;
 
-  inputBusqueda.addEventListener("input", () => {
-    const filtro = inputBusqueda.value.toLowerCase();
-    const filas = document.querySelectorAll("#tablaUsuariosBody tr");
-
-    filas.forEach((fila) => {
+  input.addEventListener("input", () => {
+    const filtro = input.value.toLowerCase();
+    document.querySelectorAll("#tablaUsuariosBody tr").forEach((fila) => {
       const nombre = fila.querySelector(".nombre-usuario")?.textContent.toLowerCase() || "";
       fila.style.display = nombre.includes(filtro) ? "" : "none";
     });
@@ -30,144 +29,171 @@ function iniciarFormulario() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    if (!validarCampos()) {
+      mostrarToast("Completá los campos requeridos.", "error");
+      return;
+    }
+
     const modo = document.getElementById("modo").value;
     const nombre = document.getElementById("usuario").value.trim();
     const password = document.getElementById("password").value;
     const rol = document.getElementById("rol").value;
     const original = document.getElementById("originalUsuario").value;
 
-    if (!nombre || !rol) {
-      alert("Completá los campos requeridos.");
-      return;
-    }
-
     if (modo === "crear") {
       try {
-        const response = await fetch("/crear-usuario", {
+        const res = await fetch("/crear-usuario", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ usuario: nombre, password, rol }),
+          body: JSON.stringify({ usuario: nombre, password, rol })
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (response.ok && data.ok) {
-          // ✅ Usa valores estructurados para evitar 'undefined'
-          agregarFilaATabla({
-            nombre: data.usuario,
-            rol: data.rol
-          });
+        if (res.ok) {
+          mostrarToast("✅ Usuario creado con éxito", "success");
+          reiniciarFormulario();
           cerrarModal();
+          cargarUsuariosEnTabla();
         } else {
-          alert(data.detail || "Error al crear el usuario.");
+          mostrarToast(data.detail || "Error al crear el usuario", "error");
         }
       } catch (err) {
         console.error("Error:", err);
-        alert("Error al conectar con el servidor.");
+        mostrarToast("Error al conectar con el servidor", "error");
       }
-    } else if (modo === "editar") {
+    }
+
+    if (modo === "editar") {
       try {
-        const response = await fetch(`/editar-usuario/${encodeURIComponent(original)}`, {
+        const res = await fetch(`/editar-usuario/${encodeURIComponent(original)}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password, rol }),
+          body: JSON.stringify({ nuevo_usuario: nombre, password, rol })
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (response.ok) {
-          actualizarFilaDeTabla(nombre, rol);
+        if (res.ok) {
+          mostrarToast(data.mensaje || "✅ Usuario actualizado", "success");
+          reiniciarFormulario();
           cerrarModal();
+          cargarUsuariosEnTabla();
         } else {
-          alert(data.detail || "Error al actualizar el usuario.");
+          mostrarToast(data.detail || "Error al actualizar el usuario", "error");
         }
       } catch (err) {
         console.error("Error:", err);
-        alert("Error al conectar con el servidor.");
+        mostrarToast("Error al conectar con el servidor", "error");
       }
     }
   });
 }
 
+function validarCampos() {
+  const usuario = document.getElementById("usuario");
+  const rol = document.getElementById("rol");
+  let valido = true;
+
+  if (!usuario.value.trim()) {
+    usuario.classList.add("border-red-500", "ring-red-500");
+    valido = false;
+  } else {
+    usuario.classList.remove("border-red-500", "ring-red-500");
+  }
+
+  if (!rol.value) {
+    rol.classList.add("border-red-500", "ring-red-500");
+    valido = false;
+  } else {
+    rol.classList.remove("border-red-500", "ring-red-500");
+  }
+
+  return valido;
+}
+
 function reiniciarFormulario() {
   document.getElementById("modo").value = "crear";
   document.getElementById("submitLabel").textContent = "Crear";
+  document.getElementById("usuario").disabled = false;
   document.getElementById("usuario").value = "";
   document.getElementById("password").value = "";
   document.getElementById("rol").value = "";
   document.getElementById("originalUsuario").value = "";
+  document.getElementById("usuario").classList.remove("border-red-500", "ring-red-500");
+  document.getElementById("rol").classList.remove("border-red-500", "ring-red-500");
 }
 
-/* ==================== 📋 ACCIONES DE TABLA ==================== */
-function verUsuario(nombre) {
-  alert(`👁️ Ver usuario: ${nombre}`);
+/* ==================== 📊 CARGA DE TABLA ==================== */
+async function cargarUsuariosEnTabla() {
+  const tabla = document.getElementById("tablaUsuariosBody");
+  if (!tabla) return;
+
+  tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">Cargando usuarios...</td></tr>`;
+
+  try {
+    const res = await fetch("/usuarios");
+    const usuarios = await res.json();
+
+    if (!usuarios.length) {
+      tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">No hay usuarios registrados</td></tr>`;
+      return;
+    }
+
+    tabla.innerHTML = usuarios.map(user => `
+      <tr class="border-b border-white/5 hover:bg-white/5 transition" data-usuario="${user.usuario}">
+        <td class="px-4 py-2 nombre-usuario">${user.usuario}</td>
+        <td class="px-4 py-2 capitalize">${user.rol}</td>
+        <td class="px-4 py-2">
+          <button onclick="editarUsuario('${user.usuario}')" class="text-emerald-400 hover:text-emerald-300 text-xs font-medium inline-flex items-center gap-1">
+            <i data-lucide="edit" class="w-4 h-4"></i> Editar
+          </button>
+          <button onclick="eliminarUsuario('${user.usuario}')" class="text-red-500 hover:text-red-400 text-xs font-medium inline-flex items-center gap-1 ml-2">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar
+          </button>
+        </td>
+      </tr>
+    `).join("");
+
+    lucide.createIcons();
+  } catch {
+    tabla.innerHTML = `<tr><td colspan="3" class="text-center text-red-500 italic py-3">Error al cargar usuarios</td></tr>`;
+  }
 }
 
+/* ==================== ✏️ EDITAR USUARIO ==================== */
 function editarUsuario(nombre) {
   document.getElementById("modo").value = "editar";
   document.getElementById("submitLabel").textContent = "Actualizar";
+  document.getElementById("usuario").disabled = false;
   document.getElementById("usuario").value = nombre;
   document.getElementById("password").value = "";
   document.getElementById("rol").value = obtenerRolDeFila(nombre);
   document.getElementById("originalUsuario").value = nombre;
-
   abrirModal();
 }
 
-function eliminarUsuario(nombre) {
-  if (!confirm(`¿Estás seguro que querés eliminar a "${nombre}"?`)) return;
-
-  fetch(`/eliminar-usuario/${encodeURIComponent(nombre)}`, {
-    method: "DELETE",
-  })
-    .then(async (res) => {
-      const data = await res.json();
-      if (res.ok) {
-        eliminarFilaDeTabla(nombre);
-      } else {
-        alert(data.detail || "Error al eliminar el usuario.");
-      }
-    })
-    .catch((err) => {
-      console.error("Error:", err);
-      alert("Error al conectar con el servidor.");
-    });
-}
-
 function obtenerRolDeFila(nombre) {
-  const filas = document.querySelectorAll("#tablaUsuariosBody tr");
-  for (const fila of filas) {
-    const celdaNombre = fila.querySelector(".nombre-usuario");
-    const celdaRol = fila.querySelector("td:nth-child(2)");
-    if (celdaNombre && celdaNombre.textContent === nombre) {
-      return celdaRol.textContent;
-    }
-  }
-  return "operador";
+  const fila = document.querySelector(`tr[data-usuario="${nombre}"]`);
+  return fila?.querySelector("td:nth-child(2)")?.textContent || "";
 }
 
-function actualizarFilaDeTabla(nombre, nuevoRol) {
-  const filas = document.querySelectorAll("#tablaUsuariosBody tr");
-  for (const fila of filas) {
-    const celdaNombre = fila.querySelector(".nombre-usuario");
-    const celdaRol = fila.querySelector("td:nth-child(2)");
-    if (celdaNombre && celdaNombre.textContent === nombre) {
-      celdaRol.textContent = nuevoRol;
-      break;
-    }
+function actualizarFilaDeTabla(originalNombre, nuevoNombre, nuevoRol) {
+  const fila = document.querySelector(`tr[data-usuario="${originalNombre}"]`);
+  if (fila) {
+    fila.setAttribute("data-usuario", nuevoNombre);
+    fila.querySelector(".nombre-usuario").textContent = nuevoNombre;
+    fila.querySelector("td:nth-child(2)").textContent = nuevoRol;
+    fila.querySelector("button[onclick^='editarUsuario']").setAttribute("onclick", `editarUsuario('${nuevoNombre}')`);
+    fila.querySelector("button[onclick^='eliminarUsuario']").setAttribute("onclick", `eliminarUsuario('${nuevoNombre}')`);
+    resaltarFila(fila);
   }
 }
 
-function eliminarFilaDeTabla(nombre) {
-  const filas = document.querySelectorAll("#tablaUsuariosBody tr");
-  for (const fila of filas) {
-    const celda = fila.querySelector(".nombre-usuario");
-    if (celda && celda.textContent === nombre) {
-      fila.remove();
-      break;
-    }
-  }
+function resaltarFila(fila) {
+  fila.classList.add("bg-emerald-900");
+  setTimeout(() => fila.classList.remove("bg-emerald-900"), 2000);
 }
+
+/* ==================== 🗑️ ELIMINAR USUARIO ==================== */
 
 /* ==================== 🔁 PAGINACIÓN ==================== */
 function iniciarPaginacion() {
@@ -175,79 +201,63 @@ function iniciarPaginacion() {
   const btnNext = document.getElementById("nextPagina");
   if (!btnPrev || !btnNext) return;
 
-  let paginaActual = 1;
-
+  let pagina = 1;
   btnPrev.addEventListener("click", () => {
-    if (paginaActual > 1) {
-      paginaActual--;
-      actualizarPaginacion();
-    }
+    if (pagina > 1) pagina--;
+    document.getElementById("paginaActual").textContent = pagina;
   });
 
   btnNext.addEventListener("click", () => {
-    paginaActual++;
-    actualizarPaginacion();
+    pagina++;
+    document.getElementById("paginaActual").textContent = pagina;
   });
-
-  function actualizarPaginacion() {
-    document.getElementById("paginaActual").textContent = paginaActual;
-    console.log(`Página actual: ${paginaActual}`);
-  }
 }
 
-/* ==================== 💡 MODAL ALTA/EDICIÓN ==================== */
+/* ==================== 💡 MODAL ==================== */
 function iniciarModal() {
   const btnMostrar = document.getElementById("mostrarFormularioBtn");
-  const modal = document.getElementById("modalUsuario");
-  const cerrarBtn = modal?.querySelector("button[onclick*='cerrarModal']");
+  if (!btnMostrar) return;
 
-  btnMostrar?.addEventListener("click", () => {
+  btnMostrar.addEventListener("click", () => {
     reiniciarFormulario();
     abrirModal();
   });
-
-  cerrarBtn?.addEventListener("click", cerrarModal);
 }
 
 function abrirModal() {
   const modal = document.getElementById("modalUsuario");
   if (!modal) return;
   modal.classList.remove("hidden");
+  modal.classList.add("flex");
   document.body.style.overflow = "hidden";
 }
 
 function cerrarModal() {
   const modal = document.getElementById("modalUsuario");
   if (!modal) return;
+  modal.classList.remove("flex");
   modal.classList.add("hidden");
   document.body.style.overflow = "";
 }
 
-/* ==================== ➕ AGREGAR NUEVA FILA ==================== */
-function agregarFilaATabla(usuario) {
-  const tbody = document.getElementById("tablaUsuariosBody");
+/* ==================== 🔔 TOASTS ==================== */
+function mostrarToast(mensaje, tipo = "info") {
+  const colores = {
+    success: "bg-emerald-600",
+    error: "bg-red-600",
+    info: "bg-blue-600",
+    warning: "bg-yellow-500"
+  };
 
-  const fila = document.createElement("tr");
-  fila.className = "hover:bg-white/5 transition border-b border-white/5";
+  const toast = document.createElement("div");
+  toast.className = `${colores[tipo] || colores.info} text-white text-sm font-medium rounded-md px-4 py-2 shadow-lg animate-fade-in-down transition duration-300 pointer-events-auto`;
+  toast.textContent = mensaje;
 
-  fila.innerHTML = `
-    <td class="px-4 py-2 font-medium nombre-usuario">${usuario.nombre}</td>
-    <td class="px-4 py-2 text-emerald-300">${usuario.rol}</td>
-    <td class="px-4 py-2">
-      <div class="flex gap-3 text-sm items-center">
-        <button onclick="verUsuario('${usuario.nombre}')" class="text-white hover:text-emerald-400 inline-flex items-center gap-1">
-          <i data-lucide="eye" class="w-4 h-4"></i> Ver
-        </button>
-        <button onclick="editarUsuario('${usuario.nombre}')" class="text-white hover:text-blue-400 inline-flex items-center gap-1">
-          <i data-lucide="edit-2" class="w-4 h-4"></i> Editar
-        </button>
-        <button onclick="eliminarUsuario('${usuario.nombre}')" class="text-white hover:text-red-400 inline-flex items-center gap-1">
-          <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar
-        </button>
-      </div>
-    </td>
-  `;
+  const container = document.getElementById("toastContainer");
+  container?.appendChild(toast);
 
-    tbody.appendChild(fila);
-  lucide.createIcons(); // Re-renderiza los íconos dinámicamente
+  setTimeout(() => {
+    toast.classList.add("opacity-0", "scale-95");
+    setTimeout(() => toast.remove(), 300);
+  }, 2800);
 }

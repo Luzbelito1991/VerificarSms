@@ -25,25 +25,18 @@ class LoginRequest(BaseModel):
 
 # 🔐 Ruta de login con sesión
 @router.post("/login")
-async def login(data: LoginRequest, request: Request):
-    db = SessionLocal()
-    try:
-        user = db.query(Usuario).filter_by(usuario=data.usuario).first()
+async def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
+    user = db.query(Usuario).filter_by(usuario=data.usuario).first()
 
-        if not user or user.hash_password != hashlib.sha256(data.password.encode()).hexdigest():
-            return JSONResponse(status_code=401, content={"ok": False, "detail": "Credenciales inválidas"})
+    hash_pw = hashlib.sha256(data.password.encode()).hexdigest()
+    if not user or user.hash_password != hash_pw:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-        # ✅ Guardar datos en sesión
-        request.session["usuario"] = user.usuario
-        request.session["rol"] = user.rol
+    request.session["usuario"] = user.usuario
+    request.session["rol"] = user.rol
 
-        return {
-            "ok": True,
-            "usuario": user.usuario,
-            "rol": user.rol
-        }
-    finally:
-        db.close()
+    return {"ok": True, "usuario": user.usuario, "rol": user.rol}
+
 
 # 👤 Crear usuario nuevo
 @router.post("/crear-usuario")

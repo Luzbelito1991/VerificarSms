@@ -1,3 +1,8 @@
+// Variables globales para paginación
+let usuariosTotales = [];
+let paginaActual = 1;
+const usuariosPorPagina = 5;
+
 document.addEventListener("DOMContentLoaded", () => {
   iniciarBusqueda();
   iniciarFormulario();
@@ -122,7 +127,7 @@ function reiniciarFormulario() {
   document.getElementById("rol").classList.remove("border-red-500", "ring-red-500");
 }
 
-/* ==================== 📊 CARGA DE TABLA ==================== */
+/* ==================== 📊 CARGA DE TABLA + PAGINACIÓN ==================== */
 async function cargarUsuariosEnTabla() {
   const tabla = document.getElementById("tablaUsuariosBody");
   if (!tabla) return;
@@ -131,32 +136,71 @@ async function cargarUsuariosEnTabla() {
 
   try {
     const res = await fetch("/usuarios");
-    const usuarios = await res.json();
+    const data = await res.json();
 
-    if (!usuarios.length) {
+    usuariosTotales = data;
+    if (!usuariosTotales.length) {
       tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">No hay usuarios registrados</td></tr>`;
       return;
     }
 
-    tabla.innerHTML = usuarios.map(user => `
-      <tr class="border-b border-white/5 hover:bg-white/5 transition" data-usuario="${user.usuario}">
-        <td class="px-4 py-2 nombre-usuario">${user.usuario}</td>
-        <td class="px-4 py-2 capitalize">${user.rol}</td>
-        <td class="px-4 py-2">
-          <button onclick="editarUsuario('${user.usuario}')" class="text-emerald-400 hover:text-emerald-300 text-xs font-medium inline-flex items-center gap-1">
-            <i data-lucide="edit" class="w-4 h-4"></i> Editar
-          </button>
-          <button onclick="eliminarUsuario('${user.usuario}')" class="text-red-500 hover:text-red-400 text-xs font-medium inline-flex items-center gap-1 ml-2">
-            <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar
-          </button>
-        </td>
-      </tr>
-    `).join("");
-
-    lucide.createIcons();
-  } catch {
+    paginaActual = 1;
+    renderizarPagina(paginaActual);
+  } catch (error) {
+    console.error("Error al cargar usuarios:", error);
     tabla.innerHTML = `<tr><td colspan="3" class="text-center text-red-500 italic py-3">Error al cargar usuarios</td></tr>`;
   }
+}
+
+function renderizarPagina(pagina) {
+  const tabla = document.getElementById("tablaUsuariosBody");
+  if (!tabla) return;
+
+  const inicio = (pagina - 1) * usuariosPorPagina;
+  const fin = inicio + usuariosPorPagina;
+  const usuariosPagina = usuariosTotales.slice(inicio, fin);
+
+  if (usuariosPagina.length === 0) {
+    tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">No hay usuarios para esta página</td></tr>`;
+    return;
+  }
+
+  tabla.innerHTML = usuariosPagina.map(user => `
+    <tr class="border-b border-white/5 hover:bg-white/5 transition" data-usuario="${user.usuario}">
+      <td class="px-4 py-2 nombre-usuario">${user.usuario}</td>
+      <td class="px-4 py-2 capitalize">${user.rol}</td>
+      <td class="px-6 py-3 w-[180px]">
+  <div class="flex justify-center gap-4">
+    <button onclick="editarUsuario('${user.usuario}')" class="text-emerald-400 hover:text-emerald-300 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition">
+      <i data-lucide="edit" class="w-4 h-4"></i>
+      <span>Editar</span>
+    </button>
+    <button onclick="eliminarUsuario('${user.usuario}')" class="text-red-500 hover:text-red-400 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition">
+      <i data-lucide="trash-2" class="w-4 h-4"></i>
+      <span>Eliminar</span>
+    </button>
+  </div>
+</td>
+
+
+    </tr>
+  `).join("");
+
+  document.getElementById("paginaActual").textContent = pagina;
+  lucide.createIcons();
+
+  actualizarBotonesPaginacion();
+}
+
+function actualizarBotonesPaginacion() {
+  const totalPaginas = Math.ceil(usuariosTotales.length / usuariosPorPagina);
+  const btnPrev = document.getElementById("prevPagina");
+  const btnNext = document.getElementById("nextPagina");
+
+  if (!btnPrev || !btnNext) return;
+
+  btnPrev.disabled = paginaActual === 1;
+  btnNext.disabled = paginaActual === totalPaginas;
 }
 
 /* ==================== ✏️ EDITAR USUARIO ==================== */
@@ -176,41 +220,29 @@ function obtenerRolDeFila(nombre) {
   return fila?.querySelector("td:nth-child(2)")?.textContent || "";
 }
 
-function actualizarFilaDeTabla(originalNombre, nuevoNombre, nuevoRol) {
-  const fila = document.querySelector(`tr[data-usuario="${originalNombre}"]`);
-  if (fila) {
-    fila.setAttribute("data-usuario", nuevoNombre);
-    fila.querySelector(".nombre-usuario").textContent = nuevoNombre;
-    fila.querySelector("td:nth-child(2)").textContent = nuevoRol;
-    fila.querySelector("button[onclick^='editarUsuario']").setAttribute("onclick", `editarUsuario('${nuevoNombre}')`);
-    fila.querySelector("button[onclick^='eliminarUsuario']").setAttribute("onclick", `eliminarUsuario('${nuevoNombre}')`);
-    resaltarFila(fila);
-  }
-}
-
-function resaltarFila(fila) {
-  fila.classList.add("bg-emerald-900");
-  setTimeout(() => fila.classList.remove("bg-emerald-900"), 2000);
-}
-
 /* ==================== 🗑️ ELIMINAR USUARIO ==================== */
+async function eliminarUsuario(nombre) {
+  const confirmado = confirm(`¿Estás seguro de que querés eliminar al usuario "${nombre}"? Esta acción no se puede deshacer.`);
+  if (!confirmado) return;
 
-/* ==================== 🔁 PAGINACIÓN ==================== */
-function iniciarPaginacion() {
-  const btnPrev = document.getElementById("prevPagina");
-  const btnNext = document.getElementById("nextPagina");
-  if (!btnPrev || !btnNext) return;
+  try {
+    const res = await fetch(`/eliminar-usuario/${encodeURIComponent(nombre)}`, {
+      method: "DELETE"
+    });
+    const data = await res.json();
 
-  let pagina = 1;
-  btnPrev.addEventListener("click", () => {
-    if (pagina > 1) pagina--;
-    document.getElementById("paginaActual").textContent = pagina;
-  });
+    if (res.ok && data.ok) {
+      mostrarToast(`✅ Usuario "${nombre}" eliminado`, "success");
 
-  btnNext.addEventListener("click", () => {
-    pagina++;
-    document.getElementById("paginaActual").textContent = pagina;
-  });
+      // Remover la fila visualmente y recargar la página actual para no quedar vacío
+      cargarUsuariosEnTabla();
+    } else {
+      mostrarToast(data.detail || `❌ No se pudo eliminar el usuario "${nombre}"`, "error");
+    }
+  } catch (error) {
+    console.error("Error eliminando usuario:", error);
+    mostrarToast("❌ Error de conexión al intentar eliminar el usuario", "error");
+  }
 }
 
 /* ==================== 💡 MODAL ==================== */
@@ -260,4 +292,27 @@ function mostrarToast(mensaje, tipo = "info") {
     toast.classList.add("opacity-0", "scale-95");
     setTimeout(() => toast.remove(), 300);
   }, 2800);
+}
+
+/* ==================== 🔁 PAGINACIÓN ==================== */
+function iniciarPaginacion() {
+  const btnPrev = document.getElementById("prevPagina");
+  const btnNext = document.getElementById("nextPagina");
+
+  if (!btnPrev || !btnNext) return;
+
+  btnPrev.addEventListener("click", () => {
+    if (paginaActual > 1) {
+      paginaActual--;
+      renderizarPagina(paginaActual);
+    }
+  });
+
+  btnNext.addEventListener("click", () => {
+    const totalPaginas = Math.ceil(usuariosTotales.length / usuariosPorPagina);
+    if (paginaActual < totalPaginas) {
+      paginaActual++;
+      renderizarPagina(paginaActual);
+    }
+  });
 }

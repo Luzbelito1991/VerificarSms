@@ -5,48 +5,48 @@
 {% block contenido %}
 <div class="max-w-6xl mx-auto space-y-8 px-4 sm:px-6 md:px-8 animate-fade-in-up">
 
-  <!-- Encabezado amplio -->
-  <header class="bg-white/5 ring-1 ring-white/10 rounded-xl px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
-    <div>
-      <h1 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight">👋 ¡Hola {{ user }}!</h1>
-      <p class="text-sm text-gray-400 mt-1">Bienvenido a tu panel de gestión interna</p>
+  <!-- Encabezado amplio con rol -->
+  <section class="bg-gray-900 border border-white/10 rounded-xl px-6 py-5 shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="text-3xl">👋</div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Hola {{ user.usuario }}</h1>
+        <p class="text-sm text-gray-300 mt-1">Rol: 
+          {% if user.rol|lower == "admin" %}
+            <span class="text-purple-400 font-semibold">Administrador</span>
+          {% elif user.rol|lower == "operador" %}
+            <span class="text-blue-400 font-semibold">Operador</span>
+          {% else %}
+            <span class="text-gray-400 font-semibold">{{ user.rol }}</span>
+          {% endif %}
+        </p>
+      </div>
     </div>
     <span class="text-sm text-white/70 bg-[#4DA874]/10 border border-[#4DA874]/20 px-3 py-1.5 rounded-full font-medium shadow-sm">Versión 1.0.0</span>
-  </header>
+  </section>
 
-  <!-- Cards métricas -->
-  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- Cards métricas SMS -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
-    <!-- Usuarios activos -->
-    <div class="flex items-center gap-4 bg-white/5 ring-1 ring-white/10 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
-      <div class="bg-[#4DA874]/20 text-[#4DA874] p-2.5 rounded-full">
-        <i data-lucide="users" class="w-6 h-6 stroke-current"></i>
+    <!-- ✅ Mensajes enviados -->
+    <div class="flex items-center gap-4 bg-green-600/10 border border-green-500/30 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
+      <div class="bg-green-600/20 text-green-400 p-3 rounded-full">
+        <i data-lucide="check-circle" class="w-6 h-6 stroke-current"></i>
       </div>
       <div>
-        <p class="text-white font-semibold text-lg leading-snug">12</p>
-        <p class="text-sm text-gray-400">Usuarios activos</p>
+        <p class="text-white font-semibold text-2xl">{{ enviados }}</p>
+        <p class="text-sm text-gray-300">Mensajes enviados</p>
       </div>
     </div>
 
-    <!-- Códigos enviados -->
-    <div class="flex items-center gap-4 bg-white/5 ring-1 ring-white/10 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
-      <div class="bg-blue-600/20 text-blue-400 p-2.5 rounded-full">
-        <i data-lucide="message-square-dots" class="w-6 h-6 stroke-current"></i>
+    <!-- ❌ Mensajes no enviados -->
+    <div class="flex items-center gap-4 bg-red-600/10 border border-red-500/30 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
+      <div class="bg-red-600/20 text-red-400 p-3 rounded-full">
+        <i data-lucide="x-circle" class="w-6 h-6 stroke-current"></i>
       </div>
       <div>
-        <p class="text-white font-semibold text-lg leading-snug">34</p>
-        <p class="text-sm text-gray-400">Códigos enviados hoy</p>
-      </div>
-    </div>
-
-    <!-- Última actividad -->
-    <div class="flex items-center gap-4 bg-white/5 ring-1 ring-white/10 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
-      <div class="bg-zinc-500/20 text-gray-300 p-2.5 rounded-full">
-        <i data-lucide="clock" class="w-6 h-6 stroke-current"></i>
-      </div>
-      <div>
-        <p class="text-white font-semibold text-lg leading-snug">10:42 AM</p>
-        <p class="text-sm text-gray-400">Última actividad</p>
+        <p class="text-white font-semibold text-2xl">{{ no_enviados }}</p>
+        <p class="text-sm text-gray-300">Mensajes no enviados</p>
       </div>
     </div>
 

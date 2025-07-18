@@ -1,6 +1,24 @@
-<!-- 🔁 Paginación -->
-<div class="flex justify-center items-center gap-4 text-white text-sm mt-2">
-  <button id="prevPagina" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-40" disabled>Anterior</button>
-  <span>Página <span id="paginaActual">1</span></span>
-  <button id="nextPagina" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-40">Siguiente</button>
+<!-- 🔁 Paginación visual coherente -->
+<div class="mt-4 flex justify-center items-center gap-6 text-sm text-gray-100">
+  <!-- ⏮️ Botón anterior -->
+  <button
+    id="prevPagina"
+    class="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+    disabled
+  >
+    ← Anterior
+  </button>
+
+  <!-- 📄 Indicador de página -->
+  <span class="font-medium tracking-wide">
+    Página <span id="paginaActual" class="text-emerald-400">1</span>
+  </span>
+
+  <!-- ⏭️ Botón siguiente -->
+  <button
+    id="nextPagina"
+    class="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+  >
+    Siguiente →
+  </button>
 </div>

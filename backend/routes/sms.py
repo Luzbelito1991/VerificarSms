@@ -1,16 +1,17 @@
-# backend/sms.py
-
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, constr
-from backend.database import SessionLocal
-from backend.models import Verificacion
+from sqlalchemy.orm import Session
 from datetime import date
 from dotenv import load_dotenv
 import unicodedata
-import hashlib
 import random
 import requests
 import os
+
+from backend.database import get_db
+from backend.models import Verificacion, Usuario
+from backend.auth_utils import get_current_user
+
 
 load_dotenv()
 
@@ -19,33 +20,33 @@ MODO_SIMULADO = os.getenv("SMS_MODO_SIMULADO", "false").lower() == "true"
 
 router = APIRouter()
 
-# 📦 Datos que se esperan del frontend para enviar un SMS
+# 📦 Datos del frontend para enviar un SMS
 class SmsRequest(BaseModel):
     personId: constr(min_length=7, max_length=15)
-    phoneNumber: constr(min_length=10, max_length=15)
+    phoneNumber: constr(min_length=10, max_length=15)  # ✅ número celular
     merchantCode: constr(min_length=3, max_length=3)
     verificationCode: str | None = None
 
-# 🔢 Generar código aleatorio de 4 dígitos
+# 🔢 Generar código aleatorio
 def generate_code() -> str:
     return str(random.randint(1000, 9999))
 
-# 🔤 Eliminar tildes del mensaje SMS
+# 🔤 Eliminar tildes del mensaje
 def limpiar_mensaje(texto: str) -> str:
     return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
 
-# 🏪 Traducir código de sucursal a nombre
+# 🏪 Nombre legible de sucursal
 def nombre_sucursal(codigo: str) -> str:
     mapa = {
-        "776": "Alberdi",
-        "777": "Lules",
-        "778": "Famailla",
-        "779": "Alderetes",
-        "781": "Banda de Rio Sali"
+        "776": "776",
+        "777": "777",
+        "778": "778",
+        "779": "779",
+        "781": "781"
     }
     return mapa.get(codigo, "Sucursal desconocida")
 
-# 📡 Enviar el SMS real, o simulado si está activado
+# 📡 Envío real o simulado de SMS
 def send_sms(phone: str, message: str):
     if MODO_SIMULADO:
         print(f"[SIMULADO] SMS a {phone}: {message}")
@@ -65,9 +66,14 @@ def send_sms(phone: str, message: str):
     except Exception as e:
         return False, str(e)
 
-# 📲 Endpoint para manejar el envío y registrar en base
-@router.post("/send-sms")
-def handle_sms(data: SmsRequest):
+# 📲 Enviar y registrar SMS en la base
+@router.post("/send-sms", response_model=None)
+def handle_sms(
+    request: Request,
+    data: SmsRequest,
+    db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user)
+):
     code = data.verificationCode or generate_code()
     texto = f"{data.merchantCode} Limite Deportes {nombre_sucursal(data.merchantCode)} - DNI: {data.personId} - Su Codigo es: {code}"
     mensaje = limpiar_mensaje(texto)
@@ -76,18 +82,19 @@ def handle_sms(data: SmsRequest):
     if not ok:
         raise HTTPException(status_code=400, detail=respuesta)
 
-    db = SessionLocal()
-    try:
-        verif = Verificacion(
-            person_id=data.personId,
-            merchant_code=data.merchantCode,
-            verification_code=code,
-            fecha=date.today()
-        )
-        db.add(verif)
-        db.commit()
-    finally:
-        db.close()
+    # ✅ Guardar celular en la verificación
+    verif = Verificacion(
+        person_id=data.personId,
+        phone_number=data.phoneNumber,
+        merchant_code=data.merchantCode,
+        verification_code=code,
+        fecha=date.today(),
+        usuario_id=user.id
+    )
+    db.add(verif)
+    db.commit()
+
+    print("📦 Verificación guardada:", verif.person_id, verif.phone_number, verif.verification_code)
 
     return {
         "message": "SMS enviado correctamente",

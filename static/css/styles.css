@@ -1,10 +1,11 @@
+
 * {
   box-sizing: border-box;
 }
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #f0fdf6, #ffffff);
+  background: linear-gradient(to right, #fd00d7, #ffffff);
   margin: 0;
   padding: 2rem;
   display: flex;
@@ -20,23 +21,18 @@ form {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 500px;
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fade-in 0.5s ease-in-out;
 }
 
-
-
-
+/* Animación de aparición */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
-
-
-
-
 
 h2 {
   text-align: center;
@@ -85,7 +81,7 @@ button:hover {
 
 button:active {
   transform: scale(0.98);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .refresh-btn {
@@ -114,11 +110,11 @@ button:active {
   text-align: center;
 }
 
-.success {
+.sms-success {
   color: #2e7d32;
 }
 
-.error {
+.sms-error {
   color: #d32f2f;
 }
 
@@ -131,14 +127,14 @@ button:active {
   color: #000;
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fade-in 0.5s ease-in-out;
 }
 
 #modal {
   display: none;
   position: fixed;
   inset: 0;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   justify-content: center;
   align-items: center;
@@ -150,7 +146,7 @@ button:active {
   border-radius: 10px;
   max-width: 400px;
   text-align: center;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 600px) {
@@ -166,3 +162,16 @@ button:active {
     font-size: 0.95rem;
   }
 }
+
+/* Estructura para tabla scrollable */
+/*
+#tablaAdminSMS thead,
+#tablaAdminSMS tbody {
+  display: block;
+}
+
+#tablaAdminSMS tbody {
+  max-height: 260px;
+  overflow-y: auto;
+}
+*/

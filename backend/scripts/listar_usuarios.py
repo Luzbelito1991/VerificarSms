@@ -1,3 +1,6 @@
+# ⚙️ Script de consola para listar usuarios desde la base de datos.
+# No forma parte del backend, se usa para pruebas o mantenimiento manual.
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))

@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block title %}Administración SMS{% endblock %}
+
+{% block contenido %}
+<section class="space-y-6 animate-fade-in-down">
+  <!-- 🟢 Encabezado visual -->
+  <h2 class="text-white text-lg font-semibold flex items-center gap-2">
+    <i data-lucide="message-circle" class="w-5 h-5 text-emerald-400"></i>
+    Administración SMS
+  </h2>
+  <p class="text-gray-400 text-sm italic mt-1">
+    Historial de mensajes enviados con filtros por fecha, estado y usuario
+  </p>
+
+  <!-- 🎛️ Filtros -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <div>
+      <label for="usuarioSelect" class="block mb-1 text-sm">Usuario</label>
+      <select id="usuarioSelect" class="w-full bg-gray-800 text-white rounded px-3 py-2">
+        <option value="">Todos</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="fechaInicio" class="block mb-1 text-sm">Desde</label>
+      <input type="date" id="fechaInicio" class="w-full bg-gray-800 text-white rounded px-3 py-2" />
+    </div>
+
+    <div>
+      <label for="fechaFin" class="block mb-1 text-sm">Hasta</label>
+      <input type="date" id="fechaFin" class="w-full bg-gray-800 text-white rounded px-3 py-2" />
+    </div>
+
+    <div>
+      <label for="estadoSelect" class="block mb-1 text-sm">Estado</label>
+      <select id="estadoSelect" class="w-full bg-gray-800 text-white rounded px-3 py-2">
+        <option value="">Todos</option>
+        <option value="enviado">Enviado</option>
+        <option value="fallido">Fallido</option>
+        <option value="pendiente">Pendiente</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- 🔘 Botones -->
+  <div class="flex items-center gap-4">
+    <button onclick="aplicarFiltros()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-white text-sm transition">Aplicar filtros</button>
+    <button onclick="exportarExcel()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-white text-sm transition">Exportar a Excel</button>
+
+    {% if current_user.rol == "admin" %}
+    <button onclick="confirmarVaciado()" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded text-white text-sm transition">
+      🗑 Vaciar historial
+    </button>
+    {% endif %}
+  </div>
+
+  <!-- 📊 Tabla de SMS enviados -->
+  <div class="relative overflow-x-auto border border-white/10 rounded-lg shadow-lg min-h-[320px]">
+    <table id="tablaAdminSMS" class="min-w-full text-sm table-fixed">
+      <thead class="bg-gray-900 text-gray-300">
+        <tr>
+          <th class="px-4 py-2 text-left w-[100px]">DNI</th>
+          <th class="px-4 py-2 text-left w-[130px]">Celular</th>
+          <th class="px-4 py-2 text-left w-[140px]">Sucursal</th>
+          <th class="px-4 py-2 text-left w-[160px]">Código Enviado</th>
+          <th class="px-4 py-2 text-left w-[140px]">Usuario</th>
+          <th class="px-4 py-2 text-left w-[130px]">Fecha</th>
+          <th class="px-4 py-2 text-left w-[110px]">Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tablaBody" class="divide-y divide-white/10">
+        <!-- Las filas serán insertadas desde JS -->
+      </tbody>
+    </table>
+
+    <!-- 🌀 Overlay de carga -->
+    <div id="tablaCargando" class="absolute inset-0 bg-gray-950 bg-opacity-60 text-white text-sm flex items-center justify-center hidden">
+      Cargando registros...
+    </div>
+  </div>
+
+  <!-- 📊 Indicador de rango -->
+  <div id="rangoRegistros" class="mt-4 text-center text-gray-300 text-sm italic">
+    Mostrando registros 1–5
+  </div>
+
+  <!-- 🔁 Paginación -->
+  <div class="flex justify-center items-center gap-4 text-white text-sm mt-6">
+    <button id="prevPagina" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-40" disabled>Anterior</button>
+    <span>Página <span id="paginaActual">1</span></span>
+    <button id="nextPagina" class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-40">Siguiente</button>
+  </div>
+
+  <!-- 🧪 Clase oculta para forzar animación en compilado Tailwind -->
+  <div class="animate-fade-in hidden"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="/static/js/sms_admin.js"></script>
+  <script>lucide.createIcons();</script>
+{% endblock %}

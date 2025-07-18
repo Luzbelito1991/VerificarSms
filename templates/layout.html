@@ -8,6 +8,7 @@
   <!-- Tailwind + estilos + fuentes + íconos -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/css/style.css" />
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -36,13 +37,14 @@
   <!-- 🧭 Sidebar (visible solo si hay usuario) -->
   <aside class="fixed top-0 left-0 w-[22rem] h-screen bg-white/5 backdrop-blur-md border-r border-white/10 flex flex-col justify-between py-6 px-6 z-50 shadow-xl">
     <div class="space-y-8">
-      <!-- 🚩 Logo + branding -->
+      <!-- 🚩 Logo + branding enlazado -->
       <div class="flex items-center gap-3 group">
         <img src="/static/images/q.png" alt="Logo Quilmes"
              class="w-8 h-8 sm:w-9 sm:h-9 object-contain transition-transform duration-200 group-hover:scale-105" />
-        <span class="text-2xl font-bold text-white tracking-wide transition-colors duration-200 group-hover:text-emerald-300">
+        <a href="/home"
+           class="text-2xl font-bold text-white tracking-wide transition-colors duration-200 group-hover:text-emerald-300">
           {% block brand %}LOS QUILMES S.A{% endblock %}
-        </span>
+        </a>
       </div>
 
       <!-- 📂 Navegación -->
@@ -52,10 +54,19 @@
           📱 Verificación SMS
         </a>
 
+        {% if user.rol|lower in ["admin", "operador"] %}
+        <a href="/admin/sms"
+           class="w-full flex items-center justify-between py-2.5 px-4 rounded-md bg-purple-700 hover:bg-purple-600 text-white transition">
+          ✉️ Panel de SMS
+        </a>
+        {% endif %}
+
+        {% if user.rol|lower == "admin" %}
         <a href="/mantenimiento/gestion"
            class="w-full flex items-center justify-between py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-500 text-white transition">
           👤 Administración del sistema
         </a>
+        {% endif %}
 
         <a href="/logout"
            class="flex items-center justify-between py-2.5 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white transition">
@@ -66,7 +77,7 @@
 
     <!-- 📎 Pie del menú lateral -->
     <footer class="text-xs text-gray-400 border-t border-white/10 pt-4 leading-snug">
-      👋 {{ user }}<br />
+      👋 {{ user.usuario }}<br />
       Versión 1.0.0<br />
       Soporte: soporte@quilmes.com
     </footer>
@@ -74,7 +85,19 @@
   {% endif %}
 
   <!-- 🎯 Contenido principal -->
-  <main class="{% if user is not none and user != '' %}ml-[22rem]{% endif %} px-4 pt-6 pb-10 space-y-6 animate-fade-in-up transition-all duration-300 ease-out">
+  <main class="{% if user is not none and user != '' %}ml-[22rem]{% endif %} px-4 pt-6 pb-10 space-y-6 animate-fade-in-up">
+
+    {% if mostrar_boton_volver %}
+    <!-- 🔙 Botón Volver al Home -->
+    <div class="mb-2">
+      <a href="/home"
+         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white/10 text-white hover:bg-white/20 transition rounded-md">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Volver al Home</span>
+      </a>
+    </div>
+    {% endif %}
+
     {% block contenido %}{% endblock %}
   </main>
 

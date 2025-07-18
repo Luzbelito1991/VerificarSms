@@ -1,6 +1,9 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy.orm import relationship
+from datetime import date
 from backend.database import Base
 
+# 👤 Usuario que envía SMS
 class Usuario(Base):
     __tablename__ = "usuarios"
 
@@ -9,15 +12,18 @@ class Usuario(Base):
     hash_password = Column(String(64), nullable=False)
     rol = Column(String(20), nullable=False)
 
-from sqlalchemy import Column, Integer, String, Date
-from datetime import date
-from backend.database import Base
+    verificaciones = relationship("Verificacion", back_populates="usuario")
 
+# ✅ Verificación de SMS
 class Verificacion(Base):
     __tablename__ = "verificaciones"
 
     id = Column(Integer, primary_key=True, index=True)
-    person_id = Column(String, index=True)
+    person_id = Column(String, index=True)             # DNI
+    phone_number = Column(String, nullable=False)      # 📱 Número celular
     merchant_code = Column(String, index=True)
     verification_code = Column(String, index=True)
     fecha = Column(Date, default=date.today)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+
+    usuario = relationship("Usuario", back_populates="verificaciones")

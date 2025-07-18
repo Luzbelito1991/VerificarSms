@@ -1,26 +1,24 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, HTTPException, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
 from dotenv import load_dotenv
 import os
 
-# Cargar variables de entorno antes de todo
+# --- Cargar variables de entorno ---
 load_dotenv()
-
-# Validar SECRET_KEY
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise RuntimeError("Falta SECRET_KEY en el entorno")
 
-# --- Inicialización de la app ---
+# --- Inicializar app FastAPI ---
 app = FastAPI()
 
-# --- Middleware ---
+# --- Middlewares ---
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 app.add_middleware(
     CORSMiddleware,
@@ -33,29 +31,37 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# --- Base de datos y modelos ---
+# --- Inicializar base de datos ---
 from backend.init_db import init_db
 from backend.database import get_db
-from backend.models import Usuario
+from backend.models import Usuario, Verificacion
+from backend.auth_utils import get_current_user
 
-# Inicializar DB (solo si es seguro hacerlo aquí)
 init_db()
 
-# --- Routers modularizados ---
-from backend.usuarios import router as usuarios_router
-from backend.sms import router as sms_router
+# --- Routers (módulo routes) ---
+from backend.routes.usuarios import router as usuarios_router
+from backend.routes.sms import router as sms_router
+from backend.routes.admin_sms import admin_router
 
 app.include_router(usuarios_router)
 app.include_router(sms_router)
+app.include_router(admin_router)
 
-# --- Función auxiliar para verificación de sesión ---
-def login_required(request: Request):
-    user = request.session.get("usuario")
-    if not user:
-        return None
-    return user
+# ============================
+# 💡 AUXILIAR PARA PLANTILLAS
+# ============================
+def render_template_protegido(template_name: str, request: Request, context: dict):
+    if "user" in context and "current_user" not in context:
+        context["current_user"] = context["user"]
+    return templates.TemplateResponse(template_name, {
+        "request": request,
+        **context
+    })
 
-# --- Rutas HTML ---
+# ============================
+# 🌐 RUTAS HTML PÚBLICAS
+# ============================
 @app.get("/")
 def mostrar_login(request: Request):
     return templates.TemplateResponse("index.html", {
@@ -63,48 +69,72 @@ def mostrar_login(request: Request):
         "user": None
     })
 
-@app.get("/verificar")
-def mostrar_verificar(request: Request):
-    user = login_required(request)
-    if not user:
-        return RedirectResponse("/", status_code=302)
-    return templates.TemplateResponse("formVerificadorsms.html", {
-        "request": request,
-        "user": user
-    })
-
-@app.get("/home")
-def home(request: Request):
-    user = login_required(request)
-    if not user:
-        return RedirectResponse("/", status_code=302)
-    return templates.TemplateResponse("home.html", {
-        "request": request,
-        "user": user
-    })
-
 @app.get("/logout")
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/", status_code=302)
 
-# --- API: Lista de usuarios (protegida) ---
-@app.get("/usuarios")
-def obtener_usuarios(request: Request, db: Session = Depends(get_db)):
-    user = login_required(request)
-    if not user:
-        return RedirectResponse("/", status_code=302)
+# ============================
+# 🔐 RUTAS HTML PROTEGIDAS
+# ============================
+@app.get("/home")
+def home(request: Request, user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    enviados = db.query(Verificacion).filter(Verificacion.verification_code != None).count()
+    no_enviados = db.query(Verificacion).filter(Verificacion.verification_code == None).count()
 
-    usuarios = db.query(Usuario).all()
-    return [{"usuario": u.usuario, "rol": u.rol} for u in usuarios]
+    return render_template_protegido("home.html", request, {
+        "user": user,
+        "enviados": enviados,
+        "no_enviados": no_enviados
+    })
 
-# --- Ruta HTML protegida ---
-@app.get("/mantenimiento/gestion")
-def mantenimiento_unificado(request: Request):
-    user = login_required(request)
-    if not user:
-        return RedirectResponse("/", status_code=302)
-    return templates.TemplateResponse("usuarios/gestion_usuarios.html", {
-        "request": request,
+@app.get("/verificar")
+def mostrar_verificar(request: Request, user: Usuario = Depends(get_current_user)):
+    return render_template_protegido("formVerificadorsms.html", request, {
         "user": user
     })
+
+@app.get("/mantenimiento/gestion")
+def mantenimiento_unificado(request: Request, user: Usuario = Depends(get_current_user)):
+    return render_template_protegido("usuarios/gestion_usuarios.html", request, {
+        "user": user
+    })
+
+# ============================
+# 📊 API JSON PROTEGIDA
+# ============================
+@app.get("/usuarios")
+def obtener_usuarios(
+    search: str = Query("", alias="search"),
+    db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user)
+):
+    query = db.query(Usuario)
+
+    if search.strip():
+        palabras = search.strip().lower().split()[:2]
+        patron = " ".join(palabras)
+        query = query.filter(Usuario.usuario.ilike(f"{patron}%"))
+
+    usuarios = query.all()
+    return [{"usuario": u.usuario, "rol": u.rol} for u in usuarios]
+
+# ============================
+# ✉️ VISTA ADMIN - PANEL DE SMS
+# ============================
+@app.get("/admin/sms", response_class=HTMLResponse)
+def vista_sms_admin(request: Request, user: Usuario = Depends(get_current_user)):
+    if user.rol.lower() not in ["admin", "operador"]:
+
+       raise HTTPException(status_code=403, detail="Acceso denegado")
+
+    return render_template_protegido("admin/vista_admin_sms.html", request, {
+        "user": user
+    })
+
+# ============================
+# 🧪 Ruta de test
+# ============================
+@app.get("/test")
+def test():
+    return {"status": "ok"}

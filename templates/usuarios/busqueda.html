@@ -1,10 +1,23 @@
-<!-- 🔍 Búsqueda + Botón alta -->
-<div class="flex justify-between items-center mt-4 gap-4">
-  <input type="text" id="buscarUsuarioTabla" placeholder="Buscar usuario..."
-         class="w-full max-w-xs bg-gray-800 border border-gray-700 px-3 py-1.5 text-sm rounded-md text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-400 outline-none transition" />
+<!-- 🔎 Campo de búsqueda + botón en línea -->
+<div class="flex items-center gap-3 mt-4">
+  <!-- 🔍 Input con ícono -->
+  <div class="relative sm:w-[240px] w-full">
+    <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 pointer-events-none">
+      <i data-lucide="search" class="w-4 h-4"></i>
+    </span>
+    <input
+      type="text"
+      id="buscarUsuarioTabla"
+      placeholder="Buscar nombre..."
+      class="pl-9 pr-3 py-1.5 w-full bg-gray-800 border border-gray-700 text-sm rounded-md text-white placeholder-gray-500 focus:ring-2 focus:ring-emerald-400 outline-none transition"
+    />
+  </div>
 
-  <button id="mostrarFormularioBtn"
-          class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 text-sm font-medium rounded-md flex items-center gap-1">
-    <i data-lucide="plus" class="w-4 h-4"></i> Nuevo usuario
+  <!-- ➕ Botón delgado alineado -->
+  <button
+    onclick="abrirModal()"
+    class="h-[32px] px-3 flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs font-medium transition whitespace-nowrap"
+  >
+    <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Usuario
   </button>
 </div>

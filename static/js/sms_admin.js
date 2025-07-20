@@ -204,3 +204,24 @@ async function exportarExcel() {
     alert("Error al exportar registros. Detalle: " + error.message);
   }
 }
+
+
+function limpiarFiltros() {
+  // Reset visual de inputs
+  document.getElementById("usuarioSelect").selectedIndex = 0;
+  document.getElementById("fechaInicio").value = "";
+  document.getElementById("fechaFin").value = "";
+  document.getElementById("estadoSelect").selectedIndex = 0;
+
+  // Reset de variables globales
+  filtroUsuario = "";
+  filtroFechaInicio = "";
+  filtroFechaFin = "";
+  filtroEstado = "";
+
+  // Actualizar visualmente tabla
+  paginaActual = 1;
+  obtenerTotalRegistros().then(() => {
+    cargarPagina();
+  });
+}

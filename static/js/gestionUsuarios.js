@@ -2,7 +2,6 @@ let usuariosTotales = [];
 let paginaActual = 1;
 const usuariosPorPagina = 5;
 let coincidenciasActivas = null;
-let ultimoRenderizado = "";
 
 document.addEventListener("DOMContentLoaded", () => {
   iniciarBusqueda();
@@ -17,7 +16,7 @@ function obtenerFuenteActual() {
   return coincidenciasActivas || usuariosTotales;
 }
 
-/* 🔍 BÚSQUEDA desde backend con debounce */
+/* 🔍 Búsqueda con debounce desde backend */
 function iniciarBusqueda() {
   const input = document.getElementById("buscarUsuarioTabla");
   if (!input) return;
@@ -28,7 +27,6 @@ function iniciarBusqueda() {
     clearTimeout(debounceTimeout);
 
     const filtro = input.value.trim().toLowerCase();
-
     input.classList.toggle("ring-emerald-400", filtro.length >= 2);
     input.classList.toggle("ring-0", filtro.length < 2);
 
@@ -53,57 +51,27 @@ function iniciarBusqueda() {
   });
 }
 
-/* ✅ Render sin parpadeo */
-function renderizarSinPaginacion() {
+/* 📦 Cargar todos los usuarios al inicio */
+async function cargarUsuariosEnTabla() {
   const tabla = document.getElementById("tablaUsuariosBody");
-  if (!tabla) return;
+  if (!tabla || coincidenciasActivas) return;
 
-  const fuente = obtenerFuenteActual();
-  tabla.innerHTML = "";
+  tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">Cargando usuarios...</td></tr>`;
 
-  if (!fuente.length) {
-    tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">No hay coincidencias</td></tr>`;
-  } else {
-    const fragmento = document.createDocumentFragment();
-
-    fuente.forEach(user => {
-      const fila = document.createElement("tr");
-      fila.className = "fila-usuario border-b border-white/5 hover:bg-white/5 transition opacity-0";
-      fila.dataset.usuario = user.usuario;
-
-      fila.innerHTML = `
-        <td class="px-4 py-2 nombre-usuario">${user.usuario}</td>
-        <td class="px-4 py-2 capitalize">${user.rol}</td>
-        <td class="px-6 py-3 w-[180px]">
-          <div class="flex justify-center gap-4">
-            <button onclick="editarUsuario('${user.usuario}')" class="text-emerald-400 hover:text-emerald-300 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition">
-              <i data-lucide="edit" class="w-4 h-4"></i><span>Editar</span>
-            </button>
-            <button onclick="eliminarUsuario('${user.usuario}')" class="text-red-500 hover:text-red-400 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition">
-              <i data-lucide="trash-2" class="w-4 h-4"></i><span>Eliminar</span>
-            </button>
-          </div>
-        </td>
-      `;
-      fragmento.appendChild(fila);
-    });
-
-    tabla.appendChild(fragmento);
+  try {
+    const res = await fetch("/usuarios");
+    const data = await res.json();
+    usuariosTotales = data;
+    coincidenciasActivas = null;
+    paginaActual = 1;
+    renderizarPagina(paginaActual);
+  } catch (error) {
+    console.error("Error al cargar usuarios:", error);
+    tabla.innerHTML = `<tr><td colspan="3" class="text-center text-red-500 italic py-3">Error al cargar usuarios</td></tr>`;
   }
-
-  document.getElementById("paginaActual").textContent = "-";
-  setTimeout(() => lucide.createIcons(), 0);
-  actualizarBotonesPaginacion();
-
-  requestAnimationFrame(() => {
-    tabla.querySelectorAll(".fila-usuario").forEach(tr => {
-      tr.style.transition = "opacity 0.25s ease";
-      tr.style.opacity = "1";
-    });
-  });
 }
 
-/* 🧮 Render por página */
+/* 🧮 Renderizar por página */
 function renderizarPagina(pagina) {
   const tabla = document.getElementById("tablaUsuariosBody");
   if (!tabla) return;
@@ -137,7 +105,57 @@ function renderizarPagina(pagina) {
   actualizarBotonesPaginacion();
 }
 
-/* 🔁 Paginación básica */
+/* 👁️ Render sin paginación (usado en búsqueda) */
+function renderizarSinPaginacion() {
+  const tabla = document.getElementById("tablaUsuariosBody");
+  if (!tabla) return;
+
+  const fuente = obtenerFuenteActual();
+  tabla.innerHTML = "";
+
+  if (!fuente.length) {
+    tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">No hay coincidencias</td></tr>`;
+  } else {
+    const fragmento = document.createDocumentFragment();
+
+    fuente.forEach(user => {
+      const fila = document.createElement("tr");
+      fila.className = "border-b border-white/5 hover:bg-white/5 transition opacity-0";
+      fila.dataset.usuario = user.usuario;
+
+      fila.innerHTML = `
+        <td class="px-4 py-2 nombre-usuario">${user.usuario}</td>
+        <td class="px-4 py-2 capitalize">${user.rol}</td>
+        <td class="px-6 py-3 w-[180px]">
+          <div class="flex justify-center gap-4">
+            <button onclick="editarUsuario('${user.usuario}')" class="text-emerald-400 hover:text-emerald-300 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition">
+              <i data-lucide="edit" class="w-4 h-4"></i><span>Editar</span>
+            </button>
+            <button onclick="eliminarUsuario('${user.usuario}')" class="text-red-500 hover:text-red-400 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i><span>Eliminar</span>
+            </button>
+          </div>
+        </td>
+      `;
+      fragmento.appendChild(fila);
+    });
+
+    tabla.appendChild(fragmento);
+  }
+
+  document.getElementById("paginaActual").textContent = "-";
+  setTimeout(() => lucide.createIcons(), 0);
+  actualizarBotonesPaginacion();
+
+  requestAnimationFrame(() => {
+    tabla.querySelectorAll("tr").forEach(tr => {
+      tr.style.transition = "opacity 0.25s ease";
+      tr.style.opacity = "1";
+    });
+  });
+}
+
+/* 🔁 Navegación de paginación visual */
 function iniciarPaginacion() {
   const btnPrev = document.getElementById("prevPagina");
   const btnNext = document.getElementById("nextPagina");
@@ -160,50 +178,28 @@ function iniciarPaginacion() {
   });
 }
 
+/* 📊 Actualizar botones y rango visual */
 function actualizarBotonesPaginacion() {
   const fuente = obtenerFuenteActual();
   const totalPaginas = Math.ceil(fuente.length / usuariosPorPagina);
   const btnPrev = document.getElementById("prevPagina");
   const btnNext = document.getElementById("nextPagina");
   const infoLabel = document.getElementById("infoPaginacion");
+
   const inicio = (paginaActual - 1) * usuariosPorPagina + 1;
   const fin = Math.min(inicio + usuariosPorPagina - 1, fuente.length);
 
   if (infoLabel) {
-    infoLabel.textContent = `Mostrando registros ${inicio}–${fin} de ${fuente.length}`;
+    infoLabel.textContent = `Mostrando usuarios ${inicio}–${fin} de ${fuente.length}`;
   }
 
-  if (!btnPrev || !btnNext || coincidenciasActivas) {
-    btnPrev.disabled = true;
-    btnNext.disabled = true;
-    return;
-  }
+  const paginable = !coincidenciasActivas && fuente.length > 0;
 
-  btnPrev.disabled = paginaActual === 1;
-  btnNext.disabled = paginaActual >= totalPaginas;
+  btnPrev.disabled = !paginable || paginaActual === 1;
+  btnNext.disabled = !paginable || paginaActual >= totalPaginas;
 }
 
-/* 📦 Cargar todos los usuarios */
-async function cargarUsuariosEnTabla() {
-  const tabla = document.getElementById("tablaUsuariosBody");
-  if (!tabla || coincidenciasActivas) return;
-
-  tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">Cargando usuarios...</td></tr>`;
-
-  try {
-    const res = await fetch("/usuarios");
-    const data = await res.json();
-    usuariosTotales = data;
-    coincidenciasActivas = null;
-    paginaActual = 1;
-    renderizarPagina(paginaActual);
-  } catch (error) {
-    console.error("Error al cargar usuarios:", error);
-    tabla.innerHTML = `<tr><td colspan="3" class="text-center text-red-500 italic py-3">Error al cargar usuarios</td></tr>`;
-  }
-}
-
-/* ✏️ Formulario Crear/Editar */
+/* 👤 Crear y editar usuario */
 function iniciarFormulario() {
   const form = document.getElementById("userForm");
   if (!form) return;
@@ -215,13 +211,13 @@ function iniciarFormulario() {
       return;
     }
 
-        const modo = document.getElementById("modo").value;
+    const modo = document.getElementById("modo").value;
     const nombre = document.getElementById("usuario").value.trim();
-    const password = document.getElementById("password").value;
+        const password = document.getElementById("password").value;
     const rol = document.getElementById("rol").value;
     const original = document.getElementById("originalUsuario").value;
 
-    // 🔎 Validar duplicado al editar
+    // 🔍 Validar duplicado al editar
     if (modo === "editar" && nombre !== original) {
       const existe = usuariosTotales.some(u => u.usuario.toLowerCase() === nombre.toLowerCase());
       if (existe) {
@@ -231,11 +227,7 @@ function iniciarFormulario() {
       }
     }
 
-    const payload = JSON.stringify({
-      nuevo_usuario: nombre,
-      password,
-      rol
-    });
+    const payload = JSON.stringify({ nuevo_usuario: nombre, password, rol });
 
     try {
       let res;
@@ -271,6 +263,7 @@ function iniciarFormulario() {
   });
 }
 
+/* ✅ Validar campos antes de enviar */
 function validarCampos() {
   const usuario = document.getElementById("usuario");
   const rol = document.getElementById("rol");
@@ -293,6 +286,7 @@ function validarCampos() {
   return valido;
 }
 
+/* 🔄 Reiniciar formulario */
 function reiniciarFormulario() {
   document.getElementById("modo").value = "crear";
   document.getElementById("submitLabel").textContent = "Crear";
@@ -305,6 +299,7 @@ function reiniciarFormulario() {
   document.getElementById("rol").classList.remove("border-red-500", "ring-red-500");
 }
 
+/* ✏️ Cargar datos para edición */
 async function editarUsuario(nombre) {
   document.getElementById("modo").value = "editar";
   document.getElementById("submitLabel").textContent = "Actualizar";
@@ -331,16 +326,13 @@ async function editarUsuario(nombre) {
   abrirModal();
 }
 
-
-
+/* 🗑️ Eliminar usuario */
 async function eliminarUsuario(nombre) {
   const confirmado = confirm(`¿Querés eliminar al usuario "${nombre}"? Esta acción no se puede deshacer.`);
   if (!confirmado) return;
 
   try {
-    const res = await fetch(`/eliminar-usuario/${encodeURIComponent(nombre)}`, {
-      method: "DELETE"
-    });
+    const res = await fetch(`/eliminar-usuario/${encodeURIComponent(nombre)}`, { method: "DELETE" });
     const data = await res.json();
 
     if (res.ok && data.ok) {
@@ -355,6 +347,7 @@ async function eliminarUsuario(nombre) {
   }
 }
 
+/* 🧩 Modal de usuario */
 function iniciarModal() {
   const btnMostrar = document.getElementById("mostrarFormularioBtn");
   if (!btnMostrar) return;
@@ -381,6 +374,7 @@ function cerrarModal() {
   document.body.style.overflow = "";
 }
 
+/* 🍞 Toast de feedback */
 function mostrarToast(mensaje, tipo = "info") {
   const colores = {
     success: "bg-emerald-600",

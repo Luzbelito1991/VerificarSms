@@ -1,0 +1,26 @@
+<div class="relative">
+  <!-- 🌀 Overlay de carga -->
+  <div id="tablaCargando" class="absolute inset-0 bg-gray-950/60 text-white text-sm flex items-center justify-center hidden z-10">
+    Cargando registros...
+  </div>
+
+  <!-- 📋 Scroll interno para tabla -->
+  <div class="overflow-y-auto max-h-[300px] pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent rounded-md">
+    <table id="tablaAdminSMS" class="min-w-full text-sm table-fixed">
+      <thead class="bg-gray-900 text-gray-300">
+        <tr>
+          <th class="px-4 py-2 text-left w-[100px]">DNI</th>
+          <th class="px-4 py-2 text-left w-[130px]">Celular</th>
+          <th class="px-4 py-2 text-left w-[140px]">Sucursal</th>
+          <th class="px-4 py-2 text-left w-[160px]">Código Enviado</th>
+          <th class="px-4 py-2 text-left w-[140px]">Usuario</th>
+          <th class="px-4 py-2 text-left w-[130px]">Fecha</th>
+          <th class="px-4 py-2 text-left w-[110px]">Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tablaBody" class="divide-y divide-white/10 min-h-[240px]">
+        <!-- Las filas se insertan dinámicamente desde JS -->
+      </tbody>
+    </table>
+  </div>
+</div>

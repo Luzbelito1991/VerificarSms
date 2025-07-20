@@ -1,12 +1,15 @@
 {
   "name": "verificarsms",
   "version": "1.0.0",
+  "description": "Sistema visual con Tailwind compilado",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css --watch",
+    "build": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css",
+    "clean": "del ./static/css/style.css"
   },
   "keywords": [],
-  "author": "",
+  "author": "Fernando",
   "license": "ISC",
   "dependencies": {
     "browserslist": "^4.25.0",
@@ -22,7 +25,6 @@
     "source-map-js": "^1.2.1",
     "update-browserslist-db": "^1.1.3"
   },
-  "description": "",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",

@@ -125,7 +125,6 @@ def obtener_usuarios(
 @app.get("/admin/sms", response_class=HTMLResponse)
 def vista_sms_admin(request: Request, user: Usuario = Depends(get_current_user)):
     if user.rol.lower() not in ["admin", "operador"]:
-
        raise HTTPException(status_code=403, detail="Acceso denegado")
 
     return render_template_protegido("admin/vista_admin_sms.html", request, {
@@ -133,8 +132,8 @@ def vista_sms_admin(request: Request, user: Usuario = Depends(get_current_user))
     })
 
 # ============================
-# 🧪 Ruta de test
+# 🧪 PANEL TEST VISUAL
 # ============================
-@app.get("/test")
-def test():
-    return {"status": "ok"}
+@app.get("/test_visual", response_class=HTMLResponse)
+def test_visual(request: Request):
+    return templates.TemplateResponse("test_visual.html", {"request": request})

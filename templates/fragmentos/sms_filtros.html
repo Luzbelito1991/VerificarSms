@@ -1,0 +1,33 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+  <!-- 👤 Usuario -->
+  <div>
+    <label for="usuarioSelect" class="block mb-1 text-sm">Usuario</label>
+    <select id="usuarioSelect" class="w-full bg-gray-800 text-white rounded px-3 py-2">
+      <option value="">Todos</option>
+      <!-- Opciones dinámicas desde JS -->
+    </select>
+  </div>
+
+  <!-- 📅 Fecha Inicio -->
+  <div>
+    <label for="fechaInicio" class="block mb-1 text-sm">Desde</label>
+    <input type="date" id="fechaInicio" class="w-full bg-gray-800 text-white rounded px-3 py-2" />
+  </div>
+
+  <!-- 📅 Fecha Fin -->
+  <div>
+    <label for="fechaFin" class="block mb-1 text-sm">Hasta</label>
+    <input type="date" id="fechaFin" class="w-full bg-gray-800 text-white rounded px-3 py-2" />
+  </div>
+
+  <!-- 🟠 Estado -->
+  <div>
+    <label for="estadoSelect" class="block mb-1 text-sm">Estado</label>
+    <select id="estadoSelect" class="w-full bg-gray-800 text-white rounded px-3 py-2">
+      <option value="">Todos</option>
+      <option value="enviado">Enviado</option>
+      <option value="fallido">Fallido</option>
+      <option value="pendiente">Pendiente</option>
+    </select>
+  </div>
+</div>

@@ -12,7 +12,6 @@
  
 
 
-
   .btn {
     @apply px-4 py-2 rounded text-sm font-medium transition duration-150;
   }
@@ -38,7 +37,7 @@
   }
 
    .btn-yellow {
-  @apply btn bg-yellow-400 hover:bg-yellow-300 text-black;
+  @apply btn bg-yellow-100 hover:bg-yellow-100 text-black;
 }
 
   .btn-interactivo:hover {

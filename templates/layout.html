@@ -8,7 +8,6 @@
   <!-- Tailwind + estilos + fuentes + íconos -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/static/css/style.css" />
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -16,14 +15,8 @@
   <!-- Animaciones personalizadas -->
   <style>
     @keyframes fade-in-down {
-      from {
-        transform: translateY(-10px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
     .animate-fade-in-down {
       animation: fade-in-down 0.3s ease-out;
@@ -33,11 +26,11 @@
 
 <body class="bg-gray-950 text-gray-100 font-inter min-h-screen overflow-y-auto">
 
-  {% if user is not none and user != "" %}
-  <!-- 🧭 Sidebar (visible solo si hay usuario) -->
-  <aside class="fixed top-0 left-0 w-[22rem] h-screen bg-white/5 backdrop-blur-md border-r border-white/10 flex flex-col justify-between py-6 px-6 z-50 shadow-xl">
+  {% if user %}
+  <!-- 🧭 Sidebar -->
+  <aside class="fixed top-0 left-0 w-[22rem] h-screen bg-white/5 backdrop-blur-md border-r border-white/10 flex flex-col py-6 px-6 z-50 shadow-xl">
     <div class="space-y-8">
-      <!-- 🚩 Logo + branding enlazado -->
+      <!-- 🚩 Branding -->
       <div class="flex items-center gap-3 group">
         <img src="/static/images/q.png" alt="Logo Quilmes"
              class="w-8 h-8 sm:w-9 sm:h-9 object-contain transition-transform duration-200 group-hover:scale-105" />
@@ -54,41 +47,50 @@
           📱 Verificación SMS
         </a>
 
+        
+
+        {% if user.rol|lower == "admin" %}
+        <a href="/mantenimiento/gestion"
+           class="flex items-center justify-between py-2.5 px-4 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition">
+          🧑‍💼 Gestión de usuarios
+        </a>
+
+
         {% if user.rol|lower in ["admin", "operador"] %}
         <a href="/admin/sms"
-           class="w-full flex items-center justify-between py-2.5 px-4 rounded-md bg-purple-700 hover:bg-purple-600 text-white transition">
+           class="flex items-center justify-between py-2.5 px-4 rounded-md bg-purple-700 hover:bg-purple-600 text-white transition">
           ✉️ Panel de SMS
         </a>
         {% endif %}
 
-        {% if user.rol|lower == "admin" %}
-        <a href="/mantenimiento/gestion"
-           class="w-full flex items-center justify-between py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-500 text-white transition">
-          👤 Administración del sistema
+        
+        <a href="/mantenimiento/logs"
+           class="flex items-center justify-between py-2.5 px-4 rounded-md bg-orange-600 hover:bg-orange-500 text-white transition">
+          📁 Registros del sistema
         </a>
         {% endif %}
-
-        <a href="/logout"
-           class="flex items-center justify-between py-2.5 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white transition">
-          🚪 Salir
-        </a>
       </nav>
     </div>
 
-    <!-- 📎 Pie del menú lateral -->
-    <footer class="text-xs text-gray-400 border-t border-white/10 pt-4 leading-snug">
-      👋 {{ user.usuario }}<br />
-      Versión 1.0.0<br />
-      Soporte: soporte@quilmes.com
-    </footer>
+    <!-- 📎 Footer técnico + 🔒 Botón salir final -->
+    <div class="mt-auto space-y-4">
+       <a href="/logout"
+         class="w-full flex items-center justify-between py-2.5 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white transition">
+        🔒 Salir
+      </a>
+      <footer class="text-xs text-gray-400 border-t border-white/10 pt-4 leading-snug">
+        👋 {{ user.usuario }}<br />
+        Versión 1.0.0<br />
+        Soporte: soporte@quilmes.com
+      </footer>
+    </div>
   </aside>
   {% endif %}
 
-  <!-- 🎯 Contenido principal -->
-  <main class="{% if user is not none and user != '' %}ml-[22rem]{% endif %} px-4 pt-6 pb-10 space-y-6 animate-fade-in-up">
-
+  <!-- 🧱 Panel principal -->
+  <main class="{% if user %}ml-[22rem]{% endif %} px-4 pt-6 pb-10 animate-fade-in-up">
     {% if mostrar_boton_volver %}
-    <!-- 🔙 Botón Volver al Home -->
+    <!-- 🔙 Volver -->
     <div class="mb-2">
       <a href="/home"
          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white/10 text-white hover:bg-white/20 transition rounded-md">
@@ -101,10 +103,10 @@
     {% block contenido %}{% endblock %}
   </main>
 
-  <!-- 🔔 Contenedor global para toasts visuales -->
+  <!-- 🔔 Toasts visuales -->
   <div id="toastContainer" class="fixed top-5 inset-x-0 z-[9999] flex justify-center pointer-events-none"></div>
 
-  <!-- 🧪 Scripts globales -->
+  <!-- ⚙️ Scripts -->
   {% block scripts %}
     <script>lucide.createIcons();</script>
   {% endblock %}

@@ -751,14 +751,14 @@ video {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   --tw-bg-opacity: 1;
-  background-color: rgb(250 204 21 / var(--tw-bg-opacity, 1));
+  background-color: rgb(254 249 195 / var(--tw-bg-opacity, 1));
   --tw-text-opacity: 1;
   color: rgb(0 0 0 / var(--tw-text-opacity, 1));
 }
 
 .btn-yellow:hover {
   --tw-bg-opacity: 1;
-  background-color: rgb(253 224 71 / var(--tw-bg-opacity, 1));
+  background-color: rgb(254 249 195 / var(--tw-bg-opacity, 1));
 }
 
 .btn-interactivo:hover {
@@ -1687,6 +1687,11 @@ video {
   background-color: rgb(255 255 255 / 0.05);
 }
 
+.bg-yellow-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 249 195 / var(--tw-bg-opacity, 1));
+}
+
 .bg-yellow-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(253 224 71 / var(--tw-bg-opacity, 1));
@@ -2316,9 +2321,9 @@ video {
   background-color: rgb(255 255 255 / 0.05);
 }
 
-.hover\:bg-yellow-300:hover {
+.hover\:bg-yellow-100:hover {
   --tw-bg-opacity: 1;
-  background-color: rgb(253 224 71 / var(--tw-bg-opacity, 1));
+  background-color: rgb(254 249 195 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:text-emerald-300:hover {

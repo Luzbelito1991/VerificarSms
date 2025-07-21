@@ -4,9 +4,10 @@
   "description": "Sistema visual con Tailwind compilado",
   "main": "index.js",
   "scripts": {
-    "dev": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css --watch",
-    "build": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css",
-    "clean": "del ./static/css/style.css"
+  "dev": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css --watch",
+  "build": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css",
+  "clean": "del ./static/css/style.css",
+  "preview": "npm run build && start http://localhost:8000/test_visual"
   },
   "keywords": [],
   "author": "Fernando",

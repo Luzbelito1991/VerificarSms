@@ -91,17 +91,30 @@ async function cargarPagina() {
 
     const sms = await res.json();
 
+    // 🔃 Ordenar por fecha descendente (últimos arriba)
+    sms.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
     const fragment = document.createDocumentFragment();
-    sms.forEach(s => {
+    sms.forEach((s, index) => {
       const tr = document.createElement("tr");
-      tr.className = "hover:bg-gray-900 transition";
+
+      // ✨ Resaltamos la primera fila (último mensaje enviado)
+          tr.className = index === 0
+            ? "animate-fadeInUp"
+            : "hover:bg-gray-900 transition";
+
+
+
+
       tr.innerHTML = `
         <td class="px-4 py-2">${s.dni}</td>
         <td class="px-4 py-2">${s.celular}</td>
         <td class="px-4 py-2">${s.sucursal}</td>
         <td class="px-4 py-2">${s.codigo}</td>
         <td class="px-4 py-2">${s.usuario_nombre}</td>
-        <td class="px-4 py-2">${new Date(s.fecha).toLocaleDateString()}</td>
+        <td class="px-4 py-2">
+  ${new Date(s.fecha).toLocaleDateString()} ${new Date(s.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+</td>
         <td class="px-4 py-2 capitalize">${s.estado}</td>
       `;
       fragment.appendChild(tr);
@@ -110,14 +123,15 @@ async function cargarPagina() {
     tbody.innerHTML = "";
     tbody.appendChild(fragment);
 
+    // 🔢 Actualización visual de controles de paginación
     const paginaActualEl   = document.getElementById("paginaActual");
     const prevPaginaBtn    = document.getElementById("prevPagina");
     const nextPaginaBtn    = document.getElementById("nextPagina");
     const rangoRegistrosEl = document.getElementById("rangoRegistros");
 
-    if (paginaActualEl)   paginaActualEl.textContent = paginaActual;
-    if (prevPaginaBtn)    prevPaginaBtn.disabled = paginaActual === 1;
-    if (nextPaginaBtn)    nextPaginaBtn.disabled = paginaActual * registrosPorPagina >= totalRegistros;
+    if (paginaActualEl) paginaActualEl.textContent = paginaActual;
+    if (prevPaginaBtn)  prevPaginaBtn.disabled = paginaActual === 1;
+    if (nextPaginaBtn)  nextPaginaBtn.disabled = paginaActual * registrosPorPagina >= totalRegistros;
 
     const inicio = (paginaActual - 1) * registrosPorPagina + 1;
     const fin = Math.min(paginaActual * registrosPorPagina, totalRegistros);

@@ -137,3 +137,6 @@ def vista_sms_admin(request: Request, user: Usuario = Depends(get_current_user))
 @app.get("/test_visual", response_class=HTMLResponse)
 def test_visual(request: Request):
     return templates.TemplateResponse("test_visual.html", {"request": request})
+
+
+

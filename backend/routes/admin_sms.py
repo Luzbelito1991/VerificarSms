@@ -51,7 +51,7 @@ def obtener_sms(
             "sucursal": nombre_sucursal(v.merchant_code),
             "codigo": v.verification_code,
             "usuario_nombre": nombre_usuario,
-            "fecha": v.fecha.strftime("%Y-%m-%d"),
+            "fecha": v.fecha.isoformat(),  # ej: "2025-07-21T11:56:32"
             "estado": "enviado"  # 🔄 reemplazar por v.estado cuando se implemente
         })
 

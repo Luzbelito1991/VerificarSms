@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import date
+from datetime import datetime
 from backend.database import Base
 
 # 👤 Usuario que envía SMS
@@ -23,7 +23,8 @@ class Verificacion(Base):
     phone_number = Column(String, nullable=False)      # 📱 Número celular
     merchant_code = Column(String, index=True)
     verification_code = Column(String, index=True)
-    fecha = Column(Date, default=date.today)
+    fecha = Column(DateTime, default=datetime.now)
+
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
 
     usuario = relationship("Usuario", back_populates="verificaciones")

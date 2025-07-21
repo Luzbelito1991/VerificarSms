@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, constr
 from sqlalchemy.orm import Session
-from datetime import date
+from datetime import datetime  # 👈 actualizado: usamos datetime para guardar hora
 from dotenv import load_dotenv
 import unicodedata
 import random
@@ -11,7 +11,6 @@ import os
 from backend.database import get_db
 from backend.models import Verificacion, Usuario
 from backend.auth_utils import get_current_user
-
 
 load_dotenv()
 
@@ -82,13 +81,13 @@ def handle_sms(
     if not ok:
         raise HTTPException(status_code=400, detail=respuesta)
 
-    # ✅ Guardar celular en la verificación
+    # ✅ Guardar celular en la verificación con fecha y hora precisa
     verif = Verificacion(
         person_id=data.personId,
         phone_number=data.phoneNumber,
         merchant_code=data.merchantCode,
         verification_code=code,
-        fecha=date.today(),
+        fecha=datetime.now(),  # 👈 ahora guarda también la hora exacta
         usuario_id=user.id
     )
     db.add(verif)

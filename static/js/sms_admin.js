@@ -239,3 +239,6 @@ function limpiarFiltros() {
     cargarPagina();
   });
 }
+
+
+

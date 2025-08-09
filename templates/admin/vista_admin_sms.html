@@ -20,9 +20,6 @@
     <button onclick="aplicarFiltros()" class="btn-emerald btn-interactivo">Aplicar filtros</button>
     <button onclick="exportarExcel()" class="btn-blue btn-interactivo">Exportar a Excel</button>
     <button onclick="limpiarFiltros()" class="btn-gray btn-interactivo">🧹 Limpiar filtros</button>
-    {% if current_user.rol == "admin" %}
-      <button onclick="confirmarVaciado()" class="btn-yellow btn-interactivo">🗑 Vaciar historial</button>
-    {% endif %}
   </div>
 
   <!-- 📊 Tabla + paginación -->

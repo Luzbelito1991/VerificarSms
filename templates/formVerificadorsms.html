@@ -3,92 +3,159 @@
 
 {% block contenido %}
 <div class="min-h-[80vh] flex items-center justify-center px-4">
-  <section class="w-full max-w-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-emerald-400 rounded-xl shadow-xl p-5 space-y-5 transition duration-300 animate-fade-in-up">
+  <section
+    class="w-full max-w-2xl rounded-2xl border border-white/10 bg-[#111827]/90 backdrop-blur-md
+           shadow-[0_18px_45px_rgba(0,0,0,0.6)] p-6 md:p-7 space-y-6
+           transition-colors duration-300 hover:border-emerald-400/70">
 
     <!-- Encabezado -->
-    <header class="flex items-center gap-2 text-white text-sm font-medium pb-1">
-      <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-      <h2 class="text-sm tracking-wide">Verificación por SMS</h2>
+    <header class="space-y-1">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+        <span class="text-sm font-medium text-emerald-200 tracking-wide">Verificar SMS</span>
+      </div>
     </header>
 
     <!-- Formulario -->
-    <form id="smsForm" class="space-y-5" autocomplete="off">
+    <form id="smsForm" class="space-y-6" autocomplete="off">
 
       <!-- DNI y Celular -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- DNI -->
         <div>
-          <label for="personId" class="block text-sm font-medium text-white">DNI</label>
-          <input id="personId" maxlength="8" inputmode="numeric"
-            class="w-full max-w-[6cm] bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#4DA874]" />
-          <div id="dniError" class="min-h-[1rem] text-red-500 text-xs mt-1">
+          <label for="personId" class="block text-sm font-medium text-gray-100 mb-1">DNI</label>
+          <input
+            id="personId"
+            maxlength="8"
+            inputmode="numeric"
+            class="w-full bg-[#020617] border border-slate-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500
+                   outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-[#111827]
+                   focus:border-emerald-500 transition" />
+          <div id="dniError" class="min-h-[1rem] text-red-400 text-xs mt-1">
             <span class="invisible">El DNI debe tener 8 dígitos.</span>
           </div>
         </div>
 
         <!-- Celular -->
         <div>
-          <label for="phoneNumber" class="block text-sm font-medium text-white">Celular</label>
-          <input id="phoneNumber" maxlength="10" inputmode="numeric"
-            class="w-full max-w-[6cm] bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#4DA874]" />
-          <div id="phoneError" class="min-h-[1rem] text-red-500 text-xs mt-1">
+          <label for="phoneNumber" class="block text-sm font-medium text-gray-100 mb-1">Celular</label>
+          <input
+            id="phoneNumber"
+            maxlength="10"
+            inputmode="numeric"
+            class="w-full bg-[#020617] border border-slate-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500
+                   outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-[#111827]
+                   focus:border-emerald-500 transition" />
+          <div id="phoneError" class="min-h-[1rem] text-red-400 text-xs mt-1">
             <span class="invisible">El celular debe tener 10 dígitos.</span>
           </div>
         </div>
       </div>
 
-      <!-- Sucursal -->
-      <div>
-        <label for="merchantCode" class="block text-sm font-medium text-white mb-1">Sucursal</label>
-        <select id="merchantCode"
-          class="w-full max-w-full md:max-w-[20rem] bg-gray-800 mb-8 border border-gray-700 px-3 py-1.5 rounded-md text-sm text-white truncate outline-none focus:ring-2 focus:ring-[#4DA874] transition">
-          <option value="">Seleccioná una opción</option>
-          <option value="776">776 - Limite Deportes Alberdi</option>
-          <option value="777">777 - Limite Deportes Lules</option>
-          <option value="778">778 - Limite Deportes Famaillá</option>
-          <option value="779">779 - Limite Deportes Alderetes</option>
-          <option value="781">781 - Limite Deportes Banda de Río Salí</option>
-        </select>
+      <!-- Sucursal + botón estilo barra lateral -->
+      <div class="space-y-1">
+        <label for="merchantCode" class="block text-sm font-medium text-gray-100">Sucursal</label>
+
+        <div class="flex items-center gap-3">
+          <!-- Select un poco más largo -->
+          <select
+            id="merchantCode"
+            class="w-75 bg-[#020617] border border-slate-700 px-3 py-2 rounded-md text-sm text-white truncate
+                   outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-[#111827]
+                   focus:border-emerald-500 transition">
+            <option value="">Seleccionar sucursal</option>
+            <option value="776">776 - Limite Deportes Alberdi</option>
+            <option value="777">777 - Limite Deportes Lules</option>
+            <option value="778">778 - Limite Deportes Famaillá</option>
+            <option value="779">779 - Limite Deportes Alderetes</option>
+            <option value="781">781 - Limite Deportes Banda de Río Salí</option>
+          </select>
+
+          <!-- Botón Agregar más corto -->
+          <button
+            type="button"
+            id="addBranchBtn"
+            class="flex-none w-fit inline-flex items-center justify-center px-3 py-2 text-xs font-semibold rounded-md
+                   bg-[#020617] border border-white/10 text-gray-200
+                   hover:bg-emerald-500/10 hover:text-emerald-300 hover:border-emerald-400/60
+                   transition-colors duration-200">
+            + Agregar sucursal
+          </button>
+        </div>
       </div>
 
-<!-- Código generado -->
-<div class="bg-gray-900 border border-gray-700 rounded-md px-4 py-3 flex items-center justify-between">
-  <div class="w-full text-center">
-    <p class="text-xs text-gray-400 mb-1">Código generado</p>
-    <div id="codeDisplay" class="text-xl font-mono font-semibold tracking-widest text-sky-400">----</div>
-  </div>
-  <button id="generateBtn" type="button"
-    class="group p-2 rounded-full bg-[#4DA874] hover:bg-emerald-600 text-white shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-300">
-    <i id="rotateIcon" data-lucide="rotate-cw"
-       class="w-5 h-5 text-white group-hover:rotate-180 transition-transform duration-300 ease-in-out"></i>
-  </button>
-</div>
+      <!-- Código generado + botón moderno -->
+      <div class="relative bg-[#020617] border border-slate-700 rounded-xl px-4 py-4 flex items-center justify-between overflow-hidden">
+        <!-- Glow decorativo -->
+        <div class="pointer-events-none absolute inset-x-10 -top-10 h-16 bg-emerald-500/10 blur-2xl"></div>
 
+        <div class="w-full text-center relative z-10">
+          <p class="text-xs text-gray-400 mb-1 tracking-wide uppercase">Código generado</p>
+          <div id="codeDisplay" class="text-2xl md:text-3xl font-mono font-semibold tracking-[0.5em] text-emerald-300">
+            1234
+          </div>
+        </div>
 
+        <!-- FAB generar código -->
+        <button
+          id="generateBtn"
+          type="button"
+          class="relative z-10 group inline-flex items-center justify-center w-11 h-11 md:w-12 md:h-12
+                 rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)]
+                 hover:bg-emerald-400 transition-all duration-200
+                 hover:shadow-[0_0_26px_rgba(16,185,129,0.9)]
+                 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-[#020617]
+                 hover:-translate-y-[1px] active:translate-y-[1px]">
+          <i
+            id="rotateIcon"
+            data-lucide="refresh-ccw"
+            class="w-5 h-5 text-white group-hover:rotate-180 transition-transform duration-300 ease-in-out"></i>
+        </button>
+      </div>
 
       <!-- Último mensaje -->
-      <div id="lastMessageContainer"
-        class="bg-gray-900 border border-gray-700 rounded-md px-4 py-3 text-sm text-white font-mono whitespace-pre-line transition flex items-start gap-2">
-        <i id="statusIcon" data-lucide="info" class="w-5 h-5 mt-0.5 text-white/70 shrink-0"></i>
+      <div
+        id="lastMessageContainer"
+        class="bg-[#020617] border border-slate-700 rounded-lg px-4 py-3 text-sm text-white font-mono whitespace-pre-line
+               transition flex items-start gap-2">
+        <i id="statusIcon" data-lucide="info" class="w-5 h-5 mt-0.5 text-emerald-300 shrink-0"></i>
         <div id="lastMessage">No hay mensajes aún</div>
       </div>
 
       <!-- Botones -->
-      <div class="text-center flex justify-center gap-4">
+      <div class="text-center flex justify-center gap-4 pt-1">
         <input type="hidden" id="verificationCode" />
-        <button id="submitBtn" type="submit" disabled
-          class="px-3 py-1.5 text-sm bg-[#4DA874] hover:bg-emerald-600 text-white font-semibold rounded-md transition disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center min-w-[110px]">
+
+        <!-- Enviar -->
+        <button
+          id="submitBtn"
+          type="submit"
+          disabled
+          class="inline-flex items-center justify-center min-w-[140px] px-4 py-2 text-sm font-semibold rounded-md
+                 bg-emerald-600 hover:bg-emerald-500 text-white shadow-md
+                 disabled:opacity-40 disabled:cursor-not-allowed
+                 transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400/70
+                 hover:-translate-y-[1px] active:translate-y-[1px]">
           <i data-lucide="send" class="w-4 h-4 mr-1.5 -ml-0.5 text-white/90"></i>
-          <span id="submitText">Enviar</span>
-          <svg id="loader" class="hidden animate-spin w-4 h-4 ml-1.5 text-white"
-            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          <span id="submitText">Enviar SMS</span>
+          <svg
+            id="loader"
+            class="hidden animate-spin w-4 h-4 ml-1.5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="CurrentColor" d="M4 12a8 8 0 018-8v8z"></path>
           </svg>
         </button>
 
-        <button id="cancelBtn" type="button"
-          class="px-3 py-1.5 text-sm text-white font-medium rounded-md inline-flex items-center justify-center min-w-[110px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/30"
+        <!-- Cancelar -->
+        <button
+          id="cancelBtn"
+          type="button"
+          class="inline-flex items-center justify-center min-w-[140px] px-4 py-2 text-sm font-semibold rounded-md
+                 text-white shadow-md transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-white/20
+                 hover:-translate-y-[1px] active:translate-y-[1px]"
           style="background-color: #f02828;"
           onmouseover="this.style.backgroundColor='#f32d2d';"
           onmouseout="this.style.backgroundColor='#f04a4a';">

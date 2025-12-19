@@ -3,47 +3,50 @@
 {% block title %}Administración SMS{% endblock %}
 
 {% block contenido %}
-<section class="space-y-6 animate-fade-in-down">
+<section class="space-y-6 animate-fade-in-down max-w-5xl mx-auto">
+
   <!-- 🟢 Encabezado -->
-  <h2 class="text-white text-lg font-semibold flex items-center gap-2">
-    <i data-lucide="message-circle" class="w-5 h-5 text-emerald-400"></i>
-    Administración SMS
-  </h2>
+  <header class="space-y-2 mb-2">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+      <i data-lucide="send" class="w-5 h-5 text-emerald-300"></i>
+      <span class="text-sm font-medium text-emerald-200 tracking-wide">SMS enviados</span>
+    </div>
+  </header>
 
+  <!-- 🎛️ Filtros dentro de tarjeta -->
+  <div class="border border-white/10 rounded-lg bg-gray-900/40 p-4 space-y-3">
+    {% include "fragmentos/sms_filtros.html" %}
 
-
-  <!-- 🎛️ Filtros -->
-  {% include "fragmentos/sms_filtros.html" %}
-
-  <!-- 🔘 Botones -->
-  <div class="flex flex-wrap items-center gap-4 mt-2">
-    <button onclick="aplicarFiltros()" class="btn-emerald btn-interactivo">Aplicar filtros</button>
-    <button onclick="exportarExcel()" class="btn-blue btn-interactivo">Exportar a Excel</button>
-    <button onclick="limpiarFiltros()" class="btn-gray btn-interactivo">🧹 Limpiar filtros</button>
+    <!-- 🔘 Botones alineados a la derecha -->
+    <div class="flex flex-wrap items-center gap-3 justify-end text-sm">
+      <button onclick="aplicarFiltros()" class="btn-emerald btn-interactivo">Aplicar filtros</button>
+      <button onclick="exportarExcel()" class="btn-blue btn-interactivo">Exportar a Excel</button>
+      <button onclick="limpiarFiltros()" class="btn-gray btn-interactivo">🧹 Limpiar filtros</button>
+    </div>
   </div>
 
   <!-- 📊 Tabla + paginación -->
   <div class="border border-white/10 rounded-lg shadow-lg bg-gray-800/30">
     <div class="p-4 space-y-4 relative">
-
-      <!-- 📋 Tabla con scroll interno -->
       {% include "fragmentos/sms_tabla.html" %}
 
-      <!-- 📊 Indicador de rango -->
       <div id="rangoRegistros" class="text-center text-gray-300 text-sm italic">
         Mostrando registros 1–5
       </div>
 
-      <!-- 🔁 Paginación fija -->
-      <div class="flex justify-center items-center gap-4 text-white text-sm pt-2 border-t border-white/10">
+      <!-- 🔁 Paginación mejor destacada -->
+      <div class="flex justify-center items-center gap-3 text-white text-sm pt-3 border-t border-white/10">
         <button id="prevPagina" class="btn-gray btn-interactivo" disabled>Anterior</button>
-        <span>Página <span id="paginaActual">1</span></span>
+
+        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-200">
+          Página <span id="paginaActual" class="font-semibold">1</span>
+        </span>
+
         <button id="nextPagina" class="btn-gray btn-interactivo">Siguiente</button>
       </div>
     </div>
   </div>
 
-  <!-- 🧪 Trigger invisible para animaciones Tailwind -->
   <div class="animate-fade-in hidden"></div>
 </section>
 {% endblock %}

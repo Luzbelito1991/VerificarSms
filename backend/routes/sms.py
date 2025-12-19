@@ -37,6 +37,8 @@ def limpiar_mensaje(texto: str) -> str:
 # 🏪 Nombre legible de sucursal
 def nombre_sucursal(codigo: str) -> str:
     mapa = {
+        "389": "389",
+        "561": "561",
         "776": "776",
         "777": "777",
         "778": "778",

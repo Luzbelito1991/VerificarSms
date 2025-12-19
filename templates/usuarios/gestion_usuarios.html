@@ -3,29 +3,37 @@
 {% block title %}Gestión de Usuarios{% endblock %}
 
 {% block contenido %}
-<!-- 🏷️ Título principal -->
-<h2 class="text-white text-lg font-semibold flex items-center gap-2">
-  <i data-lucide="user-cog" class="w-5 h-5 text-emerald-400"></i>
-  Gestión de Usuarios
-</h2>
+<section class="space-y-6 animate-fade-in-down max-w-5xl mx-auto">
 
-<!-- 🔍 Buscador + botón alineados -->
-<div class="mt-2">
-  {% include "usuarios/busqueda.html" %}
-</div>
+  <!-- 🟢 Encabezado estilo Verificar SMS -->
+  <header class="space-y-2 mb-4">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+      <i data-lucide="user-cog" class="w-5 h-5 text-emerald-300"></i>
+      <span class="text-sm font-medium text-emerald-200 tracking-wide">
+        Gestión de usuarios
+      </span>
+    </div>
+  </header>
 
-<!-- 🧩 Panel con altura fija -->
-<div class="mt-6 h-[440px] flex flex-col justify-between border border-white/10 rounded-lg bg-gray-800/30 p-4 shadow overflow-x-auto">
-  
-  <!-- 📋 Tabla visual -->
-  {% include "usuarios/tabla.html" %}
-
-  <!-- 📚 Paginación visual coherente -->
-  <div class="mt-2 flex flex-col items-center space-y-2">
-    {% include "usuarios/paginacion.html" %}
-    <div id="infoPaginacion" class="text-xs text-gray-400 text-center mt-1"></div>
+  <!-- 🔍 Buscador + botón alineados -->
+  <div>
+    {% include "usuarios/busqueda.html" %}
   </div>
-</div>
+
+  <!-- 🧩 Panel con altura fija -->
+  <div class="h-[440px] flex flex-col justify-between border border-white/10 rounded-lg bg-gray-800/30 p-4 shadow overflow-x-auto">
+    
+    <!-- 📋 Tabla visual -->
+    {% include "usuarios/tabla.html" %}
+
+    <!-- 📚 Paginación visual coherente -->
+    <div class="mt-2 flex flex-col items-center space-y-2">
+      {% include "usuarios/paginacion.html" %}
+      <div id="infoPaginacion" class="text-xs text-gray-400 text-center mt-1"></div>
+    </div>
+  </div>
+
+</section>
 
 <!-- 🧾 Modal Crear/Editar Usuario -->
 <div id="modalUsuario" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">

@@ -1,5 +1,4 @@
-<!-- 🧾 Formulario: Crear / Editar Usuario -->
-<div class="mt-10 bg-white/5 border border-white/10 rounded-lg p-6 max-w-xl">
+<div>
   <h3 class="text-white text-base font-semibold mb-4 flex items-center gap-2">
     <i data-lucide="edit" class="w-4 h-4 text-blue-400"></i>
     Crear / Editar Usuario
@@ -11,20 +10,26 @@
 
     <div>
       <label for="usuario" class="block text-sm font-medium text-white mb-1">Usuario</label>
-      <input type="text" id="usuario" required placeholder="Ej: juan123"
-             class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+      <input
+        type="text" id="usuario" required placeholder="Ej: juan123"
+        class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white
+               placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
     </div>
 
     <div>
       <label for="password" class="block text-sm font-medium text-white mb-1">Contraseña</label>
-      <input type="password" id="password" placeholder="(dejar en blanco para mantener)"
-             class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+      <input
+        type="password" id="password" placeholder="(dejar en blanco para mantener)"
+        class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white
+               placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
     </div>
 
     <div>
       <label for="rol" class="block text-sm font-medium text-white mb-1">Rol</label>
-      <select id="rol" required
-              class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+      <select
+        id="rol" required
+        class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white
+               focus:ring-2 focus:ring-emerald-500 outline-none">
         <option value="">Seleccioná un rol</option>
         <option value="admin">Administrador</option>
         <option value="operador">Operador</option>
@@ -32,12 +37,16 @@
     </div>
 
     <div class="flex gap-4 justify-center pt-2">
-      <button type="submit"
-              class="bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-sm text-white font-semibold rounded-md inline-flex items-center gap-1">
-        <i data-lucide="save" class="w-4 h-4"></i> <span id="submitLabel">Crear</span>
+      <button
+        type="submit"
+        class="bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-sm text-white font-semibold rounded-md inline-flex items-center gap-1">
+        <i data-lucide="save" class="w-4 h-4"></i>
+        <span id="submitLabel">Crear</span>
       </button>
-      <button type="button" onclick="reiniciarFormulario()"
-              class="bg-gray-700 hover:bg-gray-600 px-4 py-1.5 text-sm text-white font-semibold rounded-md">
+      <button
+        type="button"
+        onclick="reiniciarFormulario()"
+        class="bg-gray-700 hover:bg-gray-600 px-4 py-1.5 text-sm text-white font-semibold rounded-md">
         Limpiar
       </button>
     </div>

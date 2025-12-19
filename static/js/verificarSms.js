@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const cancelBtn = document.getElementById("cancelBtn");
 
   const sucursales = {
+    "389": "Rincon Deportivo",
+    "561": "Oregon Jeans",
     "776": "Alberdi",
     "777": "Lules",
     "778": "Famaillá",

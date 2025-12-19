@@ -97,8 +97,10 @@ def mostrar_verificar(request: Request, user: Usuario = Depends(get_current_user
 @app.get("/mantenimiento/gestion")
 def mantenimiento_unificado(request: Request, user: Usuario = Depends(get_current_user)):
     return render_template_protegido("usuarios/gestion_usuarios.html", request, {
-        "user": user
+        "user": user,
+        "active_page": "usuarios"  # ← AGREGAR ESTO
     })
+
 
 # ============================
 # 📊 API JSON PROTEGIDA

@@ -4,14 +4,18 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Usuario
-import hashlib
+import bcrypt
 
 # 🚪 Inicializar el router
 router = APIRouter()
 
-# 🔧 Función auxiliar para hashear contraseñas
+# 🔧 Función auxiliar para hashear contraseñas con bcrypt
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+# 🔐 Función para verificar contraseñas
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 # 📦 Esquemas para datos recibidos desde el frontend
 class UsuarioCreate(BaseModel):
@@ -51,7 +55,7 @@ def crear_usuario(data: UsuarioCreate, db: Session = Depends(get_db)):
 async def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
     user = db.query(Usuario).filter_by(usuario=data.usuario).first()
 
-    if not user or user.hash_password != hash_password(data.password):
+    if not user or not verify_password(data.password, user.hash_password):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
     request.session["usuario"] = user.usuario
@@ -80,9 +84,9 @@ def editar_usuario(nombre: str, data: UsuarioUpdate, request: Request, db: Sessi
             request.session["usuario"] = data.nuevo_usuario
 
     if data.password:
-        nuevo_hash = hash_password(data.password)
-        if usuario.hash_password != nuevo_hash:
-            usuario.hash_password = nuevo_hash
+        # Solo actualizar si la contraseña cambió
+        if not verify_password(data.password, usuario.hash_password):
+            usuario.hash_password = hash_password(data.password)
 
     if data.rol and data.rol != usuario.rol:
         usuario.rol = data.rol
@@ -117,12 +121,7 @@ def eliminar_usuario(nombre: str, request: Request, db: Session = Depends(get_db
             detail="No podés eliminar tu propio usuario mientras tenés la sesión activa"
         )
 
-    # 1) borrar verificaciones asociadas
-    db.query(Verificacion).filter(
-        Verificacion.usuario_id == usuario.id
-    ).delete(synchronize_session=False)
-
-    # 2) borrar usuario
+    # 🗑️ Las verificaciones se borran automáticamente con cascade
     db.delete(usuario)
     db.commit()
 

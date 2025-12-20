@@ -24,6 +24,7 @@ class SmsRequest(BaseModel):
     personId: constr(min_length=7, max_length=15)
     phoneNumber: constr(min_length=10, max_length=15)  # ✅ número celular
     merchantCode: constr(min_length=3, max_length=3)
+    merchantName: str | None = None  # 🏪 Nombre de sucursal
     verificationCode: str | None = None
 
 # 🔢 Generar código aleatorio
@@ -80,16 +81,19 @@ def handle_sms(
     mensaje = limpiar_mensaje(texto)
 
     ok, respuesta = send_sms(data.phoneNumber, mensaje)
+    
     if not ok:
-        raise HTTPException(status_code=400, detail=respuesta)
+        # ❌ No guardar en BD si el SMS falló
+        raise HTTPException(status_code=500, detail="Error al enviar SMS. Intente nuevamente.")
 
-    # ✅ Guardar celular en la verificación con fecha y hora precisa
+    # ✅ Solo guardar en BD si el SMS se envió exitosamente
     verif = Verificacion(
         person_id=data.personId,
         phone_number=data.phoneNumber,
         merchant_code=data.merchantCode,
+        merchant_name=data.merchantName,  # 🏪 Guardar nombre de sucursal
         verification_code=code,
-        fecha=datetime.now(),  # 👈 ahora guarda también la hora exacta
+        fecha=datetime.now(),
         usuario_id=user.id
     )
     db.add(verif)

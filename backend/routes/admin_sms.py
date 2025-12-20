@@ -1,14 +1,21 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Usuario, Verificacion
 from backend.routes.sms import nombre_sucursal
+from backend.auth_utils import get_current_user
 
 admin_router = APIRouter()
 
 # 🎛️ Lista de usuarios para el filtro del panel
 @admin_router.get("/api/usuarios")
-def listar_usuarios(db: Session = Depends(get_db)):
+def listar_usuarios(
+    db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user)
+):
+    if user.rol.lower() not in ["admin", "operador"]:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    
     usuarios = db.query(Usuario).all()
     return [{"id": u.id, "nombre": u.usuario} for u in usuarios]
 
@@ -22,8 +29,12 @@ def obtener_sms(
     estado: str | None = None,  # aún no implementado en modelo
     skip: int = 0,
     limit: int = 5,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user)
 ):
+    if user.rol.lower() not in ["admin", "operador"]:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    
     query = db.query(Verificacion)
 
     # 🔍 Filtros opcionales
@@ -48,7 +59,7 @@ def obtener_sms(
         resultado.append({
             "dni": v.person_id,
             "celular": v.phone_number,
-            "sucursal": nombre_sucursal(v.merchant_code),
+            "sucursal": v.merchant_code,  # 📊 Mostrar código de sucursal
             "codigo": v.verification_code,
             "usuario_nombre": nombre_usuario,
             "fecha": v.fecha.isoformat(),  # ej: "2025-07-21T11:56:32"
@@ -65,8 +76,12 @@ def contar_sms(
     fecha_inicio: str | None = None,
     fecha_fin: str | None = None,
     estado: str | None = None,  # aún no implementado en modelo
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user)
 ):
+    if user.rol.lower() not in ["admin", "operador"]:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    
     query = db.query(Verificacion)
 
     if usuario_id:
@@ -88,8 +103,12 @@ def obtener_todos_sms(
     fecha_inicio: str | None = None,
     fecha_fin: str | None = None,
     estado: str | None = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user: Usuario = Depends(get_current_user)
 ):
+    if user.rol.lower() not in ["admin", "operador"]:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    
     query = db.query(Verificacion)
 
     if usuario_id:
@@ -108,7 +127,7 @@ def obtener_todos_sms(
         resultado.append({
             "dni": v.person_id,
             "celular": v.phone_number,
-            "sucursal": nombre_sucursal(v.merchant_code),
+            "sucursal": v.merchant_code,  # 📊 Mostrar código de sucursal
             "codigo": v.verification_code,
             "usuario_nombre": usuarios_dict.get(v.usuario_id, "desconocido"),
             "fecha": v.fecha.strftime("%Y-%m-%d"),

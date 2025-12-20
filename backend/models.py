@@ -9,10 +9,10 @@ class Usuario(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     usuario = Column(String(50), unique=True, index=True, nullable=False)
-    hash_password = Column(String(64), nullable=False)
+    hash_password = Column(String(128), nullable=False)  # 🔐 Ampliado para bcrypt
     rol = Column(String(20), nullable=False)
 
-    verificaciones = relationship("Verificacion", back_populates="usuario")
+    verificaciones = relationship("Verificacion", back_populates="usuario", cascade="all, delete-orphan")
 
 # ✅ Verificación de SMS
 class Verificacion(Base):
@@ -22,6 +22,7 @@ class Verificacion(Base):
     person_id = Column(String, index=True)             # DNI
     phone_number = Column(String, nullable=False)      # 📱 Número celular
     merchant_code = Column(String, index=True)
+    merchant_name = Column(String, nullable=True)      # 🏪 Nombre de sucursal
     verification_code = Column(String, index=True)
     fecha = Column(DateTime, default=datetime.now)
 

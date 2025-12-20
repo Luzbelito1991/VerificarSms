@@ -92,7 +92,7 @@
         <div class="w-full text-center relative z-10">
           <p class="text-xs text-gray-400 mb-1 tracking-wide uppercase">Código generado</p>
           <div id="codeDisplay" class="text-2xl md:text-3xl font-mono font-semibold tracking-[0.5em] text-emerald-300">
-            1234
+            ----
           </div>
         </div>
 
@@ -166,6 +166,63 @@
     </form>
 
   </section>
+</div>
+
+<!-- 🏪 Modal Agregar Sucursal -->
+<div id="modalSucursal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+  <div class="bg-gray-900 border border-white/10 rounded-lg p-6 w-full max-w-md shadow-xl relative">
+    <button onclick="cerrarModalSucursal()" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+    
+    <div>
+      <h3 class="text-white text-base font-semibold mb-4 flex items-center gap-2">
+        <i data-lucide="store" class="w-4 h-4 text-emerald-400"></i>
+        Agregar Nueva Sucursal
+      </h3>
+
+      <form id="sucursalForm" class="space-y-4">
+        <div>
+          <label for="codigoSucursal" class="block text-sm font-medium text-white mb-1">Código (3 dígitos)</label>
+          <input
+            type="text" 
+            id="codigoSucursal" 
+            maxlength="3"
+            inputmode="numeric"
+            required 
+            placeholder="Ej: 782"
+            class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white
+                   placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div>
+          <label for="nombreSucursal" class="block text-sm font-medium text-white mb-1">Nombre de Sucursal</label>
+          <input
+            type="text" 
+            id="nombreSucursal" 
+            required 
+            placeholder="Ej: Limite Deportes Centro"
+            class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white
+                   placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div class="flex gap-4 justify-center pt-2">
+          <button
+            type="submit"
+            class="bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-sm text-white font-semibold rounded-md inline-flex items-center gap-1">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Agregar</span>
+          </button>
+          <button
+            type="button"
+            onclick="cerrarModalSucursal()"
+            class="bg-gray-700 hover:bg-gray-600 px-4 py-1.5 text-sm text-white font-semibold rounded-md">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

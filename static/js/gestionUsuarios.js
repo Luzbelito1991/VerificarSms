@@ -1,32 +1,69 @@
+// Lista completa de usuarios traídos del backend
 let usuariosTotales = [];
+
+// Número de página que se está mostrando actualmente
 let paginaActual = 1;
+
+// Cantidad de usuarios por página en la tabla
 const usuariosPorPagina = 5;
+
+// Si hay una búsqueda activa, acá se guardan esas coincidencias
 let coincidenciasActivas = null;
+
+// Flag para evitar lanzar varias búsquedas al mismo tiempo
 let busquedaEnProgreso = false;
+
+// Id incremental para descartar respuestas de búsquedas viejas (race condition)
 let ultimaBusquedaId = 0;
+
+// Nombre del usuario que tiene la sesión iniciada
 let usuarioSesionActual = null;
 
+
+// Cuando el DOM está listo, se inicializa toda la pantalla
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 DOM cargado, iniciando aplicación...");
+
+  // Detectar usuario logueado (DOM o API)
   obtenerUsuarioSesion();
+
+  // Preparar búsqueda en el input
   iniciarBusqueda();
+
+  // Preparar formulario (crear/editar usuario)
   iniciarFormulario();
+
+  // Preparar botones de paginación
   iniciarPaginacion();
+
+  // Preparar comportamiento del modal
   iniciarModal();
+
+  // Cargar usuarios desde el backend y dibujarlos en la tabla
   cargarUsuariosEnTabla();
+
+  // Dibujar iconos de Lucide
   lucide.createIcons();
 });
 
+
+/**
+ * Obtiene el usuario de la sesión actual.
+ * Primero lo busca en el DOM (data-usuario-sesion) y,
+ * si no existe, hace un fetch a /usuario-actual.
+ */
 async function obtenerUsuarioSesion() {
   const elementoUsuario = document.querySelector('[data-usuario-sesion]');
   console.log("🔍 Elemento sesión:", elementoUsuario);
   
+  // Caso 1: está en el DOM
   if (elementoUsuario) {
     usuarioSesionActual = elementoUsuario.dataset.usuarioSesion;
     console.log("✅ Usuario sesión actual:", usuarioSesionActual);
     return;
   }
 
+  // Caso 2: intentar pedirlo a una API
   try {
     const res = await fetch('/usuario-actual');
     if (res.ok) {
@@ -39,16 +76,31 @@ async function obtenerUsuarioSesion() {
   }
 }
 
+
+/**
+ * Devuelve el array que se debe usar como fuente:
+ * - coincidencias de búsqueda si hay búsqueda activa
+ * - sino, la lista completa de usuarios
+ */
 function obtenerFuenteActual() {
   return coincidenciasActivas || usuariosTotales;
 }
 
+
+/**
+ * Escapa texto para prevenir XSS cuando se usa innerHTML
+ * (acá lo tengas listo por si lo necesitás).
+ */
 function escaparHTML(texto) {
   const div = document.createElement('div');
   div.textContent = texto;
   return div.innerHTML;
 }
 
+
+/**
+ * Configura el input de búsqueda con debounce y llamadas al backend.
+ */
 function iniciarBusqueda() {
   const input = document.getElementById("buscarUsuarioTabla");
   if (!input) return;
@@ -56,13 +108,18 @@ function iniciarBusqueda() {
   let debounceTimeout;
 
   input.addEventListener("input", () => {
+    // Limpiar timeout anterior (debounce)
     clearTimeout(debounceTimeout);
 
     const filtro = input.value.trim().toLowerCase();
+
+    // Feedback visual: borde en verde cuando hay texto suficiente
     input.classList.toggle("ring-emerald-400", filtro.length >= 2);
     input.classList.toggle("ring-0", filtro.length < 2);
 
+    // Esperar 300ms sin teclear antes de buscar
     debounceTimeout = setTimeout(async () => {
+      // Si hay menos de 2 caracteres, se limpia la búsqueda
       if (filtro.length < 2) {
         coincidenciasActivas = null;
         paginaActual = 1;
@@ -70,12 +127,14 @@ function iniciarBusqueda() {
         return;
       }
 
+      // Id único para esta búsqueda (evita usar respuestas viejas)
       const busquedaId = ++ultimaBusquedaId;
       busquedaEnProgreso = true;
 
       try {
         const res = await fetch(`/usuarios?search=${encodeURIComponent(filtro)}`);
         
+        // Si llegó una respuesta de una búsqueda anterior, la ignoramos
         if (busquedaId !== ultimaBusquedaId) return;
 
         if (!res.ok) {
@@ -85,6 +144,8 @@ function iniciarBusqueda() {
         const data = await res.json();
         coincidenciasActivas = data;
         paginaActual = 1;
+
+        // Cuando hay búsqueda, se muestra sin paginar
         renderizarSinPaginacion();
       } catch (error) {
         console.error("Error en búsqueda:", error);
@@ -96,15 +157,22 @@ function iniciarBusqueda() {
   });
 }
 
+
+/**
+ * Carga todos los usuarios desde el backend y decide
+ * si dibujar con paginación o usando coincidencias activas.
+ */
 async function cargarUsuariosEnTabla() {
   const tabla = document.getElementById("tablaUsuariosBody");
   if (!tabla) return;
 
+  // Mensaje inicial mientras se carga
   tabla.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 italic py-3">Cargando usuarios...</td></tr>`;
 
   try {
     const res = await fetch("/usuarios");
     
+    // Si la sesión cambió o no hay permisos
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
         tabla.innerHTML = `<tr><td colspan="3" class="text-center text-yellow-500 italic py-3">
@@ -119,10 +187,12 @@ async function cargarUsuariosEnTabla() {
     const data = await res.json();
     usuariosTotales = data;
     
+    // Si no hay búsqueda activa, renderizar con paginación
     if (!coincidenciasActivas) {
       paginaActual = 1;
       renderizarPagina(paginaActual);
     } else {
+      // Si hay búsqueda activa, respetarla
       renderizarSinPaginacion();
     }
   } catch (error) {
@@ -132,6 +202,10 @@ async function cargarUsuariosEnTabla() {
   }
 }
 
+
+/**
+ * Dibuja una página concreta de la tabla (paginación normal).
+ */
 function renderizarPagina(pagina) {
   const tabla = document.getElementById("tablaUsuariosBody");
   if (!tabla) return;
@@ -155,35 +229,48 @@ function renderizarPagina(pagina) {
     tabla.appendChild(fragmento);
   }
 
-  document.getElementById("paginaActual").textContent = pagina;
-  lucide.createIcons();
+  // Actualizar número de página visible
+  const paginaActualEl = document.getElementById("paginaActual");
+  if (paginaActualEl) paginaActualEl.textContent = pagina;
+
+  // Volver a dibujar iconos de Lucide por las nuevas filas
+  try { lucide.createIcons(); } catch (e) { console.warn('lucide.createIcons fallo:', e); }
   actualizarBotonesPaginacion();
 }
 
+
+/**
+ * Crea y devuelve una fila <tr> del usuario, con sus acciones.
+ */
 function crearFilaUsuario(user) {
   const fila = document.createElement("tr");
   fila.className = "border-b border-white/5 hover:bg-white/5 transition";
   fila.dataset.usuario = user.usuario;
 
+  // Columna: Usuario
   const tdNombre = document.createElement("td");
   tdNombre.className = "px-4 py-2 nombre-usuario";
   tdNombre.textContent = user.usuario;
 
+  // Columna: Rol
   const tdRol = document.createElement("td");
   tdRol.className = "px-4 py-2 capitalize";
   tdRol.textContent = user.rol;
 
+  // Columna: Acciones
   const tdAcciones = document.createElement("td");
   tdAcciones.className = "px-6 py-3 w-[180px]";
 
   const divAcciones = document.createElement("div");
   divAcciones.className = "flex justify-center gap-4";
 
+  // Botón Editar
   const btnEditar = document.createElement("button");
   btnEditar.className = "text-emerald-400 hover:text-emerald-300 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition";
   btnEditar.innerHTML = '<i data-lucide="edit" class="w-4 h-4"></i><span>Editar</span>';
   btnEditar.addEventListener("click", () => editarUsuario(user.usuario));
 
+  // Botón Eliminar
   const btnEliminar = document.createElement("button");
   btnEliminar.className = "text-red-500 hover:text-red-400 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition";
   btnEliminar.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i><span>Eliminar</span>';
@@ -200,6 +287,10 @@ function crearFilaUsuario(user) {
   return fila;
 }
 
+
+/**
+ * Renderiza sin paginación (modo resultados de búsqueda).
+ */
 function renderizarSinPaginacion() {
   const tabla = document.getElementById("tablaUsuariosBody");
   if (!tabla) return;
@@ -214,6 +305,7 @@ function renderizarSinPaginacion() {
 
     fuente.forEach((user) => {
       const fila = crearFilaUsuario(user);
+      // Arrancan transparentes para animación de fade-in
       fila.classList.add("opacity-0");
       fragmento.appendChild(fila);
     });
@@ -221,10 +313,14 @@ function renderizarSinPaginacion() {
     tabla.appendChild(fragmento);
   }
 
-  document.getElementById("paginaActual").textContent = "-";
-  setTimeout(() => lucide.createIcons(), 0);
+  // En modo búsqueda, la paginación no aplica
+  const paginaActualEl = document.getElementById("paginaActual");
+  if (paginaActualEl) paginaActualEl.textContent = "-";
+
+  setTimeout(() => { try { lucide.createIcons(); } catch(e){console.warn(e);} }, 0);
   actualizarBotonesPaginacion();
 
+  // Animación de aparición
   requestAnimationFrame(() => {
     tabla.querySelectorAll("tr").forEach((tr) => {
       tr.style.transition = "opacity 0.25s ease";
@@ -233,6 +329,10 @@ function renderizarSinPaginacion() {
   });
 }
 
+
+/**
+ * Configura eventos de los botones Anterior / Siguiente.
+ */
 function iniciarPaginacion() {
   const btnPrev = document.getElementById("prevPagina");
   const btnNext = document.getElementById("nextPagina");
@@ -246,6 +346,7 @@ function iniciarPaginacion() {
   });
 
   btnNext.addEventListener("click", () => {
+    // Si hay búsqueda, no se permite avanzar página
     if (coincidenciasActivas) return;
     
     const fuente = obtenerFuenteActual();
@@ -257,6 +358,11 @@ function iniciarPaginacion() {
   });
 }
 
+
+/**
+ * Actualiza estado visual y texto de la paginación
+ * (botones deshabilitados y texto "Mostrando usuarios X–Y de Z").
+ */
 function actualizarBotonesPaginacion() {
   const fuente = obtenerFuenteActual();
   const totalPaginas = Math.ceil(fuente.length / usuariosPorPagina);
@@ -264,14 +370,13 @@ function actualizarBotonesPaginacion() {
   const btnNext = document.getElementById("nextPagina");
   const infoLabel = document.getElementById("infoPaginacion");
 
+  // Si hay búsqueda, se muestran solo resultados sin paginar
   if (coincidenciasActivas) {
     if (infoLabel) {
       infoLabel.textContent = `${fuente.length} resultado${fuente.length !== 1 ? 's' : ''} encontrado${fuente.length !== 1 ? 's' : ''}`;
     }
-    btnPrev.disabled = true;
-    btnNext.disabled = true;
-    btnPrev.classList.add("opacity-50", "cursor-not-allowed");
-    btnNext.classList.add("opacity-50", "cursor-not-allowed");
+    if (btnPrev) { btnPrev.disabled = true; btnPrev.classList.add("opacity-50", "cursor-not-allowed"); }
+    if (btnNext) { btnNext.disabled = true; btnNext.classList.add("opacity-50", "cursor-not-allowed"); }
     return;
   }
 
@@ -287,19 +392,27 @@ function actualizarBotonesPaginacion() {
   const prevDisabled = paginaActual === 1;
   const nextDisabled = paginaActual >= totalPaginas || fuente.length === 0;
 
-  btnPrev.disabled = prevDisabled;
-  btnNext.disabled = nextDisabled;
-
-  btnPrev.classList.toggle("opacity-50", prevDisabled);
-  btnPrev.classList.toggle("cursor-not-allowed", prevDisabled);
-  btnNext.classList.toggle("opacity-50", nextDisabled);
-  btnNext.classList.toggle("cursor-not-allowed", nextDisabled);
+  if (btnPrev) {
+    btnPrev.disabled = prevDisabled;
+    btnPrev.classList.toggle("opacity-50", prevDisabled);
+    btnPrev.classList.toggle("cursor-not-allowed", prevDisabled);
+  }
+  if (btnNext) {
+    btnNext.disabled = nextDisabled;
+    btnNext.classList.toggle("opacity-50", nextDisabled);
+    btnNext.classList.toggle("cursor-not-allowed", nextDisabled);
+  }
 }
 
+
+/**
+ * Configura comportamiento del formulario para crear/editar usuarios.
+ */
 function iniciarFormulario() {
   const form = document.getElementById("userForm");
   if (!form) return;
 
+  // Flag para evitar doble envío
   let enviando = false;
 
   form.addEventListener("submit", async (e) => {
@@ -311,6 +424,7 @@ function iniciarFormulario() {
       return;
     }
 
+    // Validación básica de campos
     if (!validarCampos()) {
       mostrarToast("Completá todos los campos requeridos", "error");
       return;
@@ -321,27 +435,37 @@ function iniciarFormulario() {
     const textoOriginal = submitBtn?.textContent;
     if (submitBtn) submitBtn.textContent = "Procesando...";
 
-    const modo = document.getElementById("modo").value;
-    const nombre = document.getElementById("usuario").value.trim();
-    const password = document.getElementById("password").value;
-    const rol = document.getElementById("rol").value;
-    const original = document.getElementById("originalUsuario").value;
+    // Captura de elementos
+    const modoEl = document.getElementById("modo");
+    const usuarioEl = document.getElementById("usuario");
+    const passwordEl = document.getElementById("password");
+    const rolEl = document.getElementById("rol");
+    const originalEl = document.getElementById("originalUsuario");
+
+    // Valores normalizados
+    const modo = modoEl?.value || "crear";
+    const nombre = usuarioEl?.value.trim() || "";
+    const password = passwordEl?.value || "";
+    const rol = rolEl?.value || "";
+    const original = originalEl?.value || "";
 
     console.log("📊 Datos del formulario:", { modo, nombre, rol, original });
 
+    // Si se edita el nombre, verificar que no exista otro igual
     if (modo === "editar" && nombre !== original) {
       const existe = usuariosTotales.some(
         (u) => u.usuario.toLowerCase() === nombre.toLowerCase()
       );
       if (existe) {
         mostrarToast(`Ya existe un usuario llamado "${nombre}"`, "error");
-        document.getElementById("usuario").classList.add("border-red-500", "ring-red-500");
+        if (usuarioEl) usuarioEl.classList.add("border-red-500", "ring-red-500");
         enviando = false;
         if (submitBtn) submitBtn.textContent = textoOriginal;
         return;
       }
     }
 
+    // Payloads separados para crear y editar
     const payloadCrear = JSON.stringify({ usuario: nombre, password, rol });
     const payloadEditar = JSON.stringify({ nuevo_usuario: nombre, password, rol });
 
@@ -349,12 +473,14 @@ function iniciarFormulario() {
       let res;
       
       if (modo === "crear") {
+        // Alta de usuario
         res = await fetch("/crear-usuario", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: payloadCrear,
         });
       } else {
+        // Edición de usuario existente
         const url = `/editar-usuario/${encodeURIComponent(original)}`;
         res = await fetch(url, {
           method: "PUT",
@@ -365,6 +491,7 @@ function iniciarFormulario() {
 
       console.log("📡 Response status:", res.status);
 
+      // Intentar parsear JSON de respuesta
       let data;
       const contentType = res.headers.get("content-type");
       
@@ -379,10 +506,11 @@ function iniciarFormulario() {
       if (res.ok) {
         console.log("✅ Respuesta exitosa del servidor");
         
+        // Flag que indica si el usuario editado es el que está logueado
         const editoPropio = data?.editando_propio_usuario || false;
         console.log("🔍 ¿Editó su propio usuario?", editoPropio);
         
-        // MOSTRAR TOAST PRIMERO
+        // Toast de éxito
         if (editoPropio && nombre !== original) {
           console.log("🎯 Mostrando toast para edición propia");
           mostrarToast("Usuario actualizado. Tu nombre de sesión cambió correctamente", "success");
@@ -392,16 +520,16 @@ function iniciarFormulario() {
           mostrarToast(mensajeBase, "success");
         }
         
-        // CERRAR MODAL
+        // Cerrar modal y limpiar formulario
         console.log("🚪 Cerrando modal...");
         reiniciarFormulario();
         cerrarModal();
         
-        // RECARGAR TABLA
+        // Volver a cargar la tabla
         console.log("🔄 Recargando tabla...");
         await cargarUsuariosEnTabla();
         
-        // ACTUALIZAR SIDEBAR (si corresponde)
+        // Actualizar nombre en sidebar si editó su propio usuario
         if (editoPropio && nombre !== original) {
           console.log("🎨 Actualizando sidebar...");
           
@@ -419,6 +547,7 @@ function iniciarFormulario() {
             console.log("🔍 Elemento nombreUsuarioSidebar:", nombreSidebar);
             
             if (nombreSidebar) {
+              // Se podría anteponer "👋 " si se quiere mantener el saludo
               nombreSidebar.textContent = nombre;
               console.log("✅ Actualizado nombreUsuarioSidebar");
             } else {
@@ -431,6 +560,7 @@ function iniciarFormulario() {
         
         console.log("✅ Proceso completado exitosamente");
       } else {
+        // Manejo de distintos códigos de error HTTP
         let errorMsg = "Error al procesar usuario";
         
         if (res.status === 400) errorMsg = "Datos inválidos";
@@ -444,6 +574,7 @@ function iniciarFormulario() {
         mostrarToast(errorMsg, "error");
       }
     } catch (err) {
+      // Errores de red u otros no controlados
       console.error("❌ Error completo:", err);
       console.error("Stack trace:", err.stack);
       
@@ -457,67 +588,106 @@ function iniciarFormulario() {
       
       mostrarToast(mensajeError, "error");
     } finally {
+      // Restaurar botón y flag
       enviando = false;
       if (submitBtn) submitBtn.textContent = textoOriginal;
     }
   });
 }
 
+
+/**
+ * Validación básica de campos del formulario.
+ */
 function validarCampos() {
   const usuario = document.getElementById("usuario");
   const password = document.getElementById("password");
   const rol = document.getElementById("rol");
-  const modo = document.getElementById("modo").value;
+  const modoEl = document.getElementById("modo");
+  const modo = modoEl?.value || "crear";
   let valido = true;
 
-  if (!usuario.value.trim()) {
-    usuario.classList.add("border-red-500", "ring-red-500");
+  // Usuario obligatorio
+  if (!usuario || !usuario.value.trim()) {
+    if (usuario) usuario.classList.add("border-red-500", "ring-red-500");
     valido = false;
   } else {
     usuario.classList.remove("border-red-500", "ring-red-500");
   }
 
-  if (modo === "crear" && !password.value) {
-    password.classList.add("border-red-500", "ring-red-500");
+  // Password obligatorio solo al crear
+  if (modo === "crear" && (!password || !password.value)) {
+    if (password) password.classList.add("border-red-500", "ring-red-500");
     valido = false;
-  } else {
+  } else if (password) {
     password.classList.remove("border-red-500", "ring-red-500");
   }
 
-  if (!rol.value) {
-    rol.classList.add("border-red-500", "ring-red-500");
+  // Rol obligatorio
+  if (!rol || !rol.value) {
+    if (rol) rol.classList.add("border-red-500", "ring-red-500");
     valido = false;
-  } else {
+  } else if (rol) {
     rol.classList.remove("border-red-500", "ring-red-500");
   }
 
   return valido;
 }
 
+
+/**
+ * Pone el formulario en modo "Crear" y limpia todos los campos/estilos.
+ */
 function reiniciarFormulario() {
-  document.getElementById("modo").value = "crear";
-  document.getElementById("submitLabel").textContent = "Crear";
-  document.getElementById("usuario").disabled = false;
-  document.getElementById("usuario").value = "";
-  document.getElementById("password").value = "";
-  document.getElementById("password").placeholder = "";
-  document.getElementById("rol").value = "";
-  document.getElementById("originalUsuario").value = "";
+  const modoEl = document.getElementById("modo");
+  const submitLabelEl = document.getElementById("submitLabel");
+  const usuarioEl = document.getElementById("usuario");
+  const passwordEl = document.getElementById("password");
+  const rolEl = document.getElementById("rol");
+  const originalUsuarioEl = document.getElementById("originalUsuario");
+
+  if (modoEl) modoEl.value = "crear";
+  if (submitLabelEl) submitLabelEl.textContent = "Crear";
+  if (usuarioEl) {
+    usuarioEl.disabled = false;
+    usuarioEl.value = "";
+  }
+  if (passwordEl) {
+    passwordEl.value = "";
+    passwordEl.placeholder = "";
+  }
+  if (rolEl) rolEl.value = "";
+  if (originalUsuarioEl) originalUsuarioEl.value = "";
   
+  // Quitar marcas de error en los campos
   ["usuario", "password", "rol"].forEach(id => {
-    document.getElementById(id)?.classList.remove("border-red-500", "ring-red-500");
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("border-red-500", "ring-red-500");
   });
 }
 
+
+/**
+ * Rellena el formulario con los datos de un usuario para editarlo.
+ */
 async function editarUsuario(nombre) {
-  document.getElementById("modo").value = "editar";
-  document.getElementById("submitLabel").textContent = "Actualizar";
-  document.getElementById("usuario").disabled = false;
-  document.getElementById("usuario").value = nombre;
-  document.getElementById("password").value = "";
-  document.getElementById("password").placeholder = "Dejar vacío para mantener actual";
+  const modoEl = document.getElementById("modo");
+  const submitLabelEl = document.getElementById("submitLabel");
+  const usuarioEl = document.getElementById("usuario");
+  const passwordEl = document.getElementById("password");
+  const rolEl = document.getElementById("rol");
+
+  if (modoEl) modoEl.value = "editar";
+  if (submitLabelEl) submitLabelEl.textContent = "Actualizar";
+  if (usuarioEl) {
+    usuarioEl.disabled = false;
+    usuarioEl.value = nombre;
+  }
+  if (passwordEl) passwordEl.value = "";
+  if (passwordEl) passwordEl.placeholder = "Dejar vacío para mantener actual";
 
   try {
+    // Obtener datos detallados del usuario
     const res = await fetch(`/usuario-detalle/${encodeURIComponent(nombre)}`);
     
     if (!res.ok) {
@@ -527,27 +697,34 @@ async function editarUsuario(nombre) {
     const data = await res.json();
     
     if (data.usuario) {
-      document.getElementById("rol").value = data.rol || "";
+      if (rolEl) rolEl.value = data.rol || "";
     } else {
       mostrarToast("No se pudo cargar el rol del usuario", "warning");
-      document.getElementById("rol").value = "";
+      if (rolEl) rolEl.value = "";
     }
   } catch (error) {
     console.error("Error al cargar rol:", error);
     mostrarToast("Error al obtener datos del usuario", "error");
-    document.getElementById("rol").value = "";
+    if (rolEl) rolEl.value = "";
   }
 
-  document.getElementById("originalUsuario").value = nombre;
+  // Guardar usuario original para saber si cambió el nombre
+  if (document.getElementById("originalUsuario")) document.getElementById("originalUsuario").value = nombre;
   abrirModal();
 }
 
+
+/**
+ * Elimina un usuario, previniendo que se elimine la propia cuenta activa.
+ */
 async function eliminarUsuario(nombre) {
+  // Protección: no permitir eliminar el usuario de la sesión actual
   if (usuarioSesionActual && nombre.toLowerCase() === usuarioSesionActual.toLowerCase()) {
     mostrarToast("No podés eliminar tu propio usuario mientras tenés la sesión activa", "error");
     return;
   }
 
+  // Confirmación básica del navegador
   const confirmado = confirm(
     `¿Estás seguro de eliminar al usuario "${nombre}"?\n\nEsta acción no se puede deshacer.`
   );
@@ -584,23 +761,30 @@ async function eliminarUsuario(nombre) {
   }
 }
 
+
+/**
+ * Inicializa eventos del modal (abrir/cerrar con botón, click fuera, Escape).
+ */
 function iniciarModal() {
   const btnMostrar = document.getElementById("mostrarFormularioBtn");
   const modal = document.getElementById("modalUsuario");
   
   if (!btnMostrar || !modal) return;
 
+  // Botón "Nuevo usuario"
   btnMostrar.addEventListener("click", () => {
     reiniciarFormulario();
     abrirModal();
   });
 
+  // Cerrar al hacer click fuera del contenido
   modal.addEventListener("click", (e) => {
     if (e.target === modal) {
       cerrarModal();
     }
   });
 
+  // Cerrar con tecla Escape
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !modal.classList.contains("hidden")) {
       cerrarModal();
@@ -608,6 +792,10 @@ function iniciarModal() {
   });
 }
 
+
+/**
+ * Muestra el modal y bloquea el scroll de fondo.
+ */
 function abrirModal() {
   const modal = document.getElementById("modalUsuario");
   if (!modal) return;
@@ -615,11 +803,16 @@ function abrirModal() {
   modal.classList.add("flex");
   document.body.style.overflow = "hidden";
   
+  // Foco al input usuario
   setTimeout(() => {
     document.getElementById("usuario")?.focus();
   }, 100);
 }
 
+
+/**
+ * Oculta el modal, restaura el scroll y limpia el formulario.
+ */
 function cerrarModal() {
   const modal = document.getElementById("modalUsuario");
   if (!modal) return;
@@ -629,6 +822,10 @@ function cerrarModal() {
   reiniciarFormulario();
 }
 
+
+/**
+ * Muestra un toast flotante en la parte superior derecha.
+ */
 function mostrarToast(mensaje, tipo = "info") {
   console.log(`🍞 mostrarToast llamado: "${mensaje}" (${tipo})`);
   
@@ -641,6 +838,7 @@ function mostrarToast(mensaje, tipo = "info") {
     return;
   }
 
+  // Colores por tipo
   const colores = {
     success: "bg-emerald-600",
     error: "bg-red-600",
@@ -648,6 +846,7 @@ function mostrarToast(mensaje, tipo = "info") {
     warning: "bg-yellow-500",
   };
 
+  // Iconos por tipo
   const iconos = {
     success: "✓",
     error: "✕",
@@ -655,6 +854,7 @@ function mostrarToast(mensaje, tipo = "info") {
     warning: "⚠",
   };
 
+  // Contenedor del toast
   const toast = document.createElement("div");
   toast.className = `${
     colores[tipo] || colores.info
@@ -673,6 +873,7 @@ function mostrarToast(mensaje, tipo = "info") {
   container.appendChild(toast);
   console.log("✅ Toast agregado al DOM");
 
+  // Animación de salida y eliminación
   setTimeout(() => {
     toast.classList.add("opacity-0", "scale-95");
     setTimeout(() => {

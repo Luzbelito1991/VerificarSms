@@ -2,17 +2,15 @@
 {% block title %}Verificación SMS{% endblock %}
 
 {% block contenido %}
-<div class="min-h-[80vh] flex items-center justify-center px-4">
+<div class="min-h-[80vh] flex items-center justify-center animate-fade-in-up">
   <section
-    class="w-full max-w-2xl rounded-2xl border border-white/10 bg-[#111827]/90 backdrop-blur-md
-           shadow-[0_18px_45px_rgba(0,0,0,0.6)] p-6 md:p-7 space-y-6
-           transition-colors duration-300 hover:border-emerald-400/70">
+    class="w-full max-w-2xl glass-effect border border-white/20 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6 hover-lift">
 
-    <!-- Encabezado -->
-    <header class="space-y-1">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+    <!-- Encabezado moderno -->
+    <header class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-400/40">
         <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
-        <span class="text-sm font-medium text-emerald-200 tracking-wide">Verificar SMS</span>
+        <span class="text-sm font-semibold text-emerald-200 tracking-wide">Verificación por SMS</span>
       </div>
     </header>
 
@@ -20,49 +18,51 @@
     <form id="smsForm" class="space-y-6" autocomplete="off">
 
       <!-- DNI y Celular -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <!-- DNI -->
-        <div>
-          <label for="personId" class="block text-sm font-medium text-gray-100 mb-1">DNI</label>
+        <div class="group">
+          <label for="personId" class="block text-sm font-medium text-gray-100 mb-2">DNI del Cliente</label>
           <input
             id="personId"
             maxlength="8"
             inputmode="numeric"
-            class="w-full bg-[#020617] border border-slate-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500
-                   outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-[#111827]
-                   focus:border-emerald-500 transition" />
+            placeholder="Ej: 12345678"
+            class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500
+                   outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                   group-hover:border-gray-600 transition-all duration-200" />
           <div id="dniError" class="min-h-[1rem] text-red-400 text-xs mt-1">
             <span class="invisible">El DNI debe tener 8 dígitos.</span>
           </div>
         </div>
 
         <!-- Celular -->
-        <div>
-          <label for="phoneNumber" class="block text-sm font-medium text-gray-100 mb-1">Celular</label>
+        <div class="group">
+          <label for="phoneNumber" class="block text-sm font-medium text-gray-100 mb-2">Número de Celular</label>
           <input
             id="phoneNumber"
             maxlength="10"
             inputmode="numeric"
-            class="w-full bg-[#020617] border border-slate-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500
-                   outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-[#111827]
-                   focus:border-emerald-500 transition" />
+            placeholder="Ej: 3815123456"
+            class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500
+                   outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                   group-hover:border-gray-600 transition-all duration-200" />
           <div id="phoneError" class="min-h-[1rem] text-red-400 text-xs mt-1">
             <span class="invisible">El celular debe tener 10 dígitos.</span>
           </div>
         </div>
       </div>
 
-      <!-- Sucursal + botón estilo barra lateral -->
-      <div class="space-y-1">
+      <!-- Sucursal + botón -->
+      <div class="space-y-2">
         <label for="merchantCode" class="block text-sm font-medium text-gray-100">Sucursal</label>
 
-        <div class="flex items-center gap-3">
-          <!-- Select un poco más largo -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <!-- Select mejorado -->
           <select
             id="merchantCode"
-            class="w-75 bg-[#020617] border border-slate-700 px-3 py-2 rounded-md text-sm text-white truncate
-                   outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-[#111827]
-                   focus:border-emerald-500 transition">
+            class="flex-1 bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white
+                   outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                   hover:border-gray-600 transition-all duration-200 cursor-pointer">
             <option value="">Seleccionar sucursal</option>
             <option value="776">776 - Limite Deportes Alberdi</option>
             <option value="777">777 - Limite Deportes Lules</option>
@@ -71,27 +71,28 @@
             <option value="781">781 - Limite Deportes Banda de Río Salí</option>
           </select>
 
-          <!-- Botón Agregar más corto -->
+          <!-- Botón Agregar -->
           <button
             type="button"
             id="addBranchBtn"
-            class="flex-none w-fit inline-flex items-center justify-center px-3 py-2 text-xs font-semibold rounded-md
-                   bg-[#020617] border border-white/10 text-gray-200
-                   hover:bg-emerald-500/10 hover:text-emerald-300 hover:border-emerald-400/60
-                   transition-colors duration-200">
-            + Agregar sucursal
+            class="inline-flex items-center justify-center px-5 py-3 text-sm font-semibold rounded-xl
+                   bg-gray-800/50 border border-gray-700 text-gray-200
+                   hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-400/60
+                   transition-all duration-200 hover-lift whitespace-nowrap">
+            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+            Agregar Sucursal
           </button>
         </div>
       </div>
 
       <!-- Código generado + botón moderno -->
-      <div class="relative bg-[#020617] border border-slate-700 rounded-xl px-4 py-4 flex items-center justify-between overflow-hidden">
+      <div class="relative glass-effect border border-emerald-500/30 rounded-2xl px-6 py-5 flex items-center justify-between overflow-hidden group">
         <!-- Glow decorativo -->
-        <div class="pointer-events-none absolute inset-x-10 -top-10 h-16 bg-emerald-500/10 blur-2xl"></div>
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-emerald-600/10 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
         <div class="w-full text-center relative z-10">
-          <p class="text-xs text-gray-400 mb-1 tracking-wide uppercase">Código generado</p>
-          <div id="codeDisplay" class="text-2xl md:text-3xl font-mono font-semibold tracking-[0.5em] text-emerald-300">
+          <p class="text-xs text-gray-400 mb-2 tracking-wide uppercase font-medium">Código de Verificación</p>
+          <div id="codeDisplay" class="text-3xl md:text-4xl font-mono font-bold tracking-[0.6em] text-emerald-300 drop-shadow-lg">
             ----
           </div>
         </div>
@@ -100,30 +101,31 @@
         <button
           id="generateBtn"
           type="button"
-          class="relative z-10 group inline-flex items-center justify-center w-11 h-11 md:w-12 md:h-12
-                 rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)]
-                 hover:bg-emerald-400 transition-all duration-200
-                 hover:shadow-[0_0_26px_rgba(16,185,129,0.9)]
-                 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-[#020617]
-                 hover:-translate-y-[1px] active:translate-y-[1px]">
+          class="relative z-10 group inline-flex items-center justify-center w-14 h-14
+                 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 
+                 shadow-lg shadow-emerald-500/50
+                 hover:shadow-xl hover:shadow-emerald-500/70 
+                 transition-all duration-300
+                 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-transparent
+                 hover-lift">
           <i
             id="rotateIcon"
             data-lucide="refresh-ccw"
-            class="w-5 h-5 text-white group-hover:rotate-180 transition-transform duration-300 ease-in-out"></i>
+            class="w-6 h-6 text-white group-hover:rotate-180 transition-transform duration-500 ease-in-out"></i>
         </button>
       </div>
 
       <!-- Último mensaje -->
       <div
         id="lastMessageContainer"
-        class="bg-[#020617] border border-slate-700 rounded-lg px-4 py-3 text-sm text-white font-mono whitespace-pre-line
-               transition flex items-start gap-2">
+        class="glass-effect border border-gray-700 rounded-xl px-5 py-4 text-sm text-white font-mono whitespace-pre-line
+               transition-all duration-300 flex items-start gap-3">
         <i id="statusIcon" data-lucide="info" class="w-5 h-5 mt-0.5 text-emerald-300 shrink-0"></i>
-        <div id="lastMessage">No hay mensajes aún</div>
+        <div id="lastMessage" class="flex-1">No hay mensajes aún</div>
       </div>
 
       <!-- Botones -->
-      <div class="text-center flex justify-center gap-4 pt-1">
+      <div class="flex flex-col sm:flex-row justify-center gap-4 pt-2">
         <input type="hidden" id="verificationCode" />
 
         <!-- Enviar -->
@@ -131,21 +133,22 @@
           id="submitBtn"
           type="submit"
           disabled
-          class="inline-flex items-center justify-center min-w-[140px] px-4 py-2 text-sm font-semibold rounded-md
-                 bg-emerald-600 hover:bg-emerald-500 text-white shadow-md
-                 disabled:opacity-40 disabled:cursor-not-allowed
-                 transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400/70
-                 hover:-translate-y-[1px] active:translate-y-[1px]">
-          <i data-lucide="send" class="w-4 h-4 mr-1.5 -ml-0.5 text-white/90"></i>
+          class="inline-flex items-center justify-center min-w-[160px] px-6 py-3.5 text-sm font-semibold rounded-xl
+                 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400
+                 text-white shadow-lg shadow-emerald-600/50
+                 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none
+                 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400
+                 hover-lift">
+          <i data-lucide="send" class="w-5 h-5 mr-2"></i>
           <span id="submitText">Enviar SMS</span>
           <svg
             id="loader"
-            class="hidden animate-spin w-4 h-4 ml-1.5 text-white"
+            class="hidden animate-spin w-5 h-5 ml-2 text-white"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="CurrentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
           </svg>
         </button>
 
@@ -153,13 +156,12 @@
         <button
           id="cancelBtn"
           type="button"
-          class="inline-flex items-center justify-center min-w-[140px] px-4 py-2 text-sm font-semibold rounded-md
-                 text-white shadow-md transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-white/20
-                 hover:-translate-y-[1px] active:translate-y-[1px]"
-          style="background-color: #f02828;"
-          onmouseover="this.style.backgroundColor='#f32d2d';"
-          onmouseout="this.style.backgroundColor='#f04a4a';">
-          <i data-lucide="x-circle" class="w-4 h-4 mr-1.5 -ml-0.5 text-white/90"></i>
+          class="inline-flex items-center justify-center min-w-[160px] px-6 py-3.5 text-sm font-semibold rounded-xl
+                 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400
+                 text-white shadow-lg shadow-red-600/50
+                 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400
+                 hover-lift">
+          <i data-lucide="x-circle" class="w-5 h-5 mr-2"></i>
           <span>Cancelar</span>
         </button>
       </div>
@@ -169,21 +171,23 @@
 </div>
 
 <!-- 🏪 Modal Agregar Sucursal -->
-<div id="modalSucursal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-  <div class="bg-gray-900 border border-white/10 rounded-lg p-6 w-full max-w-md shadow-xl relative">
-    <button onclick="cerrarModalSucursal()" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+<div id="modalSucursal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+  <div class="glass-effect border border-white/20 rounded-2xl p-8 w-full max-w-md shadow-2xl relative animate-fade-in-up">
+    <button onclick="cerrarModalSucursal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-all">
       <i data-lucide="x" class="w-5 h-5"></i>
     </button>
     
     <div>
-      <h3 class="text-white text-base font-semibold mb-4 flex items-center gap-2">
-        <i data-lucide="store" class="w-4 h-4 text-emerald-400"></i>
-        Agregar Nueva Sucursal
+      <h3 class="text-white text-lg font-bold mb-6 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+          <i data-lucide="store" class="w-5 h-5 text-white"></i>
+        </div>
+        <span>Agregar Nueva Sucursal</span>
       </h3>
 
-      <form id="sucursalForm" class="space-y-4">
-        <div>
-          <label for="codigoSucursal" class="block text-sm font-medium text-white mb-1">Código (3 dígitos)</label>
+      <form id="sucursalForm" class="space-y-5">
+        <div class="group">
+          <label for="codigoSucursal" class="block text-sm font-medium text-white mb-2">Código (3 dígitos)</label>
           <input
             type="text" 
             id="codigoSucursal" 
@@ -191,32 +195,37 @@
             inputmode="numeric"
             required 
             placeholder="Ej: 782"
-            class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white
-                   placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+            class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white
+                   placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                   group-hover:border-gray-600 transition-all duration-200" />
         </div>
 
-        <div>
-          <label for="nombreSucursal" class="block text-sm font-medium text-white mb-1">Nombre de Sucursal</label>
+        <div class="group">
+          <label for="nombreSucursal" class="block text-sm font-medium text-white mb-2">Nombre de Sucursal</label>
           <input
             type="text" 
             id="nombreSucursal" 
             required 
             placeholder="Ej: Limite Deportes Centro"
-            class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white
-                   placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+            class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white
+                   placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                   group-hover:border-gray-600 transition-all duration-200" />
         </div>
 
-        <div class="flex gap-4 justify-center pt-2">
+        <div class="flex gap-4 justify-center pt-4">
           <button
             type="submit"
-            class="bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-sm text-white font-semibold rounded-md inline-flex items-center gap-1">
+            class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 
+                   px-6 py-3 text-sm text-white font-semibold rounded-xl inline-flex items-center gap-2
+                   shadow-lg hover:shadow-emerald-500/50 transition-all duration-200 hover-lift">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Agregar</span>
           </button>
           <button
             type="button"
             onclick="cerrarModalSucursal()"
-            class="bg-gray-700 hover:bg-gray-600 px-4 py-1.5 text-sm text-white font-semibold rounded-md">
+            class="bg-gray-700 hover:bg-gray-600 px-6 py-3 text-sm text-white font-semibold rounded-xl
+                   transition-all duration-200 hover-lift">
             Cancelar
           </button>
         </div>
@@ -227,6 +236,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="/static/js/verificarSms.js"></script>
+  <script src="/static/js/verificarSms.js?v=2.0"></script>
   <script>lucide.createIcons();</script>
 {% endblock %}

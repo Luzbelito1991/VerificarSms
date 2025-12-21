@@ -3,46 +3,81 @@
 {% block title %}Administración SMS{% endblock %}
 
 {% block contenido %}
-<section class="space-y-6 animate-fade-in-down max-w-5xl mx-auto">
+<section class="space-y-7 animate-fade-in-up">
 
-  <!-- 🟢 Encabezado -->
-  <header class="space-y-2 mb-2">
-    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+  <!-- 🟢 Encabezado moderno -->
+  <header class="space-y-2">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-400/40">
       <i data-lucide="send" class="w-5 h-5 text-emerald-300"></i>
-      <span class="text-sm font-medium text-emerald-200 tracking-wide">SMS enviados</span>
+      <span class="text-sm font-semibold text-emerald-200 tracking-wide">Administración de SMS</span>
     </div>
   </header>
 
-  <!-- 🎛️ Filtros dentro de tarjeta -->
-  <div class="border border-white/10 rounded-lg bg-gray-900/40 p-4 space-y-3">
+  <!-- 🎛️ Filtros en tarjeta glassmorphism -->
+  <div class="glass-effect border border-white/20 rounded-2xl p-6 space-y-4 shadow-xl">
     {% include "fragmentos/sms_filtros.html" %}
 
-    <!-- 🔘 Botones alineados a la derecha -->
-    <div class="flex flex-wrap items-center gap-3 justify-end text-sm">
-      <button onclick="aplicarFiltros()" class="btn-emerald btn-interactivo">Aplicar filtros</button>
-      <button onclick="exportarExcel()" class="btn-blue btn-interactivo">Exportar a Excel</button>
-      <button onclick="limpiarFiltros()" class="btn-gray btn-interactivo">🧹 Limpiar filtros</button>
+    <!-- 🔘 Botones mejorados -->
+    <div class="flex flex-wrap items-center gap-3 justify-end text-sm pt-2">
+      <button onclick="aplicarFiltros()" 
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                     bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400
+                     text-white shadow-lg hover:shadow-emerald-500/50 transition-all duration-200 hover-lift">
+        <i data-lucide="filter" class="w-4 h-4"></i>
+        Aplicar Filtros
+      </button>
+      <button onclick="exportarExcel()" 
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                     bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400
+                     text-white shadow-lg hover:shadow-blue-500/50 transition-all duration-200 hover-lift">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        Exportar Excel
+      </button>
+      <button onclick="limpiarFiltros()" 
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                     bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
+                     transition-all duration-200 hover-lift">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        Limpiar
+      </button>
     </div>
   </div>
 
   <!-- 📊 Tabla + paginación -->
-  <div class="border border-white/10 rounded-lg shadow-lg bg-gray-800/30">
-    <div class="p-4 space-y-4 relative">
+  <div class="glass-effect border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
+    <div class="p-6 space-y-5">
       {% include "fragmentos/sms_tabla.html" %}
 
-      <div id="rangoRegistros" class="text-center text-gray-300 text-sm italic">
+      <div id="rangoRegistros" class="text-center text-gray-300 text-sm italic pt-2 border-t border-white/10">
         Mostrando registros 1–5
       </div>
 
-      <!-- 🔁 Paginación mejor destacada -->
-      <div class="flex justify-center items-center gap-3 text-white text-sm pt-3 border-t border-white/10">
-        <button id="prevPagina" class="btn-gray btn-interactivo" disabled>Anterior</button>
+      <!-- 🔁 Paginación moderna -->
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-4 text-white text-sm pt-4">
+        <button id="prevPagina" 
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                       bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       transition-all duration-200 hover-lift" 
+                disabled>
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          Anterior
+        </button>
 
-        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-200">
-          Página <span id="paginaActual" class="font-semibold">1</span>
-        </span>
+        <div class="inline-flex items-center gap-2 px-5 py-2 rounded-xl glass-effect border border-emerald-500/40">
+          <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
+          <span class="text-gray-300">Página</span>
+          <span id="paginaActual" class="font-bold text-emerald-300">1</span>
+        </div>
 
-        <button id="nextPagina" class="btn-gray btn-interactivo">Siguiente</button>
+        <button id="nextPagina" 
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                       bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       transition-all duration-200 hover-lift">
+          Siguiente
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -53,6 +88,6 @@
 
 {% block scripts %}
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-  <script src="/static/js/sms_admin.js"></script>
+  <script src="/static/js/sms_admin.js?v=2.0"></script>
   <script>lucide.createIcons();</script>
 {% endblock %}

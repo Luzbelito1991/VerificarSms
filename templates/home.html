@@ -3,51 +3,75 @@
 {% block title %}Inicio{% endblock %}
 
 {% block contenido %}
-<div class="max-w-6xl mx-auto space-y-8 px-4 sm:px-6 md:px-8 animate-fade-in-up">
+<div class="space-y-8 animate-fade-in-up">
 
-  <!-- Encabezado amplio con rol -->
-  <section class="bg-gray-900 border border-white/10 rounded-xl px-6 py-5 shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div class="flex items-center gap-4">
-     
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Hola {{ user.usuario }}</h1>
-        <p class="text-sm text-gray-300 mt-1">Rol: 
-          {% if user.rol|lower == "admin" %}
-            <span class="text-purple-400 font-semibold">Administrador</span>
-          {% elif user.rol|lower == "operador" %}
-            <span class="text-blue-400 font-semibold">Operador</span>
-          {% else %}
-            <span class="text-gray-400 font-semibold">{{ user.rol }}</span>
-          {% endif %}
-        </p>
+  <!-- Encabezado moderno con gradiente -->
+  <section class="glass-effect border border-white/20 rounded-2xl p-6 sm:p-8 shadow-xl hover-lift">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <div class="flex items-center gap-5">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-xl">
+          <i data-lucide="user-circle" class="w-8 h-8 sm:w-10 sm:h-10 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+            ¡Hola, <span class="text-emerald-400">{{ user.usuario }}</span>!
+          </h1>
+          <p class="text-sm sm:text-base text-gray-300 mt-2 flex items-center gap-2">
+            <span class="text-gray-400">Rol:</span>
+            {% if user.rol|lower == "admin" %}
+              <span class="px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-semibold">
+                Administrador
+              </span>
+            {% elif user.rol|lower == "operador" %}
+              <span class="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+                Operador
+              </span>
+            {% else %}
+              <span class="px-3 py-1 rounded-full bg-gray-500/20 border border-gray-400/30 text-gray-300 text-xs font-semibold">
+                {{ user.rol }}
+              </span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30">
+        <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+        <span class="text-sm text-emerald-200 font-medium">Versión 1.0.0</span>
       </div>
     </div>
-    <span class="text-sm text-white/70 bg-[#4DA874]/10 border border-[#4DA874]/20 px-3 py-1.5 rounded-full font-medium shadow-sm">Versión 1.0.0</span>
   </section>
 
-  <!-- Cards métricas SMS -->
-  <section class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+  <!-- Cards de métricas mejoradas -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
     <!-- ✅ Mensajes enviados -->
-    <div class="flex items-center gap-4 bg-green-600/10 border border-green-500/30 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
-      <div class="bg-green-600/20 text-green-400 p-3 rounded-full">
-        <i data-lucide="check-circle" class="w-6 h-6 stroke-current"></i>
+    <div class="glass-effect border border-green-500/30 rounded-2xl p-6 sm:p-8 shadow-xl hover-lift group">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+          <i data-lucide="check-circle" class="w-7 h-7 text-white"></i>
+        </div>
+        <div class="text-right">
+          <p class="text-4xl sm:text-5xl font-bold text-white">{{ enviados }}</p>
+          <p class="text-sm text-gray-300 mt-1">Mensajes Enviados</p>
+        </div>
       </div>
-      <div>
-        <p class="text-white font-semibold text-2xl">{{ enviados }}</p>
-        <p class="text-sm text-gray-300">Mensajes enviados</p>
-      </div>
+      <div class="h-1 w-full bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+      <p class="text-xs text-gray-400 mt-3">✓ Estado: Exitoso</p>
     </div>
 
     <!-- ❌ Mensajes no enviados -->
-    <div class="flex items-center gap-4 bg-red-600/10 border border-red-500/30 rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
-      <div class="bg-red-600/20 text-red-400 p-3 rounded-full">
-        <i data-lucide="x-circle" class="w-6 h-6 stroke-current"></i>
+    <div class="glass-effect border border-red-500/30 rounded-2xl p-6 sm:p-8 shadow-xl hover-lift group">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+          <i data-lucide="x-circle" class="w-7 h-7 text-white"></i>
+        </div>
+        <div class="text-right">
+          <p class="text-4xl sm:text-5xl font-bold text-white">{{ no_enviados }}</p>
+          <p class="text-sm text-gray-300 mt-1">Mensajes Fallidos</p>
+        </div>
       </div>
-      <div>
-        <p class="text-white font-semibold text-2xl">{{ no_enviados }}</p>
-        <p class="text-sm text-gray-300">Mensajes no enviados</p>
-      </div>
+      <div class="h-1 w-full bg-gradient-to-r from-red-500 to-red-600 rounded-full"></div>
+      <p class="text-xs text-gray-400 mt-3">✗ Estado: Error</p>
     </div>
 
   </section>

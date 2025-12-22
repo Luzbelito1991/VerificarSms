@@ -5,49 +5,49 @@
 {% block contenido %}
 <div class="animate-fade-in-up">
   <!-- Encabezado -->
-  <div class="flex items-center justify-between mb-8">
+  <div class="flex items-center justify-between mb-5">
     <div>
-      <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-          <i data-lucide="bar-chart-3" class="w-6 h-6 text-white"></i>
+      <h1 class="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-white"></i>
         </div>
         Métricas del Sistema
       </h1>
-      <p class="text-gray-400">Análisis de rendimiento y estadísticas</p>
+      <p class="text-gray-400 text-xs">Análisis de rendimiento y estadísticas</p>
     </div>
-    <button onclick="cargarMetricas()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center gap-2">
-      <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+    <button onclick="cargarMetricas()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center gap-1.5 text-xs">
+      <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
       Actualizar
     </button>
   </div>
 
   <!-- Tasa de Éxito/Fallo -->
-  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-8">
-    <div class="flex items-center gap-3 mb-6">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-        <i data-lucide="pie-chart" class="w-5 h-5 text-white"></i>
+  <div class="glass-effect border border-white/10 rounded-2xl p-5 mb-5">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+        <i data-lucide="pie-chart" class="w-4 h-4 text-white"></i>
       </div>
-      <h2 class="text-xl font-bold text-white">Tasa de Éxito/Fallo de Envíos</h2>
+      <h2 class="text-lg font-bold text-white">Tasa de Éxito/Fallo de Envíos</h2>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
       <!-- Total -->
-      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-        <div class="text-gray-400 text-sm mb-2">Total de SMS</div>
-        <div class="text-3xl font-bold text-white" id="totalSms">-</div>
+      <div class="bg-white/5 rounded-lg p-3 border border-white/10">
+        <div class="text-gray-400 text-xs mb-1">Total de SMS</div>
+        <div class="text-2xl font-bold text-white" id="totalSms">-</div>
       </div>
 
       <!-- Exitosos -->
-      <div class="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/30">
-        <div class="text-emerald-400 text-sm mb-2">SMS Exitosos</div>
-        <div class="text-3xl font-bold text-emerald-400" id="smsExitosos">-</div>
-        <div class="text-xs text-emerald-400/70 mt-1" id="porcentajeExito">-</div>
+      <div class="bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/30">
+        <div class="text-emerald-400 text-xs mb-1">SMS Exitosos</div>
+        <div class="text-2xl font-bold text-emerald-400" id="smsExitosos">-</div>
+        <div class="text-[10px] text-emerald-400/70 mt-0.5" id="porcentajeExito">-</div>
       </div>
 
       <!-- Fallidos -->
-      <div class="bg-red-500/10 rounded-xl p-4 border border-red-500/30">
-        <div class="text-red-400 text-sm mb-2">SMS Fallidos</div>
-        <div class="text-3xl font-bold text-red-400" id="smsFallidos">-</div>
+      <div class="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
+        <div class="text-red-400 text-xs mb-1">SMS Fallidos</div>
+        <div class="text-2xl font-bold text-red-400" id="smsFallidos">-</div>
         <div class="text-xs text-red-400/70 mt-1" id="porcentajeFallo">-</div>
       </div>
     </div>
@@ -94,7 +94,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/mostrarToast.js"></script>
 <script>
   lucide.createIcons();
 

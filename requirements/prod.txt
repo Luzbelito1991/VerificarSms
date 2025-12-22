@@ -1,0 +1,11 @@
+# Dependencias de producción
+-r base.txt
+
+# Base de datos PostgreSQL
+psycopg2-binary==2.9.10
+
+# Servidor ASGI de producción
+gunicorn==23.0.0
+
+# Monitoreo y logging
+sentry-sdk==2.19.2

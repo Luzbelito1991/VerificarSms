@@ -126,6 +126,70 @@
     </form>
   </div>
 
+  <!-- Gestión de Base de Datos -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mt-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+        <i data-lucide="database" class="w-5 h-5 text-white"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white">Gestión de Base de Datos</h2>
+    </div>
+
+    <p class="text-gray-400 text-sm mb-6">
+      Herramientas para administrar backups del sistema. Las copias de seguridad son esenciales para proteger tus datos.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Descargar Backup -->
+      <button 
+        onclick="descargarBackup()"
+        class="bg-gradient-to-br from-emerald-600/20 to-emerald-500/20 hover:from-emerald-600/30 hover:to-emerald-500/30 border border-emerald-500/30 rounded-xl p-6 transition-all hover-lift text-left group"
+      >
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <i data-lucide="download" class="w-5 h-5 text-white"></i>
+          </div>
+          <h3 class="text-white font-bold">Descargar Backup</h3>
+        </div>
+        <p class="text-gray-400 text-sm">Guardar copia de seguridad de la base de datos en tu computadora</p>
+      </button>
+
+      <!-- Restaurar Backup -->
+      <button 
+        onclick="document.getElementById('fileInput').click()"
+        class="bg-gradient-to-br from-amber-600/20 to-amber-500/20 hover:from-amber-600/30 hover:to-amber-500/30 border border-amber-500/30 rounded-xl p-6 transition-all hover-lift text-left group"
+      >
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <i data-lucide="upload" class="w-5 h-5 text-white"></i>
+          </div>
+          <h3 class="text-white font-bold">Restaurar Backup</h3>
+        </div>
+        <p class="text-gray-400 text-sm">Cargar base de datos desde un archivo de backup guardado</p>
+      </button>
+      
+      <!-- Input oculto para seleccionar archivo -->
+      <input type="file" id="fileInput" accept=".db" style="display: none;" onchange="restaurarDesdeArchivo(this.files[0])">
+    </div>
+
+    <!-- Información de Seguridad -->
+    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mt-6">
+      <div class="flex gap-3">
+        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5"></i>
+        <div class="text-sm text-emerald-200">
+          <p class="font-semibold mb-1">✅ Buenas Prácticas de Seguridad:</p>
+          <ul class="space-y-1 text-emerald-300/80">
+            <li>• Los backups se crean automáticamente antes de restaurar</li>
+            <li>• Se generan archivos .db (binario) y .sql (texto) para mayor portabilidad</li>
+            <li>• Los backups se almacenan en <code class="bg-black/30 px-1 rounded">backups/</code></li>
+            <li>• Recomendación: Crear backups diarios y antes de cambios importantes</li>
+            <li>• Los datos sensibles nunca se exponen en la interfaz web</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Información del Sistema -->
   <div class="glass-effect border border-white/10 rounded-2xl p-8 mt-6">
     <div class="flex items-center gap-3 mb-6">
@@ -165,7 +229,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/mostrarToast.js"></script>
 <script>
   lucide.createIcons();
 
@@ -256,6 +319,67 @@
     document.getElementById('iconoOjo').setAttribute('data-lucide', 'eye');
     lucide.createIcons();
     mostrarToast('Formulario restablecido', 'info');
+  }
+
+  // ========== FUNCIONES DE BASE DE DATOS ==========
+
+  function descargarBackup() {
+    // Crear enlace temporal para forzar descarga
+    const url = `${window.location.origin}/api/configuracion/descargar-backup`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = ''; // El nombre viene del servidor
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    mostrarModal('Descargando backup de la base de datos...', 'info', 3000);
+  }
+
+  async function restaurarDesdeArchivo(file) {
+    if (!file) return;
+    
+    if (!file.name.endsWith('.db')) {
+      mostrarModal('Por favor selecciona un archivo .db válido', 'error', 3000);
+      return;
+    }
+    
+    if (!confirm(`¿Confirmar restauración desde "${file.name}"?\n\nEsta acción reemplazará la base de datos actual.`)) {
+      document.getElementById('fileInput').value = '';
+      return;
+    }
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      mostrarModal('Restaurando base de datos...', 'info');
+      
+      const res = await fetch('/api/configuracion/restaurar-backup', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        mostrarModal(error.detail || 'Error al restaurar backup', 'error', 0);
+        return;
+      }
+      
+      const data = await res.json();
+      
+      if (data.ok) {
+        mostrarModal('✅ Base de datos restaurada correctamente. Recargando...', 'success', 3000);
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        mostrarModal(data.mensaje || 'Error al restaurar', 'error', 0);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      mostrarModal('Error de conexión', 'error', 0);
+    } finally {
+      document.getElementById('fileInput').value = '';
+    }
   }
 </script>
 {% endblock %}

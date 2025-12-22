@@ -466,8 +466,9 @@ function iniciarFormulario() {
     }
 
     // Payloads separados para crear y editar
-    const payloadCrear = JSON.stringify({ usuario: nombre, password, rol });
-    const payloadEditar = JSON.stringify({ nuevo_usuario: nombre, password, rol });
+    const email = document.getElementById("email")?.value.trim() || null;
+    const payloadCrear = JSON.stringify({ usuario: nombre, password, rol, email });
+    const payloadEditar = JSON.stringify({ nuevo_usuario: nombre, password, rol, email });
 
     try {
       let res;
@@ -698,6 +699,9 @@ async function editarUsuario(nombre) {
     
     if (data.usuario) {
       if (rolEl) rolEl.value = data.rol || "";
+      // Cargar email si existe
+      const emailEl = document.getElementById("email");
+      if (emailEl) emailEl.value = data.email || "";
     } else {
       mostrarToast("No se pudo cargar el rol del usuario", "warning");
       if (rolEl) rolEl.value = "";

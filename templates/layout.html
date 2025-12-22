@@ -136,19 +136,19 @@
   <!-- Sidebar con animación responsive -->
   <aside 
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-    class="fixed top-0 left-0 w-72 h-screen sidebar-gradient border-r border-white/10 flex flex-col py-6 px-4 z-50 transition-transform duration-300 ease-in-out shadow-2xl">
+    class="fixed top-0 left-0 w-64 h-screen sidebar-gradient border-r border-white/10 flex flex-col py-4 px-3 z-50 transition-transform duration-300 ease-in-out shadow-2xl">
     <!-- Branding con diseño moderno -->
-    <div class="mb-10 pl-1 animate-slide-in-left">
-      <a href="/home" class="flex flex-col gap-2 group">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-            <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+    <div class="mb-6 pl-1 animate-slide-in-left">
+      <a href="/home" class="flex flex-col gap-1 group">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
           </div>
           <div>
-            <span class="text-lg font-bold text-white tracking-tight block">
+            <span class="text-base font-bold text-white tracking-tight block">
               LOS QUILMES
             </span>
-            <span class="text-xs text-emerald-400 font-medium">
+            <span class="text-[10px] text-emerald-400 font-medium">
               Sistema SMS
             </span>
           </div>
@@ -157,11 +157,11 @@
     </div>
 
     <!-- Navegacion moderna -->
-    <nav class="flex flex-col gap-2 text-sm font-medium text-gray-200">
+    <nav class="flex flex-col gap-1 text-sm font-medium text-gray-200">
       <!-- Verificar -->
       <a href="/verificar"
          @click.prevent="sidebarOpen = false; window.location.href = '/verificar'"
-         class="relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
                 {% if active_page == 'verificar' %}
                   glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
                 {% else %}
@@ -180,7 +180,7 @@
       <!-- SMS Enviados -->
       <a href="/admin/sms"
          @click.prevent="sidebarOpen = false; window.location.href = '/admin/sms'"
-         class="relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
                 {% if active_page == 'sms' %}
                   glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
                 {% else %}
@@ -200,7 +200,7 @@
       <!-- Usuarios -->
       <a href="/mantenimiento/gestion"
          @click.prevent="sidebarOpen = false; window.location.href = '/mantenimiento/gestion'"
-         class="relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
                 {% if active_page == 'usuarios' %}
                   glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
                 {% else %}
@@ -213,6 +213,24 @@
           <i data-lucide="user-cog" class="w-4 h-4"></i>
         </div>
         <span class="font-medium">Usuarios</span>
+      </a>
+
+      <!-- Sucursales -->
+      <a href="/mantenimiento/sucursales"
+         @click.prevent="sidebarOpen = false; window.location.href = '/mantenimiento/sucursales'"
+         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+                {% if active_page == 'sucursales' %}
+                  glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                {% else %}
+                  hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                {% endif %}">
+        {% if active_page == 'sucursales' %}
+        <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
+        {% endif %}
+        <div class="{% if active_page == 'sucursales' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
+          <i data-lucide="building-2" class="w-4 h-4"></i>
+        </div>
+        <span class="font-medium">Sucursales</span>
       </a>
 
       <!-- Registros del Sistema (con submenús) -->
@@ -274,7 +292,7 @@
       <!-- Configuración -->
       <a href="/configuracion"
          @click.prevent="sidebarOpen = false; window.location.href = '/configuracion'"
-         class="relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
                 {% if active_page == 'configuracion' %}
                   glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
                 {% else %}
@@ -292,24 +310,24 @@
     </nav>
 
     <!-- Usuario info + Boton Salir -->
-    <div class="mt-auto pt-6 border-t border-white/10 space-y-4">
+    <div class="mt-auto pt-4 border-t border-white/10 space-y-2">
       <!-- Info de usuario -->
-      <div class="glass-effect border border-white/10 rounded-xl p-3 space-y-2">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
+      <div class="glass-effect border border-white/10 rounded-lg p-2 space-y-1">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-xs">
             {{ user.usuario[0]|upper }}
           </div>
           <div class="flex-1 min-w-0">
-            <div id="nombreUsuarioSidebar" class="text-sm font-semibold text-white truncate">{{ user.usuario }}</div>
-            <div class="text-xs text-emerald-400 capitalize">{{ user.rol }}</div>
+            <div id="nombreUsuarioSidebar" class="text-xs font-semibold text-white truncate">{{ user.usuario }}</div>
+            <div class="text-[10px] text-emerald-400 capitalize">{{ user.rol }}</div>
           </div>
         </div>
       </div>
       
       <!-- Botón salir mejorado -->
       <a href="/logout"
-         class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white text-sm font-semibold shadow-lg hover-lift transition-all duration-200 border border-red-400/20">
-        <i data-lucide="log-out" class="w-4 h-4"></i>
+         class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white text-xs font-semibold shadow-lg hover-lift transition-all duration-200 border border-red-400/20">
+        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
         <span>Cerrar Sesión</span>
       </a>
       
@@ -323,8 +341,8 @@
   {% endif %}
 
   <!-- Panel principal responsive -->
-  <main class="{% if user %}lg:ml-72{% endif %} min-h-screen px-4 sm:px-6 lg:px-8 pt-20 lg:pt-8 pb-10">
-    <div class="max-w-7xl mx-auto">
+  <main class="{% if user %}lg:ml-64{% endif %} min-h-screen px-3 sm:px-4 lg:px-6 pt-16 lg:pt-6 pb-6">
+    <div class="w-full">
       {% block contenido %}{% endblock %}
     </div>
   </main>

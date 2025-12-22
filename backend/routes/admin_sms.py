@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.database import get_db
+from datetime import datetime
+
+# 🆕 Usar configuración y servicios centralizados
+from backend.config import get_db
 from backend.models import Usuario, Verificacion
-from backend.routes.sms import nombre_sucursal
-from backend.auth_utils import get_current_user
+from backend.core import get_current_user
+from backend.services import SMSService, UserService
 
 admin_router = APIRouter()
 
@@ -11,12 +14,12 @@ admin_router = APIRouter()
 @admin_router.get("/api/usuarios")
 def listar_usuarios(
     db: Session = Depends(get_db),
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     if user.rol.lower() not in ["admin", "operador"]:
         raise HTTPException(status_code=403, detail="Acceso denegado")
     
-    usuarios = db.query(Usuario).all()
+    usuarios = UserService.get_all_users(db, limit=1000)
     return [{"id": u.id, "nombre": u.usuario} for u in usuarios]
 
 
@@ -26,31 +29,32 @@ def obtener_sms(
     usuario_id: int | None = None,
     fecha_inicio: str | None = None,
     fecha_fin: str | None = None,
-    estado: str | None = None,  # aún no implementado en modelo
+    estado: str | None = None,
     skip: int = 0,
     limit: int = 5,
     db: Session = Depends(get_db),
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     if user.rol.lower() not in ["admin", "operador"]:
         raise HTTPException(status_code=403, detail="Acceso denegado")
     
-    query = db.query(Verificacion)
+    # Convertir fechas string a datetime si existen
+    fecha_inicio_dt = datetime.fromisoformat(fecha_inicio) if fecha_inicio else None
+    fecha_fin_dt = datetime.fromisoformat(fecha_fin) if fecha_fin else None
+    
+    # 🆕 Usar servicio para obtener verificaciones
+    verifs, total = SMSService.get_verificaciones(
+        db=db,
+        usuario_id=usuario_id,
+        fecha_inicio=fecha_inicio_dt,
+        fecha_fin=fecha_fin_dt,
+        estado=estado,
+        skip=skip,
+        limit=limit
+    )
 
-    # 🔍 Filtros opcionales
-    if usuario_id:
-        query = query.filter(Verificacion.usuario_id == usuario_id)
-    if fecha_inicio:
-        query = query.filter(Verificacion.fecha >= fecha_inicio)
-    if fecha_fin:
-        query = query.filter(Verificacion.fecha <= fecha_fin)
-    # 🟡 Estado no implementado aún: si se agrega, usar filtro aquí
-
-    # 🔁 Paginación y orden descendente
-    verifs = query.order_by(Verificacion.fecha.desc()).offset(skip).limit(limit).all()
-
-    # 💡 Optimización: obtener nombres de usuarios de una sola vez
-    usuarios_dict = {u.id: u.usuario for u in db.query(Usuario).all()}
+    # 💡 Obtener nombres de usuarios de una sola vez
+    usuarios_dict = {u.id: u.usuario for u in UserService.get_all_users(db, limit=1000)}
 
     resultado = []
     for v in verifs:
@@ -59,14 +63,14 @@ def obtener_sms(
         resultado.append({
             "dni": v.person_id,
             "celular": v.phone_number,
-            "sucursal": v.merchant_code,  # 📊 Mostrar código de sucursal
+            "sucursal": v.merchant_code,
             "codigo": v.verification_code,
             "usuario_nombre": nombre_usuario,
-            "fecha": v.fecha.isoformat(),  # ej: "2025-07-21T11:56:32"
-            "estado": "enviado"  # 🔄 reemplazar por v.estado cuando se implemente
+            "fecha": v.fecha.isoformat(),
+            "estado": "enviado"
         })
 
-    return resultado
+    return {"sms": resultado, "total": total}
 
 
 # 🔢 Obtener el total de registros con filtros activos
@@ -75,24 +79,28 @@ def contar_sms(
     usuario_id: int | None = None,
     fecha_inicio: str | None = None,
     fecha_fin: str | None = None,
-    estado: str | None = None,  # aún no implementado en modelo
+    estado: str | None = None,
     db: Session = Depends(get_db),
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     if user.rol.lower() not in ["admin", "operador"]:
         raise HTTPException(status_code=403, detail="Acceso denegado")
     
-    query = db.query(Verificacion)
-
-    if usuario_id:
-        query = query.filter(Verificacion.usuario_id == usuario_id)
-    if fecha_inicio:
-        query = query.filter(Verificacion.fecha >= fecha_inicio)
-    if fecha_fin:
-        query = query.filter(Verificacion.fecha <= fecha_fin)
-    # estado aún no implementado
-
-    total = query.count()
+    # Convertir fechas
+    fecha_inicio_dt = datetime.fromisoformat(fecha_inicio) if fecha_inicio else None
+    fecha_fin_dt = datetime.fromisoformat(fecha_fin) if fecha_fin else None
+    
+    # 🆕 Usar servicio
+    _, total = SMSService.get_verificaciones(
+        db=db,
+        usuario_id=usuario_id,
+        fecha_inicio=fecha_inicio_dt,
+        fecha_fin=fecha_fin_dt,
+        estado=estado,
+        skip=0,
+        limit=1
+    )
+    
     return {"total": total}
 
 
@@ -104,30 +112,34 @@ def obtener_todos_sms(
     fecha_fin: str | None = None,
     estado: str | None = None,
     db: Session = Depends(get_db),
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     if user.rol.lower() not in ["admin", "operador"]:
         raise HTTPException(status_code=403, detail="Acceso denegado")
     
-    query = db.query(Verificacion)
-
-    if usuario_id:
-        query = query.filter(Verificacion.usuario_id == usuario_id)
-    if fecha_inicio:
-        query = query.filter(Verificacion.fecha >= fecha_inicio)
-    if fecha_fin:
-        query = query.filter(Verificacion.fecha <= fecha_fin)
-    # estado aún no implementado
-
-    verifs = query.order_by(Verificacion.fecha.desc()).all()
-    usuarios_dict = {u.id: u.usuario for u in db.query(Usuario).all()}
+    # Convertir fechas
+    fecha_inicio_dt = datetime.fromisoformat(fecha_inicio) if fecha_inicio else None
+    fecha_fin_dt = datetime.fromisoformat(fecha_fin) if fecha_fin else None
+    
+    # 🆕 Obtener todos (sin límite)
+    verifs, total = SMSService.get_verificaciones(
+        db=db,
+        usuario_id=usuario_id,
+        fecha_inicio=fecha_inicio_dt,
+        fecha_fin=fecha_fin_dt,
+        estado=estado,
+        skip=0,
+        limit=10000
+    )
+    
+    usuarios_dict = {u.id: u.usuario for u in UserService.get_all_users(db, limit=1000)}
 
     resultado = []
     for v in verifs:
         resultado.append({
             "dni": v.person_id,
             "celular": v.phone_number,
-            "sucursal": v.merchant_code,  # 📊 Mostrar código de sucursal
+            "sucursal": v.merchant_code,
             "codigo": v.verification_code,
             "usuario_nombre": usuarios_dict.get(v.usuario_id, "desconocido"),
             "fecha": v.fecha.strftime("%Y-%m-%d"),

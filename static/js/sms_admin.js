@@ -89,7 +89,8 @@ async function cargarPagina() {
       return;
     }
 
-    const sms = await res.json();
+    const data = await res.json();
+    const sms = data.sms || data; // Soportar ambos formatos
 
     // 🔃 Ordenar por fecha descendente (últimos arriba)
     sms.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));

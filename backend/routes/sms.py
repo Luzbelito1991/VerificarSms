@@ -1,22 +1,12 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, constr
 from sqlalchemy.orm import Session
-from datetime import datetime  # 👈 actualizado: usamos datetime para guardar hora
-from dotenv import load_dotenv
-import unicodedata
-import random
-import requests
-import os
 
-from backend.database import get_db
-from backend.models import Verificacion, Usuario
-from backend.auth_utils import get_current_user
-
-load_dotenv()
-
-API_KEY = os.getenv("SMS_API_KEY")
-# 🔧 Limpiar comillas y espacios, luego comparar
-MODO_SIMULADO = os.getenv("SMS_MODO_SIMULADO", "false").strip("'\"").lower() == "true"
+# 🆕 Usar configuración y servicios centralizados
+from backend.config import get_db, settings
+from backend.models import Usuario
+from backend.core import get_current_user
+from backend.services import SMSService
 
 router = APIRouter()
 
@@ -28,46 +18,6 @@ class SmsRequest(BaseModel):
     merchantName: str | None = None  # 🏪 Nombre de sucursal
     verificationCode: str | None = None
 
-# 🔢 Generar código aleatorio
-def generate_code() -> str:
-    return str(random.randint(1000, 9999))
-
-# 🔤 Eliminar tildes del mensaje
-def limpiar_mensaje(texto: str) -> str:
-    return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
-
-# 🏪 Nombre legible de sucursal
-def nombre_sucursal(codigo: str) -> str:
-    mapa = {
-        "389": "389",
-        "561": "561",
-        "776": "776",
-        "777": "777",
-        "778": "778",
-        "779": "779",
-        "781": "781"
-    }
-    return mapa.get(codigo, "Sucursal desconocida")
-
-# 📡 Envío real o simulado de SMS
-def send_sms(phone: str, message: str):
-    if MODO_SIMULADO:
-        print(f"[SIMULADO] SMS a {phone}: {message}")
-        return True, "SMS simulado correctamente"
-
-    try:
-        url = "http://servicio.smsmasivos.com.ar/enviar_sms.asp"
-        params = {
-            "api": "1",
-            "apikey": API_KEY,
-            "TOS": phone,
-            "TEXTO": message
-        }
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        return ("OK" in response.text.upper(), response.text)
-    except Exception as e:
-        return False, str(e)
 
 # 📲 Enviar y registrar SMS en la base
 @router.post("/send-sms", response_model=None)
@@ -75,48 +25,50 @@ def handle_sms(
     request: Request,
     data: SmsRequest,
     db: Session = Depends(get_db),
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
-    code = data.verificationCode or generate_code()
-    texto = f"{data.merchantCode} Limite Deportes {nombre_sucursal(data.merchantCode)} - DNI: {data.personId} - Su Codigo es: {code}"
-    mensaje = limpiar_mensaje(texto)
-
-    ok, respuesta = send_sms(data.phoneNumber, mensaje)
+    # Generar código si no se proporciona
+    code = data.verificationCode or SMSService.generar_codigo()
     
-    if not ok:
+    # Obtener nombre de sucursal
+    sucursal = SMSService.get_nombre_sucursal(data.merchantCode)
+    
+    # Construir mensaje
+    texto = f"{data.merchantCode} Limite Deportes {sucursal} - DNI: {data.personId} - Su Codigo es: {code}"
+    
+    # Enviar SMS usando el servicio
+    resultado = SMSService.enviar_sms(data.phoneNumber, texto)
+    
+    if not resultado["ok"]:
         # ❌ No guardar en BD si el SMS falló
-        raise HTTPException(status_code=500, detail="Error al enviar SMS. Intente nuevamente.")
+        raise HTTPException(status_code=500, detail=resultado["mensaje"])
 
-    # ✅ Solo guardar en BD si el SMS se envió exitosamente
-    verif = Verificacion(
+    # ✅ Registrar en base de datos
+    verif = SMSService.registrar_verificacion(
+        db=db,
         person_id=data.personId,
         phone_number=data.phoneNumber,
         merchant_code=data.merchantCode,
-        merchant_name=data.merchantName,  # 🏪 Guardar nombre de sucursal
         verification_code=code,
-        fecha=datetime.now(),
         usuario_id=user.id
     )
-    db.add(verif)
-    db.commit()
 
-    print("📦 Verificación guardada:", verif.person_id, verif.phone_number, verif.verification_code)
+    print(f"📦 Verificación guardada: {verif.person_id}, {verif.phone_number}, {verif.verification_code}")
 
     return {
         "message": "SMS enviado correctamente",
         "verificationCode": code,
         "personId": data.personId,
         "merchantCode": data.merchantCode,
-        "smsBody": mensaje,
-        "modoSimulado": MODO_SIMULADO
+        "smsBody": SMSService.normalizar_texto(texto),
+        "modoSimulado": settings.SMS_MODO_SIMULADO,
+        "detalles": resultado.get("detalles", "")
     }
 
 
 # 📅 Consultar vencimiento del paquete prepago
 @router.get("/obtener-vencimiento")
-def obtener_vencimiento_paquete(
-    user: Usuario = Depends(get_current_user)
-):
+def obtener_vencimiento_paquete(user = Depends(get_current_user)):
     """
     Consulta la fecha de vencimiento del paquete prepago de SMS Masivos.
     Solo disponible para usuarios con rol admin.
@@ -124,7 +76,7 @@ def obtener_vencimiento_paquete(
     if user.rol.lower() != "admin":
         raise HTTPException(status_code=403, detail="Acceso denegado. Solo administradores.")
     
-    if MODO_SIMULADO:
+    if settings.SMS_MODO_SIMULADO:
         return {
             "ok": True,
             "mensaje": "Modo simulado activado",
@@ -133,12 +85,12 @@ def obtener_vencimiento_paquete(
         }
     
     try:
+        import requests
         url = "http://servicio.smsmasivos.com.ar/obtener_vencimiento_paquete.asp"
-        params = {"apikey": API_KEY}
+        params = {"apikey": settings.SMS_API_KEY}
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
         
-        # La API puede devolver diferentes formatos, ajustar según respuesta real
         return {
             "ok": True,
             "fecha_vencimiento": response.text.strip(),

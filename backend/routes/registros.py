@@ -1,7 +1,7 @@
 """
 📊 Rutas para Registros del Sistema y Configuración
 """
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func, case
@@ -23,7 +23,7 @@ router = APIRouter()
 @router.get("/registros/uso", response_class=HTMLResponse)
 async def vista_uso_sms(
     request: Request,
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     """Vista para ver el uso de SMS disponibles"""
     if user.rol.lower() != "admin":
@@ -44,7 +44,7 @@ async def vista_uso_sms(
 @router.get("/api/registros/uso")
 async def obtener_uso_sms(
     db: Session = Depends(get_db),
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     """Obtener estadísticas de uso de SMS"""
     if user.rol.lower() != "admin":
@@ -126,7 +126,7 @@ async def obtener_uso_sms(
 @router.get("/registros/metricas", response_class=HTMLResponse)
 async def vista_metricas(
     request: Request,
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     """Vista para ver métricas del sistema"""
     if user.rol.lower() != "admin":
@@ -147,7 +147,7 @@ async def vista_metricas(
 @router.get("/api/registros/metricas")
 async def obtener_metricas(
     db: Session = Depends(get_db),
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     """Obtener métricas del sistema"""
     if user.rol.lower() != "admin":
@@ -223,7 +223,7 @@ async def obtener_metricas(
 @router.get("/configuracion", response_class=HTMLResponse)
 async def vista_configuracion(
     request: Request,
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     """Vista de configuración del sistema"""
     if user.rol.lower() != "admin":
@@ -250,7 +250,7 @@ async def vista_configuracion(
 @router.post("/api/configuracion/modo-simulado")
 async def cambiar_modo_simulado(
     request: Request,
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     """Activar/desactivar modo simulado de SMS"""
     if user.rol.lower() != "admin":
@@ -282,7 +282,7 @@ async def cambiar_modo_simulado(
 @router.post("/api/configuracion/api-key")
 async def actualizar_api_key(
     request: Request,
-    user: Usuario = Depends(get_current_user)
+    user = Depends(get_current_user)
 ):
     """Actualizar API Key de SMS Masivos"""
     if user.rol.lower() != "admin":
@@ -311,3 +311,87 @@ async def actualizar_api_key(
             return {"ok": False, "mensaje": "Archivo .env no encontrado"}
     except Exception as e:
         return {"ok": False, "mensaje": f"Error al actualizar API Key: {str(e)}"}
+
+
+@router.get("/api/configuracion/descargar-backup")
+async def descargar_backup(
+    request: Request,
+    user = Depends(get_current_user)
+):
+    """Descargar copia de seguridad de la base de datos"""
+    if user.rol.lower() != "admin":
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    
+    from pathlib import Path
+    from datetime import datetime
+    from fastapi.responses import FileResponse
+    
+    try:
+        db_path = Path("usuarios.db")
+        
+        if not db_path.exists():
+            raise HTTPException(status_code=404, detail="Base de datos no encontrada")
+        
+        # Nombre con timestamp para el archivo descargado
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"verificarsms_backup_{timestamp}.db"
+        
+        print(f"📥 Descargando backup: {filename}")
+        
+        # Devolver archivo para descarga
+        return FileResponse(
+            path=str(db_path),
+            filename=filename,
+            media_type="application/octet-stream"
+        )
+        
+    except Exception as e:
+        print(f"❌ Error al descargar backup: {e}")
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@router.post("/api/configuracion/restaurar-backup")
+async def restaurar_backup(
+    file: bytes = File(...),
+    user = Depends(get_current_user)
+):
+    """Restaurar base de datos desde un archivo subido"""
+    if user.rol.lower() != "admin":
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    
+    import shutil
+    from pathlib import Path
+    from datetime import datetime
+    
+    try:
+        db_path = Path("usuarios.db")
+        backup_dir = Path("backups")
+        backup_dir.mkdir(exist_ok=True)
+        
+        # Crear backup de seguridad antes de restaurar
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        seguridad_path = backup_dir / f"usuarios_pre_restore_{timestamp}.db"
+        shutil.copy2(db_path, seguridad_path)
+        
+        print(f"✅ Backup de seguridad creado: {seguridad_path.name}")
+        
+        # Guardar el archivo subido como nueva base de datos
+        with open(db_path, 'wb') as f:
+            f.write(file)
+        
+        print(f"✅ Base de datos restaurada desde archivo subido")
+        
+        return JSONResponse(
+            content={
+                "ok": True,
+                "mensaje": "Base de datos restaurada correctamente"
+            },
+            status_code=200
+        )
+        
+    except Exception as e:
+        print(f"❌ Error al restaurar backup: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

@@ -724,11 +724,85 @@ async function eliminarUsuario(nombre) {
     return;
   }
 
-  // Confirmación básica del navegador
-  const confirmado = confirm(
-    `¿Estás seguro de eliminar al usuario "${nombre}"?\n\nEsta acción no se puede deshacer.`
-  );
-  if (!confirmado) return;
+  // Mostrar modal de confirmación personalizado
+  mostrarModalEliminar(nombre);
+}
+
+
+/**
+ * Muestra el modal de confirmación de eliminación
+ */
+function mostrarModalEliminar(nombre) {
+  const modal = document.getElementById("modalEliminar");
+  const nombreUsuarioEl = document.getElementById("nombreUsuarioEliminar");
+  const btnConfirmar = document.getElementById("btnConfirmarEliminar");
+  const btnCancelar = document.getElementById("btnCancelarEliminar");
+
+  // Establecer nombre del usuario
+  nombreUsuarioEl.textContent = `"${nombre}"`;
+
+  // Mostrar modal
+  modal.classList.remove("hidden");
+  lucide.createIcons();
+
+  // Manejar confirmación
+  const confirmarHandler = async () => {
+    limpiarEventosModal();
+    await ejecutarEliminacion(nombre);
+  };
+
+  // Manejar cancelación
+  const cancelarHandler = () => {
+    limpiarEventosModal();
+    cerrarModalEliminar();
+  };
+
+  // Función para limpiar eventos
+  const limpiarEventosModal = () => {
+    btnConfirmar.removeEventListener("click", confirmarHandler);
+    btnCancelar.removeEventListener("click", cancelarHandler);
+    modal.removeEventListener("click", clickFueraHandler);
+    document.removeEventListener("keydown", escapeHandler);
+  };
+
+  // Click en confirmar
+  btnConfirmar.addEventListener("click", confirmarHandler);
+
+  // Click en cancelar
+  btnCancelar.addEventListener("click", cancelarHandler);
+
+  // Click fuera del modal
+  const clickFueraHandler = (e) => {
+    if (e.target === modal) {
+      cancelarHandler();
+    }
+  };
+  modal.addEventListener("click", clickFueraHandler);
+
+  // Tecla Escape
+  const escapeHandler = (e) => {
+    if (e.key === "Escape") {
+      cancelarHandler();
+    }
+  };
+  document.addEventListener("keydown", escapeHandler);
+}
+
+
+/**
+ * Cierra el modal de confirmación de eliminación
+ */
+function cerrarModalEliminar() {
+  const modal = document.getElementById("modalEliminar");
+  modal.classList.add("hidden");
+}
+
+
+/**
+ * Ejecuta la eliminación del usuario
+ */
+async function ejecutarEliminacion(nombre) {
+  cerrarModalEliminar();
 
   try {
     const res = await fetch(
@@ -822,63 +896,4 @@ function cerrarModal() {
   reiniciarFormulario();
 }
 
-
-/**
- * Muestra un toast flotante en la parte superior derecha.
- */
-function mostrarToast(mensaje, tipo = "info") {
-  console.log(`🍞 mostrarToast llamado: "${mensaje}" (${tipo})`);
-  
-  const container = document.getElementById("toastContainer");
-  console.log("🔍 Toast container:", container);
-  
-  if (!container) {
-    console.error("❌ ERROR: Toast container no encontrado!");
-    alert(mensaje); // Fallback para ver el mensaje
-    return;
-  }
-
-  // Colores por tipo
-  const colores = {
-    success: "bg-emerald-600",
-    error: "bg-red-600",
-    info: "bg-blue-600",
-    warning: "bg-yellow-500",
-  };
-
-  // Iconos por tipo
-  const iconos = {
-    success: "✓",
-    error: "✕",
-    info: "ℹ",
-    warning: "⚠",
-  };
-
-  // Contenedor del toast
-  const toast = document.createElement("div");
-  toast.className = `${
-    colores[tipo] || colores.info
-  } text-white text-sm font-medium rounded-md px-4 py-2 shadow-lg animate-fade-in-down transition duration-300 pointer-events-auto flex items-center gap-2`;
-  
-  const icono = document.createElement("span");
-  icono.textContent = iconos[tipo] || iconos.info;
-  icono.className = "font-bold text-base";
-  
-  const texto = document.createElement("span");
-  texto.textContent = mensaje;
-  
-  toast.appendChild(icono);
-  toast.appendChild(texto);
-
-  container.appendChild(toast);
-  console.log("✅ Toast agregado al DOM");
-
-  // Animación de salida y eliminación
-  setTimeout(() => {
-    toast.classList.add("opacity-0", "scale-95");
-    setTimeout(() => {
-      toast.remove();
-      console.log("🗑️ Toast removido");
-    }, 300);
-  }, 3000);
-}
+// Nota: mostrarToast() ahora se importa desde /static/js/modal.js (cargado en layout.html)

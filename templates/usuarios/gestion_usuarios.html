@@ -46,9 +46,67 @@
     {% include "usuarios/formulario.html" %}
   </div>
 </div>
+
+<!-- 🗑️ Modal Confirmar Eliminación -->
+<div id="modalEliminar" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+  <div class="glass-effect border border-red-500/30 rounded-2xl p-8 w-full max-w-md shadow-2xl relative animate-fade-in-up">
+    <!-- Icono de advertencia -->
+    <div class="flex justify-center mb-6">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/20 border-2 border-red-500/50 flex items-center justify-center animate-pulse">
+        <i data-lucide="alert-triangle" class="w-8 h-8 text-red-400"></i>
+      </div>
+    </div>
+
+    <!-- Título -->
+    <h3 class="text-white text-xl font-bold text-center mb-3">
+      ¿Confirmar eliminación?
+    </h3>
+
+    <!-- Mensaje -->
+    <p class="text-gray-300 text-center mb-2">
+      ¿Estás seguro de eliminar al usuario
+    </p>
+    <p class="text-emerald-300 text-center font-semibold text-lg mb-4" id="nombreUsuarioEliminar">
+      <!-- Se insertará el nombre dinámicamente -->
+    </p>
+
+    <!-- Advertencia -->
+    <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+      <div class="flex items-start gap-3">
+        <i data-lucide="shield-alert" class="w-5 h-5 text-red-400 mt-0.5 shrink-0"></i>
+        <p class="text-sm text-red-200">
+          Esta acción no se puede deshacer y eliminará permanentemente todos los datos asociados a este usuario.
+        </p>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex gap-4 justify-center">
+      <button
+        id="btnCancelarEliminar"
+        type="button"
+        class="px-6 py-3 text-sm font-semibold rounded-xl
+               bg-gray-700 hover:bg-gray-600 text-white
+               transition-all duration-200 hover-lift inline-flex items-center gap-2">
+        <i data-lucide="x" class="w-4 h-4"></i>
+        <span>Cancelar</span>
+      </button>
+      <button
+        id="btnConfirmarEliminar"
+        type="button"
+        class="px-6 py-3 text-sm font-semibold rounded-xl
+               bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400
+               text-white shadow-lg hover:shadow-red-500/50
+               transition-all duration-200 hover-lift inline-flex items-center gap-2">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+        <span>Sí, eliminar</span>
+      </button>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/gestionUsuarios.js?v=2.0"></script>
+<script src="/static/js/gestionUsuarios.js?v=4.0"></script>
 <script>lucide.createIcons();</script>
 {% endblock %}

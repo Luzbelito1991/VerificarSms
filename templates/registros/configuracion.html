@@ -1,0 +1,261 @@
+{% extends "layout.html" %}
+
+{% block title %}Configuración - Quilmes{% endblock %}
+
+{% block contenido %}
+<div class="animate-fade-in-up">
+  <!-- Encabezado -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+        <i data-lucide="settings" class="w-6 h-6 text-white"></i>
+      </div>
+      Configuración del Sistema
+    </h1>
+    <p class="text-gray-400">Administrar configuración de SMS Masivos</p>
+  </div>
+
+  <!-- Modo Simulado -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-6">
+    <div class="flex items-start justify-between gap-6">
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+            <i data-lucide="flask-conical" class="w-5 h-5 text-white"></i>
+          </div>
+          <h2 class="text-xl font-bold text-white">Modo Simulado</h2>
+        </div>
+        <p class="text-gray-400 text-sm mb-4">
+          Cuando está activo, los SMS no se envían realmente. Solo se registran en la consola del servidor. 
+          Útil para pruebas sin consumir créditos.
+        </p>
+        
+        <div class="flex items-center gap-3">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              id="modoSimuladoToggle" 
+              class="sr-only peer" 
+              {% if sms_modo_simulado %}checked{% endif %}
+              onchange="cambiarModoSimulado()"
+            >
+            <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
+          </label>
+          <span class="text-sm font-medium text-gray-300" id="modoSimuladoLabel">
+            {% if sms_modo_simulado %}Activado{% else %}Desactivado{% endif %}
+          </span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold {% if sms_modo_simulado %}bg-amber-500/20 text-amber-400{% else %}bg-emerald-500/20 text-emerald-400{% endif %}" id="modoSimuladoBadge">
+            {% if sms_modo_simulado %}Modo Prueba{% else %}Modo Producción{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuración API SMS Masivos -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+        <i data-lucide="key" class="w-5 h-5 text-white"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white">API de SMS Masivos</h2>
+    </div>
+
+    <form id="formApiKey" onsubmit="actualizarApiKey(event)" class="space-y-6">
+      <!-- API Key -->
+      <div>
+        <label for="apiKey" class="block text-sm font-semibold text-gray-300 mb-2">
+          API Key
+        </label>
+        <div class="relative">
+          <input 
+            type="password" 
+            id="apiKey" 
+            name="apiKey" 
+            value="{{ sms_api_key }}"
+            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all pr-12"
+            placeholder="Ingrese su API Key"
+            required
+          >
+          <button 
+            type="button" 
+            onclick="toggleApiKeyVisibility()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+          >
+            <i data-lucide="eye" id="iconoOjo" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          Esta clave se utiliza para autenticar las solicitudes a SMS Masivos
+        </p>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+        <div class="flex gap-3">
+          <i data-lucide="info" class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5"></i>
+          <div class="text-sm text-blue-200">
+            <p class="font-semibold mb-1">Importante:</p>
+            <ul class="space-y-1 text-blue-300/80">
+              <li>• La API Key es proporcionada por SMS Masivos al contratar el servicio</li>
+              <li>• Mantenga esta clave segura y no la comparta</li>
+              <li>• Los cambios se aplicarán inmediatamente</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex gap-3">
+        <button 
+          type="submit"
+          class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-xl transition-all hover-lift flex items-center gap-2"
+        >
+          <i data-lucide="save" class="w-4 h-4"></i>
+          Guardar Cambios
+        </button>
+        <button 
+          type="button"
+          onclick="resetForm()"
+          class="px-6 py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-semibold rounded-xl transition-all border border-white/10 flex items-center gap-2"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Información del Sistema -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mt-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+        <i data-lucide="server" class="w-5 h-5 text-white"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white">Información del Sistema</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Proveedor SMS</div>
+        <div class="text-white font-semibold">SMS Masivos Argentina</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">URL del Servicio</div>
+        <div class="text-white font-mono text-xs">servicio.smsmasivos.com.ar</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Estado del Sistema</div>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span class="text-emerald-400 font-semibold">Operativo</span>
+        </div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Soporte Técnico</div>
+        <div class="text-emerald-400 font-semibold text-sm">vallefernando884@gmail.com</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/mostrarToast.js"></script>
+<script>
+  lucide.createIcons();
+
+  const valorOriginalApiKey = "{{ sms_api_key }}";
+
+  async function cambiarModoSimulado() {
+    const toggle = document.getElementById('modoSimuladoToggle');
+    const label = document.getElementById('modoSimuladoLabel');
+    const badge = document.getElementById('modoSimuladoBadge');
+    const activar = toggle.checked;
+
+    try {
+      const res = await fetch('/api/configuracion/modo-simulado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activar })
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        label.textContent = activar ? 'Activado' : 'Desactivado';
+        badge.textContent = activar ? 'Modo Prueba' : 'Modo Producción';
+        badge.className = activar 
+          ? 'px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400'
+          : 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400';
+        
+        mostrarToast(data.mensaje, 'exito');
+      } else {
+        toggle.checked = !activar;
+        mostrarToast(data.mensaje || 'Error al cambiar configuración', 'error');
+      }
+    } catch (error) {
+      toggle.checked = !activar;
+      console.error('Error:', error);
+      mostrarToast('Error de conexión', 'error');
+    }
+  }
+
+  async function actualizarApiKey(event) {
+    event.preventDefault();
+    
+    const apiKey = document.getElementById('apiKey').value;
+
+    if (!apiKey) {
+      mostrarToast('La API Key no puede estar vacía', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/configuracion/api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: apiKey })
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        mostrarToast(data.mensaje, 'exito');
+      } else {
+        mostrarToast(data.mensaje || 'Error al actualizar API Key', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      mostrarToast('Error de conexión', 'error');
+    }
+  }
+
+  function toggleApiKeyVisibility() {
+    const input = document.getElementById('apiKey');
+    const icono = document.getElementById('iconoOjo');
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icono.setAttribute('data-lucide', 'eye-off');
+    } else {
+      input.type = 'password';
+      icono.setAttribute('data-lucide', 'eye');
+    }
+    
+    lucide.createIcons();
+  }
+
+  function resetForm() {
+    document.getElementById('apiKey').value = valorOriginalApiKey;
+    document.getElementById('apiKey').type = 'password';
+    document.getElementById('iconoOjo').setAttribute('data-lucide', 'eye');
+    lucide.createIcons();
+    mostrarToast('Formulario restablecido', 'info');
+  }
+</script>
+{% endblock %}

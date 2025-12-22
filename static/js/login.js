@@ -16,18 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lucide.createIcons();                                            // Volver a renderizar el ícono
   });
 
-  // 🔔 Mostrar toast visual con mensaje personalizado
-  function mostrarToast(mensaje) {
-    toastMsg.textContent = mensaje;                                  // Actualizar mensaje
-    toast.classList.remove("opacity-0", "pointer-events-none");      // Mostrar el toast
-    toast.classList.add("opacity-100");                              // Visibilidad activa
-
-    // ⏳ Ocultar después de 3 segundos
-    setTimeout(() => {
-      toast.classList.remove("opacity-100");                         // Ocultar visualmente
-      toast.classList.add("opacity-0", "pointer-events-none");       // Evitar interacción mientras está oculto
-    }, 3000);
-  }
+  // Nota: mostrarToast() ahora se importa desde /static/js/modal.js (cargado en layout.html)
 
   // 🔐 Validación de login al enviar el formulario
   loginForm.addEventListener("submit", async (e) => {

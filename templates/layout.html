@@ -14,6 +14,9 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   
+  <!-- Sistema de Modales Glassmorphism (cargar antes que otros scripts) -->
+  <script src="/static/js/modal.js?v=4.0"></script>
+  
   <style>
     * {
       margin: 0;
@@ -212,22 +215,78 @@
         <span class="font-medium">Usuarios</span>
       </a>
 
-      <!-- Registros -->
-      <a href="/mantenimiento/logs"
-         @click.prevent="sidebarOpen = false; window.location.href = '/mantenimiento/logs'"
+      <!-- Registros del Sistema (con submenús) -->
+      <div x-data="{ openRegistros: false }" class="relative">
+        <button @click="openRegistros = !openRegistros"
+                class="w-full relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                       {% if active_page in ['uso', 'metricas'] %}
+                         glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                       {% else %}
+                         hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                       {% endif %}">
+          {% if active_page in ['uso', 'metricas'] %}
+          <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
+          {% endif %}
+          <div class="{% if active_page in ['uso', 'metricas'] %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+          </div>
+          <span class="font-medium flex-1 text-left">Registros del Sistema</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="openRegistros ? 'rotate-180' : ''"></i>
+        </button>
+        
+        <!-- Submenús -->
+        <div x-show="openRegistros" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="mt-2 ml-4 space-y-1 border-l-2 border-white/10 pl-3"
+             style="display: none;">
+          
+          <a href="/registros/uso"
+             @click.prevent="sidebarOpen = false; window.location.href = '/registros/uso'"
+             class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all
+                    {% if active_page == 'uso' %}
+                      bg-emerald-500/20 text-emerald-300
+                    {% else %}
+                      hover:bg-white/5 text-gray-300 hover:text-emerald-300
+                    {% endif %}">
+            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+            <span>Uso SMS</span>
+          </a>
+          
+          <a href="/registros/metricas"
+             @click.prevent="sidebarOpen = false; window.location.href = '/registros/metricas'"
+             class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all
+                    {% if active_page == 'metricas' %}
+                      bg-emerald-500/20 text-emerald-300
+                    {% else %}
+                      hover:bg-white/5 text-gray-300 hover:text-emerald-300
+                    {% endif %}">
+            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+            <span>Métricas</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Configuración -->
+      <a href="/configuracion"
+         @click.prevent="sidebarOpen = false; window.location.href = '/configuracion'"
          class="relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                {% if active_page == 'logs' %}
+                {% if active_page == 'configuracion' %}
                   glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
                 {% else %}
                   hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
                 {% endif %}">
-        {% if active_page == 'logs' %}
+        {% if active_page == 'configuracion' %}
         <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
         {% endif %}
-        <div class="{% if active_page == 'logs' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
-          <i data-lucide="file-text" class="w-4 h-4"></i>
+        <div class="{% if active_page == 'configuracion' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
+          <i data-lucide="settings" class="w-4 h-4"></i>
         </div>
-        <span class="font-medium">Registros</span>
+        <span class="font-medium">Configuración</span>
       </a>
       {% endif %}
     </nav>

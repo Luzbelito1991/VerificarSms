@@ -43,10 +43,12 @@ init_db()
 from backend.routes.usuarios import router as usuarios_router
 from backend.routes.sms import router as sms_router
 from backend.routes.admin_sms import admin_router
+from backend.routes.registros import router as registros_router
 
 app.include_router(usuarios_router)
 app.include_router(sms_router)
 app.include_router(admin_router)
+app.include_router(registros_router)
 
 # ============================
 # 💡 AUXILIAR PARA PLANTILLAS

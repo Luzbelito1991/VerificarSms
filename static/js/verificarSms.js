@@ -185,38 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lucide.createIcons();
   }
 
-  function mostrarToast(mensaje, tipo = 'success') {
-    const toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) return;
-
-    const div = document.createElement('div');
-
-    const base = "animate-fade-in-up transition-opacity duration-300 px-4 py-2 rounded-md shadow-lg text-sm flex items-center gap-2 max-w-md w-full mx-auto";
-    const variantes = {
-      success: "bg-emerald-700/90 text-white",
-      error: "bg-red-700/90 text-white",
-      info: "bg-blue-700/90 text-white"
-    };
-    const iconos = {
-      success: "check",
-      error: "x",
-      info: "info"
-    };
-
-    div.className = `${base} ${variantes[tipo] || variantes.info}`;
-    div.innerHTML = `
-      <i data-lucide="${iconos[tipo] || iconos.info}" class="w-4 h-4 text-white/80 shrink-0"></i>
-      <span class="flex-1">${mensaje}</span>
-    `;
-
-    toastContainer.appendChild(div);
-    lucide.createIcons({ icons: [div] });
-
-    setTimeout(() => {
-      div.classList.add("opacity-0");
-      setTimeout(() => div.remove(), 300);
-    }, 4000);
-  }
+  // Nota: mostrarToast() ahora se importa desde /static/js/modal.js (cargado en layout.html)
 
   // 🏪 Elementos del modal de sucursales
   const modalSucursal = document.getElementById("modalSucursal");

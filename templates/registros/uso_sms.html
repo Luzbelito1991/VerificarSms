@@ -1,0 +1,222 @@
+{% extends "layout.html" %}
+
+{% block title %}Uso de SMS - Quilmes{% endblock %}
+
+{% block contenido %}
+<div class="animate-fade-in-up">
+  <!-- Encabezado -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+          <i data-lucide="database" class="w-6 h-6 text-white"></i>
+        </div>
+        Uso de SMS
+      </h1>
+      <p class="text-gray-400">Monitoreo de SMS disponibles y consumo</p>
+    </div>
+    <button onclick="cargarDatos()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center gap-2">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Tarjetas de resumen -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- SMS Disponibles -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-6 hover-lift">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+          <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
+        </div>
+        <span class="text-xs text-emerald-400 font-semibold">DISPONIBLES</span>
+      </div>
+      <div class="text-3xl font-bold text-white mb-1" id="smsDisponibles">-</div>
+      <div class="text-sm text-gray-400">SMS restantes</div>
+    </div>
+
+    <!-- SMS Usados -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-6 hover-lift">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+          <i data-lucide="send" class="w-6 h-6 text-white"></i>
+        </div>
+        <span class="text-xs text-blue-400 font-semibold">USADOS</span>
+      </div>
+      <div class="text-3xl font-bold text-white mb-1" id="smsUsados">-</div>
+      <div class="text-sm text-gray-400">SMS enviados</div>
+    </div>
+
+    <!-- SMS Hoy -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-6 hover-lift">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+          <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
+        </div>
+        <span class="text-xs text-amber-400 font-semibold">HOY</span>
+      </div>
+      <div class="text-3xl font-bold text-white mb-1" id="smsHoy">-</div>
+      <div class="text-sm text-gray-400">SMS de hoy</div>
+    </div>
+
+    <!-- SMS Este Mes -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-6 hover-lift">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+          <i data-lucide="calendar-days" class="w-6 h-6 text-white"></i>
+        </div>
+        <span class="text-xs text-purple-400 font-semibold">MES ACTUAL</span>
+      </div>
+      <div class="text-3xl font-bold text-white mb-1" id="smsMes">-</div>
+      <div class="text-sm text-gray-400">SMS del mes</div>
+    </div>
+  </div>
+
+  <!-- Plan Contratado -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+        <i data-lucide="package" class="w-5 h-5 text-white"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white">Plan Contratado</h2>
+    </div>
+
+    <div class="space-y-4">
+      <div class="flex justify-between items-center">
+        <span class="text-gray-400">Plan:</span>
+        <span class="text-white font-semibold" id="nombrePlan">-</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-gray-400">SMS Incluidos:</span>
+        <span class="text-emerald-400 font-semibold" id="smsIncluidos">-</span>
+      </div>
+
+      <!-- Barra de progreso -->
+      <div class="mt-4">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-gray-400">Uso del plan</span>
+          <span class="text-white font-semibold" id="porcentajeUso">0%</span>
+        </div>
+        <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
+          <div id="barraProgreso" class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- SMS por Sucursal -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-6">
+      <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <i data-lucide="building" class="w-5 h-5 text-emerald-400"></i>
+        SMS por Sucursal (Top 5)
+      </h3>
+      <div id="listaSucursales" class="space-y-3">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </div>
+
+    <!-- Últimos 7 días -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-6">
+      <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <i data-lucide="trending-up" class="w-5 h-5 text-blue-400"></i>
+        SMS Últimos 7 Días
+      </h3>
+      <div id="grafico7Dias" class="space-y-2">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/mostrarToast.js"></script>
+<script>
+  lucide.createIcons();
+
+  // Cargar datos al inicio
+  document.addEventListener('DOMContentLoaded', cargarDatos);
+
+  async function cargarDatos() {
+    try {
+      const res = await fetch('/api/registros/uso');
+      const data = await res.json();
+
+      if (data.ok) {
+        const { datos } = data;
+
+        // Actualizar tarjetas
+        document.getElementById('smsDisponibles').textContent = datos.plan_contratado.sms_disponibles.toLocaleString();
+        document.getElementById('smsUsados').textContent = datos.plan_contratado.sms_usados.toLocaleString();
+        document.getElementById('smsHoy').textContent = datos.sms_hoy.toLocaleString();
+        document.getElementById('smsMes').textContent = datos.sms_mes_actual.toLocaleString();
+
+        // Plan contratado
+        document.getElementById('nombrePlan').textContent = datos.plan_contratado.nombre;
+        document.getElementById('smsIncluidos').textContent = datos.plan_contratado.sms_incluidos.toLocaleString();
+        document.getElementById('porcentajeUso').textContent = datos.plan_contratado.porcentaje_uso.toFixed(1) + '%';
+        document.getElementById('barraProgreso').style.width = datos.plan_contratado.porcentaje_uso + '%';
+
+        // Cambiar color de barra según uso
+        const barra = document.getElementById('barraProgreso');
+        if (datos.plan_contratado.porcentaje_uso > 90) {
+          barra.className = 'h-full bg-gradient-to-r from-red-500 to-red-400 transition-all duration-500';
+        } else if (datos.plan_contratado.porcentaje_uso > 70) {
+          barra.className = 'h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500';
+        } else {
+          barra.className = 'h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500';
+        }
+
+        // SMS por sucursal
+        const listaSucursales = document.getElementById('listaSucursales');
+        listaSucursales.innerHTML = '';
+        datos.sms_por_sucursal.forEach(item => {
+          const porcentaje = (item.total / datos.total_enviados) * 100;
+          listaSucursales.innerHTML += `
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-300">Sucursal ${item.sucursal}</span>
+                <span class="text-white font-semibold">${item.total}</span>
+              </div>
+              <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400" style="width: ${porcentaje}%"></div>
+              </div>
+            </div>
+          `;
+        });
+
+        // Últimos 7 días
+        const grafico7Dias = document.getElementById('grafico7Dias');
+        grafico7Dias.innerHTML = '';
+        const maxCantidad = Math.max(...datos.ultimos_7_dias.map(d => d.cantidad));
+        datos.ultimos_7_dias.forEach(item => {
+          const altura = maxCantidad > 0 ? (item.cantidad / maxCantidad) * 100 : 0;
+          grafico7Dias.innerHTML += `
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-400 w-16">${item.fecha}</span>
+              <div class="flex-1 h-8 bg-gray-800 rounded-lg overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-end pr-2" style="width: ${altura}%">
+                  <span class="text-xs text-white font-semibold">${item.cantidad}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        mostrarToast('Datos actualizados correctamente', 'exito');
+      } else {
+        mostrarToast(data.mensaje || 'Error al cargar datos', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      mostrarToast('Error de conexión', 'error');
+    }
+  }
+</script>
+{% endblock %}

@@ -15,7 +15,8 @@ from backend.auth_utils import get_current_user
 load_dotenv()
 
 API_KEY = os.getenv("SMS_API_KEY")
-MODO_SIMULADO = os.getenv("SMS_MODO_SIMULADO", "false").lower() == "true"
+# 🔧 Limpiar comillas y espacios, luego comparar
+MODO_SIMULADO = os.getenv("SMS_MODO_SIMULADO", "false").strip("'\"").lower() == "true"
 
 router = APIRouter()
 
@@ -109,3 +110,43 @@ def handle_sms(
         "smsBody": mensaje,
         "modoSimulado": MODO_SIMULADO
     }
+
+
+# 📅 Consultar vencimiento del paquete prepago
+@router.get("/obtener-vencimiento")
+def obtener_vencimiento_paquete(
+    user: Usuario = Depends(get_current_user)
+):
+    """
+    Consulta la fecha de vencimiento del paquete prepago de SMS Masivos.
+    Solo disponible para usuarios con rol admin.
+    """
+    if user.rol.lower() != "admin":
+        raise HTTPException(status_code=403, detail="Acceso denegado. Solo administradores.")
+    
+    if MODO_SIMULADO:
+        return {
+            "ok": True,
+            "mensaje": "Modo simulado activado",
+            "fecha_vencimiento": "2025-12-31",
+            "simulado": True
+        }
+    
+    try:
+        url = "http://servicio.smsmasivos.com.ar/obtener_vencimiento_paquete.asp"
+        params = {"apikey": API_KEY}
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        
+        # La API puede devolver diferentes formatos, ajustar según respuesta real
+        return {
+            "ok": True,
+            "fecha_vencimiento": response.text.strip(),
+            "mensaje": "Fecha de vencimiento obtenida correctamente",
+            "simulado": False
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al consultar vencimiento: {str(e)}"
+        )

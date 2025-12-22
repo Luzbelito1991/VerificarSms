@@ -241,4 +241,107 @@ function limpiarFiltros() {
 }
 
 
+// 📅 Consultar fecha de vencimiento del paquete prepago
+async function consultarVencimiento() {
+  const btnConsultar = document.getElementById("btnConsultarVencimiento");
+  const fechaVencimientoEl = document.getElementById("fechaVencimiento");
+  const diasRestantesEl = document.getElementById("diasRestantes");
+
+  // Mostrar estado de carga
+  btnConsultar.disabled = true;
+  btnConsultar.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Consultando...';
+  lucide.createIcons();
+  
+  fechaVencimientoEl.textContent = "Consultando...";
+  diasRestantesEl.textContent = "Espere un momento...";
+
+  try {
+    const res = await fetch("/send-sms/obtener-vencimiento");
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || "Error al consultar vencimiento");
+    }
+
+    if (data.ok) {
+      const fechaVencimiento = data.fecha_vencimiento;
+      fechaVencimientoEl.textContent = formatearFecha(fechaVencimiento);
+      
+      // Calcular días restantes
+      const diasRestantes = calcularDiasRestantes(fechaVencimiento);
+      
+      if (diasRestantes < 0) {
+        diasRestantesEl.textContent = "⚠️ Paquete vencido";
+        diasRestantesEl.className = "text-xs text-red-400 mt-1 font-semibold";
+      } else if (diasRestantes <= 7) {
+        diasRestantesEl.textContent = `⚠️ ${diasRestantes} días restantes`;
+        diasRestantesEl.className = "text-xs text-yellow-400 mt-1 font-semibold";
+      } else {
+        diasRestantesEl.textContent = `✓ ${diasRestantes} días restantes`;
+        diasRestantesEl.className = "text-xs text-gray-400 mt-1";
+      }
+
+      if (data.simulado) {
+        diasRestantesEl.textContent += " (Simulado)";
+      }
+    } else {
+      throw new Error(data.mensaje || "Error desconocido");
+    }
+
+  } catch (error) {
+    console.error("Error al consultar vencimiento:", error);
+    fechaVencimientoEl.textContent = "Error";
+    diasRestantesEl.textContent = error.message;
+    diasRestantesEl.className = "text-xs text-red-400 mt-1";
+  } finally {
+    // Restaurar botón
+    btnConsultar.disabled = false;
+    btnConsultar.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i> Consultar';
+    lucide.createIcons();
+  }
+}
+
+
+// 🔄 Formatear fecha en formato legible
+function formatearFecha(fechaStr) {
+  try {
+    // Intentar parsear diferentes formatos de fecha
+    const fecha = new Date(fechaStr);
+    if (isNaN(fecha.getTime())) {
+      // Si no es una fecha válida, devolver el texto tal cual
+      return fechaStr;
+    }
+    
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const año = fecha.getFullYear();
+    
+    return `${dia}/${mes}/${año}`;
+  } catch {
+    return fechaStr;
+  }
+}
+
+
+// 📊 Calcular días restantes hasta el vencimiento
+function calcularDiasRestantes(fechaStr) {
+  try {
+    const fechaVencimiento = new Date(fechaStr);
+    const hoy = new Date();
+    
+    // Resetear horas para comparar solo fechas
+    fechaVencimiento.setHours(0, 0, 0, 0);
+    hoy.setHours(0, 0, 0, 0);
+    
+    const diferencia = fechaVencimiento - hoy;
+    const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
+    
+    return dias;
+  } catch {
+    return 0;
+  }
+}
+
+
+
 

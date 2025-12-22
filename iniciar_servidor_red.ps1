@@ -6,8 +6,26 @@ Write-Host "Iniciando servidor VerificarSMS..." -ForegroundColor Cyan
 Write-Host "============================================================"
 Write-Host ""
 
-# Obtener IP local
-$localIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.PrefixOrigin -eq "Dhcp" -or ($_.PrefixOrigin -eq "Manual" -and $_.IPAddress -notlike "127.*")} | Select-Object -First 1).IPAddress
+# Obtener IP local (priorizar Ethernet sobre interfaces virtuales)
+$localIP = (Get-NetIPAddress -AddressFamily IPv4 | 
+    Where-Object {
+        $_.InterfaceAlias -like "Ethernet*" -and 
+        $_.IPAddress -notlike "127.*" -and 
+        $_.IPAddress -notlike "169.254.*"
+    } | 
+    Select-Object -First 1).IPAddress
+
+# Si no encuentra Ethernet, buscar cualquier IP DHCP que no sea virtual
+if (-not $localIP) {
+    $localIP = (Get-NetIPAddress -AddressFamily IPv4 | 
+        Where-Object {
+            $_.PrefixOrigin -eq "Dhcp" -and 
+            $_.IPAddress -notlike "127.*" -and 
+            $_.IPAddress -notlike "172.*" -and 
+            $_.IPAddress -notlike "192.168.137.*"
+        } | 
+        Select-Object -First 1).IPAddress
+}
 
 if ($localIP) {
     Write-Host "Tu IP en la red: $localIP" -ForegroundColor Green

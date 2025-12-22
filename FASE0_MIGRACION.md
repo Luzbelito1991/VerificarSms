@@ -29,11 +29,11 @@
 - [x] Verificar integridad de datos
 - [x] Probar aplicación con PostgreSQL
 
-### **Paso 4: Redis para Sesiones (30 min)**
-- [ ] Instalar Redis (Memurai para Windows)
-- [ ] Instalar `redis` y `fastapi-sessions`
-- [ ] Configurar SessionMiddleware con Redis
-- [ ] Probar login y persistencia de sesiones
+### **Paso 4: Redis para Sesiones (30 min)** ✅ COMPLETADO
+- [x] Instalar Redis (Memurai para Windows)
+- [x] Instalar `redis` y `fastapi-sessions`
+- [x] Configurar SessionMiddleware con Redis
+- [x] Probar login y persistencia de sesiones
 
 ### **Paso 5: Sistema de Auditoría (60 min)**
 - [ ] Crear modelo `LogAuditoria`
@@ -108,4 +108,18 @@ Copy-Item "backups/pre-fase0-20251222_181938/*" -Destination "." -Recurse -Force
 - backend/config/database.py actualizado
 - .env actualizado con DATABASE_URL
 - Aplicación funcionando correctamente con PostgreSQL
+
+### Paso 4 - ✅ COMPLETADO
+- Memurai Developer instalado y corriendo como servicio
+- Paquete redis instalado en virtualenv
+- backend/config/redis_config.py creado
+- backend/services/session_service.py implementado
+- Sistema de sesiones con Redis funcionando:
+  - Sessions persisten entre reinicios ✅
+  - TTL de 8 horas configurado ✅
+  - Actualización automática de última actividad ✅
+- Endpoint /api/sesiones/activas creado (solo admin)
+- get_current_user actualizado para leer desde Redis
+- Login/logout integrados con Redis
+- test_redis.py creado y funcionando correctamente
 

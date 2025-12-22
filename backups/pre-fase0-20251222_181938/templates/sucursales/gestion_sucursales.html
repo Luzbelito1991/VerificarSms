@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block title %}Gestión de Sucursales{% endblock %}
+
+{% block contenido %}
+<div class="animate-fade-in-up">
+  <!-- Encabezado -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2 flex items-center gap-3">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+          <i data-lucide="building-2" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
+        </div>
+        Gestión de Sucursales
+      </h1>
+      <p class="text-sm text-gray-400">Administrá los códigos y nombres de las sucursales</p>
+    </div>
+    <button
+      onclick="abrirModalCrear()"
+      class="px-3 py-2 sm:px-4 sm:py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all flex items-center gap-2 text-sm sm:text-base hover-lift"
+    >
+      <i data-lucide="plus" class="w-4 h-4"></i>
+      <span class="hidden sm:inline">Nueva Sucursal</span>
+      <span class="sm:hidden">Nueva</span>
+    </button>
+  </div>
+
+  <!-- Tabla de sucursales -->
+  <div class="glass-effect border border-white/10 rounded-2xl overflow-hidden">
+    <!-- Vista Desktop -->
+    <div class="hidden md:block overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-white/5 border-b border-white/10">
+          <tr>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider w-24">
+              Código
+            </th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              Nombre de Sucursal
+            </th>
+            <th class="px-3 py-2.5 text-center text-xs font-semibold text-gray-300 uppercase tracking-wider w-24">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody id="tablaSucursales" class="divide-y divide-white/5">
+          <!-- Se llena dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vista Mobile (Cards) -->
+    <div id="listaSucursalesMobile" class="md:hidden divide-y divide-white/5">
+      <!-- Se llena dinámicamente -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal Crear/Editar -->
+<div id="modalSucursal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+  <div class="glass-effect border border-white/20 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+    <div class="flex items-center justify-between mb-6">
+      <h3 id="modalTitulo" class="text-xl font-bold text-white">Nueva Sucursal</h3>
+      <button onclick="cerrarModal()" class="text-gray-400 hover:text-white transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <form id="formSucursal" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2">Código</label>
+        <input
+          type="text"
+          id="inputCodigo"
+          required
+          maxlength="10"
+          class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
+          placeholder="ej: 389"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
+        <input
+          type="text"
+          id="inputNombre"
+          required
+          maxlength="100"
+          class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
+          placeholder="ej: Los Quilmes - Casa Central"
+        />
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button
+          type="button"
+          onclick="cerrarModal()"
+          class="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 rounded-lg transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors font-semibold"
+        >
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/sucursales.js?v=2.0"></script>
+{% endblock %}

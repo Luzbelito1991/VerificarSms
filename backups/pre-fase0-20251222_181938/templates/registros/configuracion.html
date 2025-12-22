@@ -1,0 +1,452 @@
+{% extends "layout.html" %}
+
+{% block title %}Configuración - Quilmes{% endblock %}
+
+{% block contenido %}
+<div class="animate-fade-in-up" x-data="{ tabActiva: 'sms' }">
+  <!-- Encabezado -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+        <i data-lucide="settings" class="w-6 h-6 text-white"></i>
+      </div>
+      Configuración del Sistema
+    </h1>
+    <p class="text-gray-400">Administrar configuración del sistema</p>
+  </div>
+
+  <!-- Tabs de Navegación -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-2 mb-6">
+    <div class="flex gap-2">
+      <!-- Tab SMS -->
+      <button 
+        @click="tabActiva = 'sms'"
+        :class="tabActiva === 'sms' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg' : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'"
+        class="flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3"
+      >
+        <i data-lucide="message-square" class="w-5 h-5"></i>
+        <span>Configuración de SMS</span>
+      </button>
+
+      <!-- Tab Base de Datos -->
+      <button 
+        @click="tabActiva = 'bd'"
+        :class="tabActiva === 'bd' ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-lg' : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'"
+        class="flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3"
+      >
+        <i data-lucide="database" class="w-5 h-5"></i>
+        <span>Gestión de Base de Datos</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONTENIDO: CONFIGURACIÓN DE SMS          -->
+  <!-- ========================================== -->
+  <div x-show="tabActiva === 'sms'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
+
+  <!-- Modo Simulado -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-6">
+    <div class="flex items-start justify-between gap-6">
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+            <i data-lucide="flask-conical" class="w-5 h-5 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white">Modo Simulado</h3>
+        </div>
+        <p class="text-gray-400 text-sm mb-4">
+          Cuando está activo, los SMS no se envían realmente. Solo se registran en la consola del servidor. 
+          Útil para pruebas sin consumir créditos.
+        </p>
+        
+        <div class="flex items-center gap-3">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              id="modoSimuladoToggle" 
+              class="sr-only peer" 
+              {% if sms_modo_simulado %}checked{% endif %}
+              onchange="cambiarModoSimulado()"
+            >
+            <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600"></div>
+          </label>
+          <span class="text-sm font-medium text-gray-300" id="modoSimuladoLabel">
+            {% if sms_modo_simulado %}Activado{% else %}Desactivado{% endif %}
+          </span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold {% if sms_modo_simulado %}bg-amber-500/20 text-amber-400{% else %}bg-emerald-500/20 text-emerald-400{% endif %}" id="modoSimuladoBadge">
+            {% if sms_modo_simulado %}Modo Prueba{% else %}Modo Producción{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuración API SMS Masivos -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+        <i data-lucide="key" class="w-5 h-5 text-white"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">API de SMS Masivos</h3>
+    </div>
+
+    <form id="formApiKey" onsubmit="actualizarApiKey(event)" class="space-y-6">
+      <!-- API Key -->
+      <div>
+        <label for="apiKey" class="block text-sm font-semibold text-gray-300 mb-2">
+          API Key
+        </label>
+        <div class="relative">
+          <input 
+            type="password" 
+            id="apiKey" 
+            name="apiKey" 
+            value="{{ sms_api_key }}"
+            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all pr-12"
+            placeholder="Ingrese su API Key"
+            required
+          >
+          <button 
+            type="button" 
+            onclick="toggleApiKeyVisibility()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+          >
+            <i data-lucide="eye" id="iconoOjo" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          Esta clave se utiliza para autenticar las solicitudes a SMS Masivos
+        </p>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+        <div class="flex gap-3">
+          <i data-lucide="info" class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5"></i>
+          <div class="text-sm text-blue-200">
+            <p class="font-semibold mb-1">Importante:</p>
+            <ul class="space-y-1 text-blue-300/80">
+              <li>• La API Key es proporcionada por SMS Masivos al contratar el servicio</li>
+              <li>• Mantenga esta clave segura y no la comparta</li>
+              <li>• Los cambios se aplicarán inmediatamente</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex gap-3">
+        <button 
+          type="submit"
+          class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold rounded-xl transition-all hover-lift flex items-center gap-2"
+        >
+          <i data-lucide="save" class="w-4 h-4"></i>
+          Guardar Cambios
+        </button>
+        <button 
+          type="button"
+          onclick="resetForm()"
+          class="px-6 py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-semibold rounded-xl transition-all border border-white/10 flex items-center gap-2"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Información del Sistema SMS -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-12">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+        <i data-lucide="info" class="w-5 h-5 text-white"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">Información del Proveedor</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Proveedor SMS</div>
+        <div class="text-white font-semibold">SMS Masivos Argentina</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">URL del Servicio</div>
+        <div class="text-white font-mono text-xs">servicio.smsmasivos.com.ar</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Estado del Sistema</div>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span class="text-emerald-400 font-semibold">Operativo</span>
+        </div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Soporte Técnico</div>
+        <div class="text-emerald-400 font-semibold text-sm">vallefernando884@gmail.com</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- Fin contenido SMS -->
+
+  <!-- ========================================== -->
+  <!-- CONTENIDO: GESTIÓN DE BASE DE DATOS      -->
+  <!-- ========================================== -->
+  <div x-show="tabActiva === 'bd'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
+
+  <!-- Herramientas de Backup -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+        <i data-lucide="hard-drive" class="w-5 h-5 text-white"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">Copias de Seguridad</h3>
+    </div>
+
+    <p class="text-gray-400 text-sm mb-6">
+      Herramientas para administrar backups del sistema. Las copias de seguridad son esenciales para proteger tus datos.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Descargar Backup -->
+      <button 
+        onclick="descargarBackup()"
+        class="bg-gradient-to-br from-emerald-600/20 to-emerald-500/20 hover:from-emerald-600/30 hover:to-emerald-500/30 border border-emerald-500/30 rounded-xl p-6 transition-all hover-lift text-left group"
+      >
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <i data-lucide="download" class="w-5 h-5 text-white"></i>
+          </div>
+          <h4 class="text-white font-bold">Descargar Backup</h4>
+        </div>
+        <p class="text-gray-400 text-sm">Guardar copia de seguridad de la base de datos en tu computadora</p>
+      </button>
+
+      <!-- Restaurar Backup -->
+      <button 
+        onclick="document.getElementById('fileInput').click()"
+        class="bg-gradient-to-br from-amber-600/20 to-amber-500/20 hover:from-amber-600/30 hover:to-amber-500/30 border border-amber-500/30 rounded-xl p-6 transition-all hover-lift text-left group"
+      >
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <i data-lucide="upload" class="w-5 h-5 text-white"></i>
+          </div>
+          <h4 class="text-white font-bold">Restaurar Backup</h4>
+        </div>
+        <p class="text-gray-400 text-sm">Cargar base de datos desde un archivo de backup guardado</p>
+      </button>
+      
+      <!-- Input oculto para seleccionar archivo -->
+      <input type="file" id="fileInput" accept=".db" style="display: none;" onchange="restaurarDesdeArchivo(this.files[0])">
+    </div>
+
+    <!-- Información de Seguridad -->
+    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mt-6">
+      <div class="flex gap-3">
+        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5"></i>
+        <div class="text-sm text-emerald-200">
+          <p class="font-semibold mb-1">✅ Buenas Prácticas de Seguridad:</p>
+          <ul class="space-y-1 text-emerald-300/80">
+            <li>• Los backups se crean automáticamente antes de restaurar</li>
+            <li>• Se generan archivos .db (binario) y .sql (texto) para mayor portabilidad</li>
+            <li>• Los backups se almacenan en <code class="bg-black/30 px-1 rounded">backups/</code></li>
+            <li>• Recomendación: Crear backups diarios y antes de cambios importantes</li>
+            <li>• Los datos sensibles nunca se exponen en la interfaz web</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información Técnica de BD -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+        <i data-lucide="server" class="w-5 h-5 text-white"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">Información Técnica</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Motor de Base de Datos</div>
+        <div class="text-white font-semibold">SQLite 3</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Archivo de Base de Datos</div>
+        <div class="text-white font-mono text-xs">usuarios.db</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Tablas del Sistema</div>
+        <div class="text-white font-semibold">4 tablas activas</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Ubicación de Backups</div>
+        <div class="text-emerald-400 font-mono text-xs">./backups/</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- Fin contenido Base de Datos -->
+
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  lucide.createIcons();
+
+  const valorOriginalApiKey = "{{ sms_api_key }}";
+
+  async function cambiarModoSimulado() {
+    const toggle = document.getElementById('modoSimuladoToggle');
+    const label = document.getElementById('modoSimuladoLabel');
+    const badge = document.getElementById('modoSimuladoBadge');
+    const activar = toggle.checked;
+
+    try {
+      const res = await fetch('/api/configuracion/modo-simulado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activar })
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        label.textContent = activar ? 'Activado' : 'Desactivado';
+        badge.textContent = activar ? 'Modo Prueba' : 'Modo Producción';
+        badge.className = activar 
+          ? 'px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400'
+          : 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400';
+        
+        mostrarToast(data.mensaje, 'exito');
+      } else {
+        toggle.checked = !activar;
+        mostrarToast(data.mensaje || 'Error al cambiar configuración', 'error');
+      }
+    } catch (error) {
+      toggle.checked = !activar;
+      console.error('Error:', error);
+      mostrarToast('Error de conexión', 'error');
+    }
+  }
+
+  async function actualizarApiKey(event) {
+    event.preventDefault();
+    
+    const apiKey = document.getElementById('apiKey').value;
+
+    if (!apiKey) {
+      mostrarToast('La API Key no puede estar vacía', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/configuracion/api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: apiKey })
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        mostrarToast(data.mensaje, 'exito');
+      } else {
+        mostrarToast(data.mensaje || 'Error al actualizar API Key', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      mostrarToast('Error de conexión', 'error');
+    }
+  }
+
+  function toggleApiKeyVisibility() {
+    const input = document.getElementById('apiKey');
+    const icono = document.getElementById('iconoOjo');
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icono.setAttribute('data-lucide', 'eye-off');
+    } else {
+      input.type = 'password';
+      icono.setAttribute('data-lucide', 'eye');
+    }
+    
+    lucide.createIcons();
+  }
+
+  function resetForm() {
+    document.getElementById('apiKey').value = valorOriginalApiKey;
+    document.getElementById('apiKey').type = 'password';
+    document.getElementById('iconoOjo').setAttribute('data-lucide', 'eye');
+    lucide.createIcons();
+    mostrarToast('Formulario restablecido', 'info');
+  }
+
+  // ========== FUNCIONES DE BASE DE DATOS ==========
+
+  function descargarBackup() {
+    // Crear enlace temporal para forzar descarga
+    const url = `${window.location.origin}/api/configuracion/descargar-backup`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = ''; // El nombre viene del servidor
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    mostrarModal('Descargando backup de la base de datos...', 'info', 3000);
+  }
+
+  async function restaurarDesdeArchivo(file) {
+    if (!file) return;
+    
+    if (!file.name.endsWith('.db')) {
+      mostrarModal('Por favor selecciona un archivo .db válido', 'error', 3000);
+      return;
+    }
+    
+    if (!confirm(`¿Confirmar restauración desde "${file.name}"?\n\nEsta acción reemplazará la base de datos actual.`)) {
+      document.getElementById('fileInput').value = '';
+      return;
+    }
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      mostrarModal('Restaurando base de datos...', 'info');
+      
+      const res = await fetch('/api/configuracion/restaurar-backup', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        mostrarModal(error.detail || 'Error al restaurar backup', 'error', 0);
+        return;
+      }
+      
+      const data = await res.json();
+      
+      if (data.ok) {
+        mostrarModal('✅ Base de datos restaurada correctamente. Recargando...', 'success', 3000);
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        mostrarModal(data.mensaje || 'Error al restaurar', 'error', 0);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      mostrarModal('Error de conexión', 'error', 0);
+    } finally {
+      document.getElementById('fileInput').value = '';
+    }
+  }
+</script>
+{% endblock %}

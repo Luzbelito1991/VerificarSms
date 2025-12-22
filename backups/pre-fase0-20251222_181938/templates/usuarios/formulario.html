@@ -1,0 +1,86 @@
+<div>
+  <h3 class="text-white text-xl font-bold mb-6 flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+      <i data-lucide="user-cog" class="w-5 h-5 text-white"></i>
+    </div>
+    <span>Gestionar Usuario</span>
+  </h3>
+
+  <form id="userForm" class="space-y-5">
+    <input type="hidden" id="modo" value="crear">
+    <input type="hidden" id="originalUsuario" value="">
+
+    <div class="group">
+      <label for="usuario" class="block text-sm font-medium text-white mb-2">Nombre de Usuario</label>
+      <input
+        type="text" 
+        id="usuario" 
+        required 
+        placeholder="Ej: juan123"
+        class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white
+               placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+               group-hover:border-gray-600 transition-all duration-200" />
+    </div>
+
+    <div class="group">
+      <label for="password" class="block text-sm font-medium text-white mb-2">Contraseña</label>
+      <input
+        type="password" 
+        id="password" 
+        placeholder="Dejar vacío para mantener actual"
+        class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white
+               placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+               group-hover:border-gray-600 transition-all duration-200" />
+      <p class="text-xs text-gray-400 mt-1 italic">Mínimo 6 caracteres recomendado</p>
+    </div>
+
+    <div class="group">
+      <label for="rol" class="block text-sm font-medium text-white mb-2">Rol del Usuario</label>
+      <select
+        id="rol" 
+        required
+        class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white
+               focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none
+               group-hover:border-gray-600 transition-all duration-200 cursor-pointer">
+        <option value="">Seleccionar rol</option>
+        <option value="admin">Administrador</option>
+        <option value="operador">Operador</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label for="email" class="block text-sm font-medium text-white mb-2">
+        Email 
+        <span class="text-xs text-gray-400">(opcional - para recuperar contraseña)</span>
+      </label>
+      <input
+        type="email" 
+        id="email" 
+        placeholder="usuario@example.com"
+        class="w-full bg-gray-800/50 border border-gray-700 px-4 py-3 rounded-xl text-sm text-white
+               placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+               group-hover:border-gray-600 transition-all duration-200" />
+      <p class="text-xs text-gray-400 mt-1 italic">Necesario para recuperación de contraseña</p>
+    </div>
+
+    <div class="flex gap-4 justify-center pt-4">
+      <button
+        type="submit"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold
+               bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400
+               text-white shadow-lg hover:shadow-emerald-500/50 transition-all duration-200 hover-lift">
+        <i data-lucide="save" class="w-5 h-5"></i>
+        <span id="submitLabel">Crear Usuario</span>
+      </button>
+      <button
+        type="button"
+        onclick="reiniciarFormulario()"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold
+               bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
+               transition-all duration-200 hover-lift">
+        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+        Limpiar
+      </button>
+    </div>
+  </form>
+</div>

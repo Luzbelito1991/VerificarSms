@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block contenido %}
+<div class="space-y-5 animate-fade-in-up">
+
+  <!-- Encabezado moderno con gradiente -->
+  <section class="glass-effect border border-white/20 rounded-2xl p-4 sm:p-5 shadow-xl hover-lift">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-xl">
+          <i data-lucide="user-circle" class="w-6 h-6 sm:w-7 sm:h-7 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            ¡Hola, <span class="text-emerald-400">{{ user.usuario }}</span>!
+          </h1>
+          <p class="text-xs sm:text-sm text-gray-300 mt-1 flex items-center gap-2">
+            <span class="text-gray-400">Rol:</span>
+            {% if user.rol|lower == "admin" %}
+              <span class="px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-[10px] font-semibold">
+                Administrador
+              </span>
+            {% elif user.rol|lower == "operador" %}
+              <span class="px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[10px] font-semibold">
+                Operador
+              </span>
+            {% else %}
+              <span class="px-2 py-0.5 rounded-full bg-gray-500/20 border border-gray-400/30 text-gray-300 text-[10px] font-semibold">
+                {{ user.rol }}
+              </span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-400/30">
+        <i data-lucide="info" class="w-3 h-3 text-emerald-400"></i>
+        <span class="text-xs text-emerald-200 font-medium">v1.0.0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cards de métricas mejoradas -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- ✅ Mensajes enviados -->
+    <div class="glass-effect border border-green-500/30 rounded-2xl p-4 sm:p-5 shadow-xl hover-lift group">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+          <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
+        </div>
+        <div class="text-right">
+          <p class="text-3xl sm:text-4xl font-bold text-white">{{ enviados }}</p>
+          <p class="text-xs text-gray-300 mt-0.5">Mensajes Enviados</p>
+        </div>
+      </div>
+      <div class="h-1 w-full bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+      <p class="text-[10px] text-gray-400 mt-2">✓ Estado: Exitoso</p>
+    </div>
+
+    <!-- ❌ Mensajes no enviados -->
+    <div class="glass-effect border border-red-500/30 rounded-2xl p-4 sm:p-5 shadow-xl hover-lift group">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+          <i data-lucide="x-circle" class="w-6 h-6 text-white"></i>
+        </div>
+        <div class="text-right">
+          <p class="text-3xl sm:text-4xl font-bold text-white">{{ no_enviados }}</p>
+          <p class="text-xs text-gray-300 mt-0.5">Mensajes Fallidos</p>
+        </div>
+      </div>
+      <div class="h-1 w-full bg-gradient-to-r from-red-500 to-red-600 rounded-full"></div>
+      <p class="text-[10px] text-gray-400 mt-2">✗ Estado: Error</p>
+    </div>
+
+  </section>
+
+  <!-- Gráficos de actividad -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- SMS por Sucursal (Top 5) -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-5 shadow-xl hover-lift">
+      <h3 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+          <i data-lucide="building" class="w-4 h-4 text-white"></i>
+        </div>
+        SMS por Sucursal (Top 5)
+      </h3>
+      <div class="space-y-3">
+        {% if sms_por_sucursal %}
+          {% for item in sms_por_sucursal %}
+            {% set porcentaje = (item.total / total_exitosos * 100) if total_exitosos > 0 else 0 %}
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-300">Sucursal {{ item.sucursal }}</span>
+                <span class="text-white font-semibold">{{ item.total }}</span>
+              </div>
+              <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500" style="width: {{ porcentaje }}%"></div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-gray-400 text-sm text-center py-4">No hay datos disponibles</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- SMS Últimos 7 Días -->
+    <div class="glass-effect border border-white/10 rounded-2xl p-5 shadow-xl hover-lift">
+      <h3 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+          <i data-lucide="trending-up" class="w-4 h-4 text-white"></i>
+        </div>
+        SMS Últimos 7 Días
+      </h3>
+      <div class="space-y-2">
+        {% if ultimos_7_dias %}
+          {% set max_cantidad = ultimos_7_dias | map(attribute='cantidad') | max %}
+          {% for item in ultimos_7_dias %}
+            {% set altura = (item.cantidad / max_cantidad * 100) if max_cantidad > 0 else 0 %}
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-400 w-12">{{ item.fecha }}</span>
+              <div class="flex-1 h-7 bg-gray-800 rounded-lg overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-end pr-2 transition-all duration-500" style="width: {{ altura }}%">
+                  {% if item.cantidad > 0 %}
+                    <span class="text-xs text-white font-semibold">{{ item.cantidad }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-gray-400 text-sm text-center py-4">No hay datos disponibles</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

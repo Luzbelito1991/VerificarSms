@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Mantenimiento de Usuarios
+{% endblock %}
+
+{% block contenido %}
+<!-- 🧾 Tabla y gestión de usuarios -->
+<section class="max-w-5xl mx-auto py-10 px-4 space-y-8">
+
+  <!-- Encabezado -->
+  <header class="flex items-center gap-2 text-white text-lg font-semibold">
+    <i data-lucide="user-cog" class="w-5 h-5 text-emerald-400"></i>
+    Mantenimiento de Usuarios
+  </header>
+
+  <!-- Buscar usuario -->
+  <div class="space-y-3">
+    <label for="buscarUsuarioTabla" class="block text-sm font-medium text-white">🔍 Buscar usuario</label>
+    <div class="flex gap-3">
+      <input id="buscarUsuarioTabla" type="text" placeholder="Ej: usuario123"
+             class="flex-1 bg-gray-800 border border-gray-700 px-4 py-2 rounded-md text-white placeholder-gray-500 outline-none text-sm" />
+      <button id="mostrarFormularioBtn" type="button"
+              class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-white font-medium rounded-md text-sm">
+        + Nuevo usuario
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="overflow-x-auto mt-6 rounded-lg border border-white/10">
+    <table class="w-full text-sm text-white">
+      <thead class="bg-emerald-950 text-emerald-300">
+        <tr>
+          <th class="px-4 py-2 text-left">Usuario</th>
+          <th class="px-4 py-2 text-left">Rol</th>
+          <th class="px-4 py-2 text-left">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaUsuariosBody" class="divide-y divide-white/10 bg-gray-900">
+        <!-- Las filas se agregan dinámicamente con JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <div class="flex items-center justify-between mt-4 text-white text-sm">
+    <button id="prevPagina" class="px-2 py-1 rounded hover:bg-white/10">Anterior</button>
+    <span id="paginaActual">1</span>
+    <button id="nextPagina" class="px-2 py-1 rounded hover:bg-white/10">Siguiente</button>
+  </div>
+</section>
+
+<!-- 💡 Modal para Crear / Editar Usuario -->
+<div id="modalUsuario" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center px-4">
+  <div class="bg-white/5 border border-white/10 rounded-xl p-6 max-w-xl w-full shadow-xl transition duration-300">
+    <form id="userForm" class="space-y-4">
+      <input type="hidden" id="modo" value="crear" />
+      <input type="hidden" id="originalUsuario" value="" />
+
+      <h3 class="text-white text-base font-semibold mb-4 flex items-center gap-2">
+        <i data-lucide="edit" class="w-4 h-4 text-blue-400"></i>
+        Crear / Editar Usuario
+      </h3>
+
+      <div>
+        <label for="usuario" class="block text-sm font-medium text-white mb-1">Usuario</label>
+        <input type="text" id="usuario" required placeholder="Ej: juan123"
+               class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-white mb-1">Contraseña</label>
+        <input type="password" id="password" placeholder="(dejar en blanco para mantener)"
+               class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+
+      <div>
+        <label for="rol" class="block text-sm font-medium text-white mb-1">Rol</label>
+        <select id="rol" required
+                class="w-full bg-gray-800 border border-gray-700 px-3 py-2 rounded-md text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+          <option value="">Seleccioná un rol</option>
+          <option value="admin">Administrador</option>
+          <option value="operador">Operador</option>
+        </select>
+      </div>
+
+      <div class="flex gap-3 justify-center pt-2">
+        <button type="submit"
+                class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-sm text-white font-semibold rounded-md inline-flex items-center gap-1">
+          <i data-lucide="save" class="w-4 h-4"></i> <span id="submitLabel">Crear</span>
+        </button>
+        <button type="button" onclick="reiniciarFormulario()"
+                class="bg-gray-700 hover:bg-gray-600 px-4 py-2 text-sm text-white font-semibold rounded-md">
+          Limpiar
+        </button>
+        <button type="button" onclick="cerrarModal()"
+                class="bg-red-600 hover:bg-red-500 px-4 py-2 text-sm text-white font-semibold rounded-md">
+          Cerrar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/mantenimientoUsuarios.js"></script>
+<script>lucide.createIcons();</script>
+{% endblock %}

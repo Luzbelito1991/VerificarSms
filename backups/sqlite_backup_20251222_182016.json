@@ -1,0 +1,217 @@
+{
+  "export_date": "20251222_182016",
+  "database": "usuarios.db",
+  "tables": {
+    "usuarios": [
+      {
+        "id": 3,
+        "usuario": "Fernando",
+        "hash_password": "$2b$12$oISX8YvhoH0ym8dniCUNbegv6UzeonsBkTvCI1ntDTkjy3B2yVUya",
+        "rol": "admin",
+        "email": null
+      },
+      {
+        "id": 4,
+        "usuario": "Andrea",
+        "hash_password": "$2b$12$QrLwzhLxrE69ARExp8JRHuvIKweLIZCBMK66PRk/yspKaDE1h4kvm",
+        "rol": "operador",
+        "email": null
+      },
+      {
+        "id": 5,
+        "usuario": "admin",
+        "hash_password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+        "rol": "admin",
+        "email": null
+      },
+      {
+        "id": 6,
+        "usuario": "fernando",
+        "hash_password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "rol": "admin",
+        "email": null
+      },
+      {
+        "id": 7,
+        "usuario": "Norita",
+        "hash_password": "$2b$12$7XaYPz4eJV0Ya4lwQHchfOoxtwBGKG0ddCIeAQQM5QuoB9LmDv3Vm",
+        "rol": "operador",
+        "email": "vallefernando884@gmail.com"
+      }
+    ],
+    "verificaciones": [
+      {
+        "id": 3,
+        "person_id": "14300166",
+        "phone_number": "3815899445",
+        "merchant_code": "777",
+        "merchant_name": "Lules",
+        "verification_code": "5525",
+        "fecha": "2025-12-20 12:49:01.652129",
+        "usuario_id": 4
+      },
+      {
+        "id": 4,
+        "person_id": "14300166",
+        "phone_number": "3815899445",
+        "merchant_code": "561",
+        "merchant_name": "Oregon Jeans",
+        "verification_code": "6255",
+        "fecha": "2025-12-20 12:49:25.563325",
+        "usuario_id": 4
+      },
+      {
+        "id": 5,
+        "person_id": "36049884",
+        "phone_number": "3814123693",
+        "merchant_code": "777",
+        "merchant_name": "Lules",
+        "verification_code": "6566",
+        "fecha": "2025-12-22 09:17:50.697540",
+        "usuario_id": 3
+      },
+      {
+        "id": 6,
+        "person_id": "36049884",
+        "phone_number": "3814123693",
+        "merchant_code": "776",
+        "merchant_name": "Limite Deportes Alberdi",
+        "verification_code": "9259",
+        "fecha": "2025-12-22 09:47:34.078769",
+        "usuario_id": 4
+      },
+      {
+        "id": 7,
+        "person_id": "14300166",
+        "phone_number": "3814588888",
+        "merchant_code": "776",
+        "merchant_name": "Limite Deportes Alberdi",
+        "verification_code": "7644",
+        "fecha": "2025-12-22 11:23:48.365675",
+        "usuario_id": 6
+      },
+      {
+        "id": 8,
+        "person_id": "36049884",
+        "phone_number": "3814123693",
+        "merchant_code": "123",
+        "merchant_name": "Sucursal 123",
+        "verification_code": "6582",
+        "fecha": "2025-12-22 12:39:13.700516",
+        "usuario_id": 6
+      }
+    ],
+    "password_reset_tokens": [
+      {
+        "id": 1,
+        "usuario_id": 7,
+        "token": "0y7x2l0H_SuCLYDCn7BcKzA12pWauZ0lVpjYk2DYlNk",
+        "expiracion": "2025-12-22 15:46:53.421600",
+        "usado": 0,
+        "fecha_creacion": "2025-12-22 13:46:53.422451"
+      },
+      {
+        "id": 2,
+        "usuario_id": 7,
+        "token": "Dv1aRIUcdd8Ed7dU3Wy3Ev3vQXHLJt50wt2-Hjgfn94",
+        "expiracion": "2025-12-22 15:46:55.725231",
+        "usado": 0,
+        "fecha_creacion": "2025-12-22 13:46:55.725478"
+      }
+    ],
+    "sucursales": [
+      {
+        "codigo": "389",
+        "nombre": "Rincón Deportivo"
+      },
+      {
+        "codigo": "123",
+        "nombre": "Mmya"
+      },
+      {
+        "codigo": "150",
+        "nombre": "Caution"
+      },
+      {
+        "codigo": "198",
+        "nombre": "Ferlor"
+      },
+      {
+        "codigo": "206",
+        "nombre": "Calzado René"
+      },
+      {
+        "codigo": "211",
+        "nombre": "Calzados Alonso"
+      },
+      {
+        "codigo": "325",
+        "nombre": "Mmya II"
+      },
+      {
+        "codigo": "326",
+        "nombre": "Mmya III"
+      },
+      {
+        "codigo": "398",
+        "nombre": "Leggio Calzados"
+      },
+      {
+        "codigo": "405",
+        "nombre": "Código Uomo"
+      },
+      {
+        "codigo": "407",
+        "nombre": "Código Casual Chic"
+      },
+      {
+        "codigo": "473",
+        "nombre": "Tienda Andalucía"
+      },
+      {
+        "codigo": "469",
+        "nombre": "Tienda Andalucía II"
+      },
+      {
+        "codigo": "772",
+        "nombre": "La Sofía Deportes"
+      },
+      {
+        "codigo": "773",
+        "nombre": "La Barra Lules"
+      },
+      {
+        "codigo": "774",
+        "nombre": "La Barra Famaillá"
+      },
+      {
+        "codigo": "775",
+        "nombre": "Luna De Papel"
+      },
+      {
+        "codigo": "776",
+        "nombre": "Limite Deportes Alberdi"
+      },
+      {
+        "codigo": "777",
+        "nombre": "Limite Deportes Lules"
+      },
+      {
+        "codigo": "778",
+        "nombre": "Limite Deportes Famaillá"
+      },
+      {
+        "codigo": "779",
+        "nombre": "Limite Deportes Alderetes"
+      },
+      {
+        "codigo": "781",
+        "nombre": "Limite Deportes La Banda"
+      },
+      {
+        "codigo": "782",
+        "nombre": "Limite Deportes Bella Vista"
+      }
+    ]
+  }
+}

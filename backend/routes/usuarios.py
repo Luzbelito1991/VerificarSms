@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from backend.config import get_db
 from backend.models import Usuario
 from backend.services import AuthService, UserService
+from backend.services.session_service import session_store
 from backend.core.security import verify_password
 
 # 🚪 Inicializar el router
@@ -64,7 +65,7 @@ def crear_usuario(data: UsuarioCreate, db: Session = Depends(get_db)):
         "mensaje": "Usuario creado correctamente"
     }
 
-# 🔓 Iniciar sesión: validar credenciales y guardar sesión en cookies
+# 🔓 Iniciar sesión: validar credenciales y guardar sesión en Redis
 @router.post("/login")
 async def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
     # Autenticar usando el servicio
@@ -73,7 +74,16 @@ async def login(data: LoginRequest, request: Request, db: Session = Depends(get_
     if not user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-    # Crear sesión
+    # Crear sesión en Redis
+    session_id = session_store.create_session({
+        "usuario": user.usuario,
+        "rol": user.rol,
+        "id": user.id,
+        "email": user.email
+    })
+    
+    # Guardar session_id en cookie (mantener compatibilidad)
+    request.session["session_id"] = session_id
     request.session["usuario"] = user.usuario
     request.session["rol"] = user.rol
 

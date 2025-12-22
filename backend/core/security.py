@@ -32,11 +32,30 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 async def get_current_user(request: Request):
     """
     Dependencia para obtener el usuario actual de la sesión.
+    Lee desde Redis para sesiones persistentes.
     """
     from backend.models import Usuario
     from backend.config.database import SessionLocal
+    from backend.services.session_service import session_store
     
-    usuario_sesion = request.session.get("usuario")
+    # Intentar obtener session_id de Redis primero
+    session_id = request.session.get("session_id")
+    
+    if session_id:
+        # Leer sesión desde Redis
+        session_data = session_store.get_session(session_id)
+        if session_data:
+            usuario_sesion = session_data.get("usuario")
+        else:
+            # Sesión expirada o inválida
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Sesión expirada"
+            )
+    else:
+        # Fallback: leer desde SessionMiddleware (compatibilidad)
+        usuario_sesion = request.session.get("usuario")
+    
     if not usuario_sesion:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

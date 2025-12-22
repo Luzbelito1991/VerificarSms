@@ -46,6 +46,7 @@ from backend.routes.admin_sms import admin_router
 from backend.routes.registros import router as registros_router
 from backend.routes.password_reset import router as password_reset_router
 from backend.routes.sucursales import router as sucursales_router
+from backend.routes.sesiones import router as sesiones_router
 
 app.include_router(usuarios_router)
 app.include_router(sms_router)
@@ -53,6 +54,7 @@ app.include_router(admin_router)
 app.include_router(registros_router)
 app.include_router(password_reset_router)
 app.include_router(sucursales_router)
+app.include_router(sesiones_router)
 
 # ============================
 # 💡 AUXILIAR PARA PLANTILLAS
@@ -77,6 +79,14 @@ def mostrar_login(request: Request):
 
 @app.get("/logout")
 def logout(request: Request):
+    from backend.services.session_service import session_store
+    
+    # Eliminar sesión de Redis si existe
+    session_id = request.session.get("session_id")
+    if session_id:
+        session_store.delete_session(session_id)
+    
+    # Limpiar cookies
     request.session.clear()
     return RedirectResponse(url="/", status_code=302)
 

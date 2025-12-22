@@ -1,4 +1,41 @@
+# Archivos de entorno con credenciales
 .env
+.env.local
+.env.*.local
+*.env
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Base de datos (solo desarrollo)
 *.db
+*.sqlite
+*.sqlite3
+
+# Backups (pueden contener datos sensibles)
+backups/*.db
+backups/*.sql
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

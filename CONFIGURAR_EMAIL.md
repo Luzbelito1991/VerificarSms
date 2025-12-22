@@ -25,7 +25,7 @@ Abrí el archivo `.env` en la raíz del proyecto y completá estos datos:
 ```env
 # Reemplazá estos valores con los tuyos:
 MAIL_USERNAME=tu-email@gmail.com
-MAIL_PASSWORD=abcd efgh ijkl mnop  # ← Pegá la contraseña de 16 caracteres que copiaste
+MAIL_PASSWORD=xxxx xxxx xxxx xxxx  # ← Pegá la contraseña de 16 caracteres que copiaste
 MAIL_FROM=tu-email@gmail.com
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
@@ -33,9 +33,9 @@ MAIL_PORT=587
 
 **Ejemplo real:**
 ```env
-MAIL_USERNAME=juanperez@gmail.com
-MAIL_PASSWORD=qwer tyui asdf ghjk
-MAIL_FROM=juanperez@gmail.com
+MAIL_USERNAME=ejemplo@gmail.com
+MAIL_PASSWORD=xxxx xxxx xxxx xxxx  # Reemplazar con tu contraseña de aplicación
+MAIL_FROM=ejemplo@gmail.com
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
 ```
@@ -76,9 +76,9 @@ python-dotenv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 127
 Si preferís usar Outlook en lugar de Gmail:
 
 ```env
-MAIL_USERNAME=tu-email@outlook.com
-MAIL_PASSWORD=tu-contraseña-normal-de-outlook
-MAIL_FROM=tu-email@outlook.com
+MAIL_USERNAME=ejemplo@outlook.com
+MAIL_PASSWORD=tu-contraseña-aqui
+MAIL_FROM=ejemplo@outlook.com
 MAIL_SERVER=smtp-mail.outlook.com
 MAIL_PORT=587
 ```

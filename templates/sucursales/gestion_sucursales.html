@@ -27,17 +27,18 @@
 
   <!-- Tabla de sucursales -->
   <div class="glass-effect border border-white/10 rounded-2xl overflow-hidden">
-    <div class="overflow-x-auto">
+    <!-- Vista Desktop -->
+    <div class="hidden md:block overflow-x-auto">
       <table class="w-full">
         <thead class="bg-white/5 border-b border-white/10">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+            <th class="px-3 py-2.5 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider w-24">
               Código
             </th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+            <th class="px-3 py-2.5 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
               Nombre de Sucursal
             </th>
-            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-300 uppercase tracking-wider w-32">
+            <th class="px-3 py-2.5 text-center text-xs font-semibold text-gray-300 uppercase tracking-wider w-24">
               Acciones
             </th>
           </tr>
@@ -46,6 +47,11 @@
           <!-- Se llena dinámicamente -->
         </tbody>
       </table>
+    </div>
+
+    <!-- Vista Mobile (Cards) -->
+    <div id="listaSucursalesMobile" class="md:hidden divide-y divide-white/5">
+      <!-- Se llena dinámicamente -->
     </div>
   </div>
 </div>
@@ -110,5 +116,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/sucursales.js?v=1.0"></script>
+<script src="/static/js/sucursales.js?v=2.0"></script>
 {% endblock %}

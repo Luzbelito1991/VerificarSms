@@ -13,8 +13,10 @@ async function cargarSucursales() {
     const sucursales = await res.json();
     
     const tbody = document.getElementById('tablaSucursales');
+    const listaMobile = document.getElementById('listaSucursalesMobile');
     
     if (sucursales.length === 0) {
+      // Vista vacía para desktop
       tbody.innerHTML = `
         <tr>
           <td colspan="3" class="px-4 py-8 text-center text-gray-400">
@@ -23,18 +25,30 @@ async function cargarSucursales() {
           </td>
         </tr>
       `;
+      // Vista vacía para mobile
+      listaMobile.innerHTML = `
+        <div class="px-4 py-8 text-center text-gray-400">
+          <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
+          <p class="text-sm">No hay sucursales registradas</p>
+        </div>
+      `;
       lucide.createIcons();
       return;
     }
     
+    // Renderizar tabla desktop (más compacta)
     tbody.innerHTML = sucursales.map(s => `
       <tr class="hover:bg-white/5 transition-colors">
-        <td class="px-4 py-3">
-          <span class="font-mono text-emerald-400 font-semibold">${s.codigo}</span>
+        <td class="px-3 py-2.5">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+            <span class="font-mono text-emerald-400 font-semibold text-sm">${s.codigo}</span>
+          </span>
         </td>
-        <td class="px-4 py-3 text-gray-300">${s.nombre}</td>
-        <td class="px-4 py-3">
-          <div class="flex items-center justify-center gap-2">
+        <td class="px-3 py-2.5">
+          <span class="text-gray-200 text-sm">${s.nombre}</span>
+        </td>
+        <td class="px-3 py-2.5">
+          <div class="flex items-center justify-center gap-1">
             <button
               onclick="editarSucursal('${s.codigo}', '${s.nombre.replace(/'/g, "\\'")}')"
               class="p-1.5 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
@@ -52,6 +66,34 @@ async function cargarSucursales() {
           </div>
         </td>
       </tr>
+    `).join('');
+    
+    // Renderizar cards mobile
+    listaMobile.innerHTML = sucursales.map(s => `
+      <div class="p-3 hover:bg-white/5 transition-colors">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 mb-1">
+              <span class="font-mono text-emerald-400 font-semibold text-xs">${s.codigo}</span>
+            </div>
+            <p class="text-gray-200 text-sm truncate">${s.nombre}</p>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0">
+            <button
+              onclick="editarSucursal('${s.codigo}', '${s.nombre.replace(/'/g, "\\'")}')"
+              class="p-2 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+            >
+              <i data-lucide="edit" class="w-4 h-4"></i>
+            </button>
+            <button
+              onclick="eliminarSucursal('${s.codigo}')"
+              class="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+            >
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     `).join('');
     
     lucide.createIcons();

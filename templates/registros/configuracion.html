@@ -3,7 +3,7 @@
 {% block title %}Configuración - Quilmes{% endblock %}
 
 {% block contenido %}
-<div class="animate-fade-in-up">
+<div class="animate-fade-in-up" x-data="{ tabActiva: 'sms' }">
   <!-- Encabezado -->
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
@@ -12,8 +12,38 @@
       </div>
       Configuración del Sistema
     </h1>
-    <p class="text-gray-400">Administrar configuración de SMS Masivos</p>
+    <p class="text-gray-400">Administrar configuración del sistema</p>
   </div>
+
+  <!-- Tabs de Navegación -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-2 mb-6">
+    <div class="flex gap-2">
+      <!-- Tab SMS -->
+      <button 
+        @click="tabActiva = 'sms'"
+        :class="tabActiva === 'sms' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg' : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'"
+        class="flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3"
+      >
+        <i data-lucide="message-square" class="w-5 h-5"></i>
+        <span>Configuración de SMS</span>
+      </button>
+
+      <!-- Tab Base de Datos -->
+      <button 
+        @click="tabActiva = 'bd'"
+        :class="tabActiva === 'bd' ? 'bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-lg' : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'"
+        class="flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3"
+      >
+        <i data-lucide="database" class="w-5 h-5"></i>
+        <span>Gestión de Base de Datos</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONTENIDO: CONFIGURACIÓN DE SMS          -->
+  <!-- ========================================== -->
+  <div x-show="tabActiva === 'sms'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
 
   <!-- Modo Simulado -->
   <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-6">
@@ -23,7 +53,7 @@
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
             <i data-lucide="flask-conical" class="w-5 h-5 text-white"></i>
           </div>
-          <h2 class="text-xl font-bold text-white">Modo Simulado</h2>
+          <h3 class="text-xl font-bold text-white">Modo Simulado</h3>
         </div>
         <p class="text-gray-400 text-sm mb-4">
           Cuando está activo, los SMS no se envían realmente. Solo se registran en la consola del servidor. 
@@ -53,12 +83,12 @@
   </div>
 
   <!-- Configuración API SMS Masivos -->
-  <div class="glass-effect border border-white/10 rounded-2xl p-8">
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-6">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
         <i data-lucide="key" class="w-5 h-5 text-white"></i>
       </div>
-      <h2 class="text-xl font-bold text-white">API de SMS Masivos</h2>
+      <h3 class="text-xl font-bold text-white">API de SMS Masivos</h3>
     </div>
 
     <form id="formApiKey" onsubmit="actualizarApiKey(event)" class="space-y-6">
@@ -126,13 +156,51 @@
     </form>
   </div>
 
-  <!-- Gestión de Base de Datos -->
-  <div class="glass-effect border border-white/10 rounded-2xl p-8 mt-6">
+  <!-- Información del Sistema SMS -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-12">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+        <i data-lucide="info" class="w-5 h-5 text-white"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">Información del Proveedor</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Proveedor SMS</div>
+        <div class="text-white font-semibold">SMS Masivos Argentina</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">URL del Servicio</div>
+        <div class="text-white font-mono text-xs">servicio.smsmasivos.com.ar</div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Estado del Sistema</div>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span class="text-emerald-400 font-semibold">Operativo</span>
+        </div>
+      </div>
+      <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+        <div class="text-gray-400 text-sm mb-1">Soporte Técnico</div>
+        <div class="text-emerald-400 font-semibold text-sm">vallefernando884@gmail.com</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- Fin contenido SMS -->
+
+  <!-- ========================================== -->
+  <!-- CONTENIDO: GESTIÓN DE BASE DE DATOS      -->
+  <!-- ========================================== -->
+  <div x-show="tabActiva === 'bd'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
+
+  <!-- Herramientas de Backup -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8 mb-6">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
-        <i data-lucide="database" class="w-5 h-5 text-white"></i>
+        <i data-lucide="hard-drive" class="w-5 h-5 text-white"></i>
       </div>
-      <h2 class="text-xl font-bold text-white">Gestión de Base de Datos</h2>
+      <h3 class="text-xl font-bold text-white">Copias de Seguridad</h3>
     </div>
 
     <p class="text-gray-400 text-sm mb-6">
@@ -149,7 +217,7 @@
           <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
             <i data-lucide="download" class="w-5 h-5 text-white"></i>
           </div>
-          <h3 class="text-white font-bold">Descargar Backup</h3>
+          <h4 class="text-white font-bold">Descargar Backup</h4>
         </div>
         <p class="text-gray-400 text-sm">Guardar copia de seguridad de la base de datos en tu computadora</p>
       </button>
@@ -163,7 +231,7 @@
           <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
             <i data-lucide="upload" class="w-5 h-5 text-white"></i>
           </div>
-          <h3 class="text-white font-bold">Restaurar Backup</h3>
+          <h4 class="text-white font-bold">Restaurar Backup</h4>
         </div>
         <p class="text-gray-400 text-sm">Cargar base de datos desde un archivo de backup guardado</p>
       </button>
@@ -190,37 +258,36 @@
     </div>
   </div>
 
-  <!-- Información del Sistema -->
-  <div class="glass-effect border border-white/10 rounded-2xl p-8 mt-6">
+  <!-- Información Técnica de BD -->
+  <div class="glass-effect border border-white/10 rounded-2xl p-8">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
         <i data-lucide="server" class="w-5 h-5 text-white"></i>
       </div>
-      <h2 class="text-xl font-bold text-white">Información del Sistema</h2>
+      <h3 class="text-xl font-bold text-white">Información Técnica</h3>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-        <div class="text-gray-400 text-sm mb-1">Proveedor SMS</div>
-        <div class="text-white font-semibold">SMS Masivos Argentina</div>
+        <div class="text-gray-400 text-sm mb-1">Motor de Base de Datos</div>
+        <div class="text-white font-semibold">SQLite 3</div>
       </div>
       <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-        <div class="text-gray-400 text-sm mb-1">URL del Servicio</div>
-        <div class="text-white font-mono text-xs">servicio.smsmasivos.com.ar</div>
+        <div class="text-gray-400 text-sm mb-1">Archivo de Base de Datos</div>
+        <div class="text-white font-mono text-xs">usuarios.db</div>
       </div>
       <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-        <div class="text-gray-400 text-sm mb-1">Estado del Sistema</div>
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span class="text-emerald-400 font-semibold">Operativo</span>
-        </div>
+        <div class="text-gray-400 text-sm mb-1">Tablas del Sistema</div>
+        <div class="text-white font-semibold">4 tablas activas</div>
       </div>
       <div class="bg-white/5 rounded-xl p-4 border border-white/10">
-        <div class="text-gray-400 text-sm mb-1">Soporte Técnico</div>
-        <div class="text-emerald-400 font-semibold text-sm">vallefernando884@gmail.com</div>
+        <div class="text-gray-400 text-sm mb-1">Ubicación de Backups</div>
+        <div class="text-emerald-400 font-mono text-xs">./backups/</div>
       </div>
     </div>
   </div>
+  </div><!-- Fin contenido Base de Datos -->
+
 </div>
 
 <!-- Toast Container -->

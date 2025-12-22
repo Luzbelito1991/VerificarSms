@@ -8,26 +8,26 @@
 
 ## 📋 CHECKLIST DE MIGRACIÓN
 
-### **Paso 1: Preparación (15 min)**
+### **Paso 1: Preparación (15 min)** ✅ COMPLETADO
 - [x] Backup de base de datos SQLite
 - [x] Commit en git de estado actual
 - [x] Backup completo del proyecto
-- [ ] Documentar configuración actual
-- [ ] Exportar datos de SQLite a JSON (por seguridad)
+- [x] Documentar configuración actual
+- [x] Exportar datos de SQLite a JSON (por seguridad)
 
-### **Paso 2: Instalar PostgreSQL (30 min)**
-- [ ] Descargar PostgreSQL para Windows
-- [ ] Instalar PostgreSQL
-- [ ] Crear base de datos `verificarsms`
-- [ ] Crear usuario `verificarsms_user`
-- [ ] Probar conexión
+### **Paso 2: Instalar PostgreSQL (30 min)** ✅ COMPLETADO
+- [x] Descargar PostgreSQL para Windows
+- [x] Instalar PostgreSQL
+- [x] Crear base de datos `verificarsms`
+- [x] Crear usuario `verificarsms_user`
+- [x] Probar conexión
 
-### **Paso 3: Migrar Esquema y Datos (45 min)**
-- [ ] Instalar `psycopg2-binary` y `alembic`
-- [ ] Crear script de migración de datos
-- [ ] Ejecutar migración SQLite → PostgreSQL
-- [ ] Verificar integridad de datos
-- [ ] Probar aplicación con PostgreSQL
+### **Paso 3: Migrar Esquema y Datos (45 min)** ✅ COMPLETADO
+- [x] Instalar `psycopg2-binary` y `alembic`
+- [x] Crear script de migración de datos
+- [x] Ejecutar migración SQLite → PostgreSQL
+- [x] Verificar integridad de datos
+- [x] Probar aplicación con PostgreSQL
 
 ### **Paso 4: Redis para Sesiones (30 min)**
 - [ ] Instalar Redis (Memurai para Windows)
@@ -87,7 +87,25 @@ Copy-Item "backups/pre-fase0-20251222_181938/*" -Destination "." -Recurse -Force
 - Backup de git creado: commit d2f2b26
 - Backup de BD: usuarios.db.backup_20251222_181930
 - Backup completo: backups/pre-fase0-20251222_181938/
+- Datos exportados a JSON: backups/sqlite_backup_20251222_182016.json
 
-### Paso 2 - EN PROGRESO
-...
+### Paso 2 - ✅ COMPLETADO
+- PostgreSQL 18.1-2 instalado
+- Base de datos `verificarsms` creada
+- Usuario `verificarsms_user` con permisos completos
+- Contraseña postgres reseteada para resolver problema de autenticación
+- Conexión verificada con test_postgres.py
+
+### Paso 3 - ✅ COMPLETADO
+- psycopg2-binary instalado en virtualenv
+- Script migrate_sqlite_to_postgres.py creado
+- Migración ejecutada exitosamente:
+  - 5 usuarios migrados ✅
+  - 6 SMS verificaciones migradas ✅
+  - 2 tokens de reset migrados ✅
+  - 23 sucursales migradas ✅
+- backend/database.py actualizado para usar PostgreSQL
+- backend/config/database.py actualizado
+- .env actualizado con DATABASE_URL
+- Aplicación funcionando correctamente con PostgreSQL
 

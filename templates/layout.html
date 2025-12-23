@@ -84,6 +84,17 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
     
+    /* Evitar saltos visuales en navegación */
+    nav a, nav button {
+      will-change: auto;
+    }
+    
+    /* Smooth scrollbar */
+    nav {
+      scrollbar-width: thin;
+      scrollbar-color: #475569 #1e293b;
+    }
+    
     /* Scrollbar personalizado */
     ::-webkit-scrollbar {
       width: 8px;
@@ -137,20 +148,21 @@
   <aside 
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
     class="fixed top-0 left-0 w-64 h-screen sidebar-gradient border-r border-white/10 flex flex-col py-4 px-3 z-50 transition-transform duration-300 ease-in-out shadow-2xl">
-    <!-- Branding con diseño moderno -->
-    <div class="mb-6 pl-1 animate-slide-in-left">
-      <a href="/home" class="flex flex-col gap-1 group">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-            <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+    <!-- Logo y Branding -->
+    <div class="mb-6 pb-4 border-b border-white/10">
+      <a href="/home" class="flex items-center gap-3 group">
+        <div class="relative">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
           </div>
-          <div>
-            <span class="text-base font-bold text-white tracking-tight block">
-              LOS QUILMES
-            </span>
-            <span class="text-[10px] text-emerald-400 font-medium">
-              Sistema SMS
-            </span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-base font-bold text-white tracking-tight">
+            LOS QUILMES
+          </span>
+          <span class="text-xs text-emerald-400 font-medium">
+            Sistema SMS
+          </span>
           </div>
         </div>
       </a>
@@ -161,38 +173,48 @@
       <!-- Verificar -->
       <a href="/verificar"
          @click.prevent="sidebarOpen = false; window.location.href = '/verificar'"
-         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+         class="group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200
                 {% if active_page == 'verificar' %}
-                  glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                  bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-300 shadow-sm
                 {% else %}
-                  hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                  text-gray-300 hover:bg-white/5 hover:text-white
                 {% endif %}">
-        {% if active_page == 'verificar' %}
-        <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
-        {% endif %}
-        <div class="{% if active_page == 'verificar' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
-          <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg transition-colors
+                    {% if active_page == 'verificar' %}
+                      bg-emerald-500/20
+                    {% else %}
+                      bg-white/5 group-hover:bg-emerald-500/10
+                    {% endif %}">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
         </div>
-        <span class="font-medium">Verificar SMS</span>
+        <span class="font-medium text-sm flex-1">Verificar SMS</span>
+        {% if active_page == 'verificar' %}
+        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+        {% endif %}
       </a>
 
       {% if user.rol|lower in ['admin', 'operador'] %}
       <!-- SMS Enviados -->
       <a href="/admin/sms"
          @click.prevent="sidebarOpen = false; window.location.href = '/admin/sms'"
-         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+         class="group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200
                 {% if active_page == 'sms' %}
-                  glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                  bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-300 shadow-sm
                 {% else %}
-                  hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                  text-gray-300 hover:bg-white/5 hover:text-white
                 {% endif %}">
-        {% if active_page == 'sms' %}
-        <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
-        {% endif %}
-        <div class="{% if active_page == 'sms' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
-          <i data-lucide="send" class="w-4 h-4"></i>
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg transition-colors
+                    {% if active_page == 'sms' %}
+                      bg-emerald-500/20
+                    {% else %}
+                      bg-white/5 group-hover:bg-emerald-500/10
+                    {% endif %}">
+          <i data-lucide="send" class="w-5 h-5"></i>
         </div>
-        <span class="font-medium">SMS Enviados</span>
+        <span class="font-medium text-sm flex-1">SMS Enviados</span>
+        {% if active_page == 'sms' %}
+        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+        {% endif %}
       </a>
       {% endif %}
 
@@ -200,56 +222,73 @@
       <!-- Usuarios -->
       <a href="/mantenimiento/gestion"
          @click.prevent="sidebarOpen = false; window.location.href = '/mantenimiento/gestion'"
-         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+         class="group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200
                 {% if active_page == 'usuarios' %}
-                  glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                  bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-300 shadow-sm
                 {% else %}
-                  hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                  text-gray-300 hover:bg-white/5 hover:text-white
                 {% endif %}">
-        {% if active_page == 'usuarios' %}
-        <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
-        {% endif %}
-        <div class="{% if active_page == 'usuarios' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
-          <i data-lucide="user-cog" class="w-4 h-4"></i>
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg transition-colors
+                    {% if active_page == 'usuarios' %}
+                      bg-emerald-500/20
+                    {% else %}
+                      bg-white/5 group-hover:bg-emerald-500/10
+                    {% endif %}">
+          <i data-lucide="user-cog" class="w-5 h-5"></i>
         </div>
-        <span class="font-medium">Usuarios</span>
+        <span class="font-medium text-sm flex-1">Usuarios</span>
+        {% if active_page == 'usuarios' %}
+        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+        {% endif %}
       </a>
 
       <!-- Sucursales -->
       <a href="/mantenimiento/sucursales"
          @click.prevent="sidebarOpen = false; window.location.href = '/mantenimiento/sucursales'"
-         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+         class="group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200
                 {% if active_page == 'sucursales' %}
-                  glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                  bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-300 shadow-sm
                 {% else %}
-                  hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                  text-gray-300 hover:bg-white/5 hover:text-white
                 {% endif %}">
-        {% if active_page == 'sucursales' %}
-        <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
-        {% endif %}
-        <div class="{% if active_page == 'sucursales' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
-          <i data-lucide="building-2" class="w-4 h-4"></i>
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg transition-colors
+                    {% if active_page == 'sucursales' %}
+                      bg-emerald-500/20
+                    {% else %}
+                      bg-white/5 group-hover:bg-emerald-500/10
+                    {% endif %}">
+          <i data-lucide="building-2" class="w-5 h-5"></i>
         </div>
-        <span class="font-medium">Sucursales</span>
+        <span class="font-medium text-sm flex-1">Sucursales</span>
+        {% if active_page == 'sucursales' %}
+        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+        {% endif %}
       </a>
 
       <!-- Registros del Sistema (con submenús) -->
-      <div x-data="{ openRegistros: false }" class="relative">
+      <div x-data="{ openRegistros: {% if active_page in ['uso', 'metricas'] %}true{% else %}false{% endif %} }" class="relative">
         <button @click="openRegistros = !openRegistros"
-                class="w-full relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                class="group w-full relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200
                        {% if active_page in ['uso', 'metricas'] %}
-                         glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                         bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-300 shadow-sm
                        {% else %}
-                         hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                         text-gray-300 hover:bg-white/5 hover:text-white
                        {% endif %}">
-          {% if active_page in ['uso', 'metricas'] %}
-          <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
-          {% endif %}
-          <div class="{% if active_page in ['uso', 'metricas'] %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
-            <i data-lucide="activity" class="w-4 h-4"></i>
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg transition-colors
+                      {% if active_page in ['uso', 'metricas'] %}
+                        bg-emerald-500/20
+                      {% else %}
+                        bg-white/5 group-hover:bg-emerald-500/10
+                      {% endif %}">
+            <i data-lucide="activity" class="w-5 h-5"></i>
           </div>
-          <span class="font-medium flex-1 text-left">Registros del Sistema</span>
-          <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="openRegistros ? 'rotate-180' : ''"></i>
+          <span class="font-medium flex-1 text-left text-sm">Registros</span>
+          <div class="flex items-center gap-1">
+            {% if active_page in ['uso', 'metricas'] %}
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+            {% endif %}
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200" :class="openRegistros ? 'rotate-180' : ''"></i>
+          </div>
         </button>
         
         <!-- Submenús -->
@@ -260,30 +299,30 @@
              x-transition:leave="transition ease-in duration-150"
              x-transition:leave-start="opacity-100 transform scale-100"
              x-transition:leave-end="opacity-0 transform scale-95"
-             class="mt-2 ml-4 space-y-1 border-l-2 border-white/10 pl-3"
+             class="mt-1 ml-13 space-y-1"
              style="display: none;">
           
           <a href="/registros/uso"
              @click.prevent="sidebarOpen = false; window.location.href = '/registros/uso'"
-             class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all
+             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200
                     {% if active_page == 'uso' %}
-                      bg-emerald-500/20 text-emerald-300
+                      bg-emerald-500/15 text-emerald-300
                     {% else %}
-                      hover:bg-white/5 text-gray-300 hover:text-emerald-300
+                      hover:bg-white/5 text-gray-400 hover:text-white
                     {% endif %}">
-            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+            <i data-lucide="database" class="w-4 h-4"></i>
             <span>Uso SMS</span>
           </a>
           
           <a href="/registros/metricas"
              @click.prevent="sidebarOpen = false; window.location.href = '/registros/metricas'"
-             class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all
+             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200
                     {% if active_page == 'metricas' %}
-                      bg-emerald-500/20 text-emerald-300
+                      bg-emerald-500/15 text-emerald-300
                     {% else %}
-                      hover:bg-white/5 text-gray-300 hover:text-emerald-300
+                      hover:bg-white/5 text-gray-400 hover:text-white
                     {% endif %}">
-            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
             <span>Métricas</span>
           </a>
         </div>
@@ -292,19 +331,24 @@
       <!-- Configuración -->
       <a href="/configuracion"
          @click.prevent="sidebarOpen = false; window.location.href = '/configuracion'"
-         class="relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200
+         class="group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200
                 {% if active_page == 'configuracion' %}
-                  glass-effect text-emerald-300 shadow-lg border border-emerald-500/30
+                  bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 text-emerald-300 shadow-sm
                 {% else %}
-                  hover:glass-effect hover:text-emerald-300 border border-transparent hover:border-white/10
+                  text-gray-300 hover:bg-white/5 hover:text-white
                 {% endif %}">
-        {% if active_page == 'configuracion' %}
-        <span class="absolute left-0 w-1 h-8 rounded-r-full bg-gradient-to-b from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/50"></span>
-        {% endif %}
-        <div class="{% if active_page == 'configuracion' %}bg-emerald-500/20{% else %}bg-white/5{% endif %} p-2 rounded-lg transition-colors">
-          <i data-lucide="settings" class="w-4 h-4"></i>
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg transition-colors
+                    {% if active_page == 'configuracion' %}
+                      bg-emerald-500/20
+                    {% else %}
+                      bg-white/5 group-hover:bg-emerald-500/10
+                    {% endif %}">
+          <i data-lucide="settings" class="w-5 h-5"></i>
         </div>
-        <span class="font-medium">Configuración</span>
+        <span class="font-medium text-sm flex-1">Configuración</span>
+        {% if active_page == 'configuracion' %}
+        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+        {% endif %}
       </a>
       {% endif %}
     </nav>
@@ -312,9 +356,9 @@
     <!-- Usuario info + Boton Salir -->
     <div class="mt-auto pt-4 border-t border-white/10 space-y-2">
       <!-- Info de usuario -->
-      <div class="glass-effect border border-white/10 rounded-lg p-2 space-y-1">
+      <div class="glass-effect border border-white/10 rounded-lg p-1.5 space-y-1">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-xs">
+          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-xs">
             {{ user.usuario[0]|upper }}
           </div>
           <div class="flex-1 min-w-0">
@@ -326,7 +370,7 @@
       
       <!-- Botón salir mejorado -->
       <a href="/logout"
-         class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white text-xs font-semibold shadow-lg hover-lift transition-all duration-200 border border-red-400/20">
+         class="w-full flex items-center justify-center gap-2 px-2 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white text-xs font-semibold shadow-lg hover-lift transition-all duration-200 border border-red-400/20">
         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
         <span>Cerrar Sesión</span>
       </a>

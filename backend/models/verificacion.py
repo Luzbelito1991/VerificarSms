@@ -16,6 +16,8 @@ class Verificacion(Base):
     merchant_name = Column(String, nullable=True)       # Nombre de sucursal
     verification_code = Column(String, index=True)      # Código de verificación
     fecha = Column(DateTime, default=datetime.now)      # Fecha de envío
+    estado = Column(String(20), default="enviado")      # Estado: enviado, fallido
+    error_mensaje = Column(String, nullable=True)       # Mensaje de error si falló
 
     # Relación con usuario
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)

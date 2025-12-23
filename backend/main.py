@@ -159,7 +159,8 @@ def home(request: Request, user = Depends(get_current_user), db: Session = Depen
 @app.get("/verificar")
 def mostrar_verificar(request: Request, user = Depends(get_current_user)):
     return render_template_protegido("formVerificadorsms.html", request, {
-        "user": user
+        "user": user,
+        "active_page": "verificar"
     })
 
 @app.get("/mantenimiento/gestion")
@@ -198,7 +199,8 @@ def vista_sms_admin(request: Request, user = Depends(get_current_user)):
        raise HTTPException(status_code=403, detail="Acceso denegado")
 
     return render_template_protegido("admin/vista_admin_sms.html", request, {
-        "user": user
+        "user": user,
+        "active_page": "sms"
     })
 
 

@@ -11,6 +11,7 @@ class Usuario(Base):
     usuario = Column(String(50), unique=True, index=True, nullable=False)
     hash_password = Column(String(128), nullable=False)  # 🔐 Ampliado para bcrypt
     rol = Column(String(20), nullable=False)
+    email = Column(String(100), nullable=True)  # 📧 Email del usuario
 
     verificaciones = relationship("Verificacion", back_populates="usuario", cascade="all, delete-orphan")
 
@@ -25,6 +26,8 @@ class Verificacion(Base):
     merchant_name = Column(String, nullable=True)      # 🏪 Nombre de sucursal
     verification_code = Column(String, index=True)
     fecha = Column(DateTime, default=datetime.now)
+    estado = Column(String(20), default="enviado")     # 📊 Estado: enviado, fallido
+    error_mensaje = Column(String, nullable=True)      # ❌ Mensaje de error si falló
 
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
 

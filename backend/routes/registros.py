@@ -268,10 +268,16 @@ async def cambiar_modo_simulado(
             # Recargar variables de entorno
             load_dotenv(override=True)
             
+            # 🔄 CRÍTICO: Actualizar la instancia global de settings
+            # Para que TODOS los módulos vean el cambio inmediatamente
+            from backend.config.settings import settings
+            settings.SMS_MODO_SIMULADO = activar
+            
             return {
                 "ok": True,
-                "mensaje": f"Modo simulado {'activado' if activar else 'desactivado'} correctamente",
-                "modo_simulado": activar
+                "mensaje": f"✅ Modo simulado {'activado' if activar else 'desactivado'} correctamente.\n\n{'🟡 SMS en modo TEST - No se consumirán SMS reales' if activar else '🟢 SMS en modo PRODUCCIÓN - Se enviarán SMS reales'}",
+                "modo_simulado": activar,
+                "requiere_reinicio": False
             }
         else:
             return {"ok": False, "mensaje": "Archivo .env no encontrado"}

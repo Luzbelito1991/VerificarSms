@@ -12,7 +12,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const loader = document.getElementById("loader");
   const cancelBtn = document.getElementById("cancelBtn");
 
+  // Preview elements
+  const previewCode = document.getElementById("previewCode");
+  const previewPhone = document.getElementById("previewPhone");
+  const previewSucursalFull = document.getElementById("previewSucursalFull");
+  const previewStatus = document.getElementById("previewStatus");
+  const previewStatusText = document.getElementById("previewStatusText");
+
   let sucursales = {}; // Se cargará desde la BD
+
+  // 🔄 Actualizar preview en tiempo real
+  function actualizarPreview() {
+    // Actualizar teléfono
+    previewPhone.textContent = phoneNumber.value || "----------";
+    
+    // Actualizar código
+    if (codeDisplay.textContent !== "----") {
+      previewCode.textContent = codeDisplay.textContent;
+    }
+    
+    // Actualizar línea de sucursal con formato: "782 - Limite Deportes BV - DNI: 36049884"
+    const dni = personId.value || "--------";
+    if (merchantCode.value) {
+      const codigoSuc = merchantCode.value;
+      const nombreSuc = sucursales[merchantCode.value] || "Sucursal";
+      previewSucursalFull.textContent = `${codigoSuc} - ${nombreSuc} - DNI: ${dni}`;
+    } else {
+      previewSucursalFull.textContent = `Sucursal - DNI: ${dni}`;
+    }
+    
+    // Actualizar estado visual
+    const allFilled = personId.value.length === 8 && 
+                      phoneNumber.value.length === 10 && 
+                      merchantCode.value && 
+                      codeDisplay.textContent !== "----";
+    
+    if (allFilled) {
+      previewStatus.className = "w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse";
+      previewStatusText.textContent = "Listo para enviar";
+    } else {
+      previewStatus.className = "w-1.5 h-1.5 bg-gray-600 rounded-full";
+      previewStatusText.textContent = "En espera";
+    }
+  }
 
   // 🔄 Cargar sucursales desde la base de datos
   async function cargarSucursales() {
@@ -44,10 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   personId.addEventListener("input", () => {
     personId.value = personId.value.replace(/\D/g, "").slice(0, 8);
+    actualizarPreview();
   });
 
   phoneNumber.addEventListener("input", () => {
     phoneNumber.value = phoneNumber.value.replace(/\D/g, "").slice(0, 10);
+    actualizarPreview();
+  });
+
+  merchantCode.addEventListener("change", () => {
+    actualizarPreview();
   });
 
   if (generateBtn) {
@@ -55,8 +103,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const code = Math.floor(1000 + Math.random() * 9000).toString();
       verificationCode.value = code;
       codeDisplay.textContent = code;
+      previewCode.textContent = code; // Actualizar preview
       submitBtn.disabled = false;
       validarFormulario();
+      actualizarPreview();
 
       if (rotateIcon) {
         rotateIcon.classList.add("rotate-[360deg]");
@@ -73,8 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const isSucursalSelected = merchantCode.value !== "";
     const isCodeGenerated = verificationCode.value !== "";
 
-    document.querySelector("#dniError span").classList.toggle("invisible", isDniValid || dni === "");
-    document.querySelector("#phoneError span").classList.toggle("invisible", isPhoneValid || phone === "");
+    // Mostrar error solo si hay texto pero no es válido
+    document.querySelector("#dniError p").classList.toggle("invisible", isDniValid || dni === "");
+    document.querySelector("#phoneError p").classList.toggle("invisible", isPhoneValid || phone === "");
 
     submitBtn.disabled = !(isDniValid && isPhoneValid && isSucursalSelected && isCodeGenerated);
   }

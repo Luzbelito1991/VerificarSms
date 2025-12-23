@@ -67,13 +67,17 @@ class SMSService:
         
         # Envío real a la API
         try:
-            params = {
-                "api_key": settings.SMS_API_KEY,
-                "numero": phone_number,
-                "mensaje": mensaje_limpio
+            # Parámetros correctos según documentación: APIKEY, TOS, TEXTO
+            data = {
+                "APIKEY": settings.SMS_API_KEY,
+                "TOS": phone_number,
+                "TEXTO": mensaje_limpio
             }
             
-            response = requests.get(settings.SMS_API_URL, params=params, timeout=10)
+            response = requests.post(settings.SMS_API_URL, data=data, timeout=10)
+            
+            print(f"✅ Respuesta HTTP {response.status_code}")
+            print(f"📄 Contenido: {response.text}")
             
             if response.status_code == 200:
                 return {
@@ -102,7 +106,9 @@ class SMSService:
         phone_number: str,
         merchant_code: str,
         verification_code: str,
-        usuario_id: int
+        usuario_id: int,
+        estado: str = "enviado",
+        error_mensaje: Optional[str] = None
     ) -> Verificacion:
         """Registra una verificación SMS en la base de datos"""
         merchant_name = SMSService.get_nombre_sucursal(merchant_code)
@@ -113,7 +119,9 @@ class SMSService:
             merchant_code=merchant_code,
             merchant_name=merchant_name,
             verification_code=verification_code,
-            usuario_id=usuario_id
+            usuario_id=usuario_id,
+            estado=estado,
+            error_mensaje=error_mensaje
         )
         
         db.add(verificacion)

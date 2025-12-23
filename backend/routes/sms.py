@@ -30,30 +30,42 @@ def handle_sms(
     # Generar código si no se proporciona
     code = data.verificationCode or SMSService.generar_codigo()
     
-    # Obtener nombre de sucursal
-    sucursal = SMSService.get_nombre_sucursal(data.merchantCode)
+    # Obtener nombre de sucursal desde los datos o desde la configuración
+    merchant_name = data.merchantName or SMSService.get_nombre_sucursal(data.merchantCode)
     
-    # Construir mensaje
-    texto = f"{data.merchantCode} Limite Deportes {sucursal} - DNI: {data.personId} - Su Codigo es: {code}"
+    # Construir mensaje con el formato correcto
+    texto = f"{data.merchantCode} - {merchant_name} - DNI: {data.personId} - Su Codigo es: {code}"
     
     # Enviar SMS usando el servicio
     resultado = SMSService.enviar_sms(data.phoneNumber, texto)
     
-    if not resultado["ok"]:
-        # ❌ No guardar en BD si el SMS falló
-        raise HTTPException(status_code=500, detail=resultado["mensaje"])
-
-    # ✅ Registrar en base de datos
+    # ✅ Registrar SIEMPRE en base de datos (exitoso o fallido)
+    # 🟡 Si está en modo simulado, usar estado "test"
+    # 🟢 Si se envió exitosamente, usar estado "enviado"
+    # 🔴 Si falló, usar estado "fallido"
+    if settings.SMS_MODO_SIMULADO:
+        estado = "test"
+        error_msg = None
+    else:
+        estado = "enviado" if resultado["ok"] else "fallido"
+        error_msg = None if resultado["ok"] else resultado.get("mensaje", "Error desconocido")
+    
     verif = SMSService.registrar_verificacion(
         db=db,
         person_id=data.personId,
         phone_number=data.phoneNumber,
         merchant_code=data.merchantCode,
         verification_code=code,
-        usuario_id=user.id
+        usuario_id=user.id,
+        estado=estado,
+        error_mensaje=error_msg
     )
 
-    print(f"📦 Verificación guardada: {verif.person_id}, {verif.phone_number}, {verif.verification_code}")
+    print(f"📦 Verificación guardada: {verif.person_id}, {verif.phone_number}, {verif.verification_code}, Estado: {estado}")
+
+    # ❌ Si falló, lanzar excepción DESPUÉS de registrar
+    if not resultado["ok"]:
+        raise HTTPException(status_code=500, detail=resultado["mensaje"])
 
     return {
         "message": "SMS enviado correctamente",

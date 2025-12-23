@@ -2,200 +2,177 @@
 {% block title %}Verificación SMS{% endblock %}
 
 {% block contenido %}
-<div class="h-full flex items-center justify-center py-6 px-4">
-  <div class="w-full max-w-5xl">
+<div class="min-h-full flex items-start justify-center px-4 pt-2 pb-6">
+  <div class="w-full max-w-2xl">
     
-    <!-- Header Card -->
-    <div class="mb-6 glass-effect border border-white/10 rounded-2xl p-6 shadow-2xl">
-      <div class="flex items-center gap-4">
-        <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
-          <i data-lucide="smartphone" class="w-7 h-7 text-white"></i>
-        </div>
-        <div class="flex-1">
-          <h1 class="text-2xl font-bold text-white mb-1">Verificación por SMS</h1>
-          <p class="text-sm text-gray-400">Envía códigos de verificación a tus clientes</p>
-        </div>
-        <div class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-          <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-          <span class="text-xs font-medium text-emerald-300">Sistema Activo</span>
-        </div>
+    <!-- Header Compacto -->
+    <div class="mb-2 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-full mb-1">
+        <i data-lucide="smartphone" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span class="text-xs font-semibold text-emerald-300">Envío de SMS</span>
       </div>
+      <p class="text-[10px] text-gray-500">Ingresa los datos y envía el código</p>
     </div>
 
-    <!-- Main Form Card -->
-    <div class="glass-effect border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+    <!-- SMS Preview y Form -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
       
-      <form id="smsForm" class="p-8 space-y-6" autocomplete="off">
+      <!-- Formulario Compacto -->
+      <div class="glass-effect border border-white/10 rounded-2xl shadow-xl p-4 order-2 lg:order-1">
+        <form id="smsForm" class="space-y-3" autocomplete="off">
 
-        <!-- Datos del Cliente -->
-        <div class="space-y-4">
-          <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wide flex items-center gap-2">
-            <i data-lucide="user" class="w-4 h-4 text-emerald-400"></i>
-            Datos del Cliente
-          </h2>
-          
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <!-- DNI -->
-            <div class="space-y-2">
-              <label for="personId" class="block text-sm font-medium text-gray-200">
-                DNI <span class="text-red-400">*</span>
-              </label>
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <i data-lucide="credit-card" class="w-5 h-5 text-gray-500 group-focus-within:text-emerald-400 transition-colors"></i>
-                </div>
-                <input
-                  id="personId"
-                  maxlength="8"
-                  inputmode="numeric"
-                  placeholder="12345678"
-                  class="w-full pl-12 pr-4 py-3.5 bg-gray-800/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-500
-                         outline-none focus:border-emerald-500 focus:bg-gray-800/80
-                         transition-all duration-200 font-medium" />
-              </div>
-              <div id="dniError" class="min-h-[1.25rem]">
-                <p class="text-xs text-red-400 invisible">El DNI debe tener 8 dígitos</p>
-              </div>
+        <form id="smsForm" class="space-y-3" autocomplete="off">
+
+          <!-- DNI -->
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">DNI del Cliente</label>
+            <div class="relative">
+              <input
+                id="personId"
+                maxlength="8"
+                inputmode="numeric"
+                class="w-full px-3 py-2 bg-gray-900/60 border border-gray-700 rounded-lg text-sm text-white
+                       focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all" />
             </div>
-
-            <!-- Celular -->
-            <div class="space-y-2">
-              <label for="phoneNumber" class="block text-sm font-medium text-gray-200">
-                Número de Celular <span class="text-red-400">*</span>
-              </label>
-              <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <i data-lucide="smartphone" class="w-5 h-5 text-gray-500 group-focus-within:text-emerald-400 transition-colors"></i>
-                </div>
-                <input
-                  id="phoneNumber"
-                  maxlength="10"
-                  inputmode="numeric"
-                  placeholder="3815123456"
-                  class="w-full pl-12 pr-4 py-3.5 bg-gray-800/60 border-2 border-gray-700 rounded-xl text-white placeholder-gray-500
-                         outline-none focus:border-emerald-500 focus:bg-gray-800/80
-                         transition-all duration-200 font-medium" />
-              </div>
-              <div id="phoneError" class="min-h-[1.25rem]">
-                <p class="text-xs text-red-400 invisible">El celular debe tener 10 dígitos</p>
-              </div>
+            <div id="dniError" class="min-h-[1rem]">
+              <p class="text-xs text-red-400 mt-1 invisible">Debe tener 8 dígitos</p>
             </div>
           </div>
-        </div>
 
-        <!-- Sucursal -->
-        <div class="space-y-2">
-          <label for="merchantCode" class="block text-sm font-medium text-gray-200">
-            Sucursal <span class="text-red-400">*</span>
-          </label>
-          <div class="relative group">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-              <i data-lucide="map-pin" class="w-5 h-5 text-gray-500 group-focus-within:text-emerald-400 transition-colors"></i>
+          <!-- Celular -->
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Número de Celular</label>
+            <div class="relative">
+              <input
+                id="phoneNumber"
+                maxlength="10"
+                inputmode="numeric"
+                class="w-full px-3 py-2 bg-gray-900/60 border border-gray-700 rounded-lg text-sm text-white
+                       focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all" />
             </div>
+            <div id="phoneError" class="min-h-[1rem]">
+              <p class="text-xs text-red-400 mt-1 invisible">Debe tener 10 dígitos</p>
+            </div>
+          </div>
+
+          <!-- Sucursal -->
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Sucursal</label>
             <select
               id="merchantCode"
-              class="w-full pl-12 pr-10 py-3.5 bg-gray-800/60 border-2 border-gray-700 rounded-xl text-white
-                     outline-none focus:border-emerald-500 focus:bg-gray-800/80 appearance-none
-                     transition-all duration-200 font-medium cursor-pointer">
-              <option value="">Seleccionar sucursal</option>
+              class="w-full px-3 py-2 bg-gray-900/60 border border-gray-700 rounded-lg text-sm text-white
+                     focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all cursor-pointer">
+              <option value="">Seleccionar...</option>
             </select>
-            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-              <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500"></i>
-            </div>
           </div>
-        </div>
 
-        <!-- Separator -->
-        <div class="border-t border-gray-700/50"></div>
-
-        <!-- Código de Verificación -->
-        <div class="space-y-4">
-          <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wide flex items-center gap-2">
-            <i data-lucide="key" class="w-4 h-4 text-emerald-400"></i>
-            Código de Verificación
-          </h2>
-
-          <div class="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 border-2 border-gray-700 rounded-2xl p-6 overflow-hidden">
-            <!-- Animated background -->
-            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-emerald-500/5 animate-pulse"></div>
-            
-            <div class="relative z-10 flex items-center justify-between gap-6">
-              <div class="flex-1 text-center">
-                <p class="text-xs text-gray-500 mb-2 uppercase tracking-wider font-semibold">Código Generado</p>
-                <div id="codeDisplay" class="text-5xl font-bold font-mono tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-emerald-500">
+          <!-- Código -->
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Código de Verificación</label>
+            <div class="flex gap-2">
+              <div class="flex-1 px-3 py-2 bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 border border-emerald-500/30 rounded-lg">
+                <div id="codeDisplay" class="text-2xl font-bold font-mono tracking-wider text-emerald-400 text-center">
                   ----
                 </div>
               </div>
-              
               <button
                 id="generateBtn"
                 type="button"
-                class="flex-shrink-0 group relative w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 
-                       shadow-xl shadow-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/60
-                       hover:scale-105 active:scale-95
-                       transition-all duration-300
-                       focus:outline-none focus:ring-4 focus:ring-emerald-400/50">
-                <i
-                  id="rotateIcon"
-                  data-lucide="refresh-cw"
-                  class="w-7 h-7 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                         group-hover:rotate-180 transition-transform duration-500"></i>
+                class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-all
+                       focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
+                <i id="rotateIcon" data-lucide="refresh-cw" class="w-4 h-4 text-white"></i>
               </button>
+            </div>
+          </div>
+
+          <input type="hidden" id="verificationCode" />
+
+          <!-- Estado -->
+          <div id="lastMessageContainer" class="bg-gray-900/40 border border-gray-700/50 rounded-lg px-3 py-2">
+            <div class="flex items-start gap-2">
+              <i id="statusIcon" data-lucide="info" class="w-3.5 h-3.5 mt-0.5 text-gray-500 flex-shrink-0"></i>
+              <p id="lastMessage" class="text-xs text-gray-400">Listo para enviar</p>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex gap-2 pt-2">
+            <button
+              id="cancelBtn"
+              type="button"
+              class="flex-1 px-4 py-2 border border-gray-600 text-sm text-gray-300 rounded-lg
+                     hover:bg-gray-700/30 transition-all">
+              Cancelar
+            </button>
+            <button
+              id="submitBtn"
+              type="submit"
+              disabled
+              class="flex-1 px-4 py-2 bg-emerald-600 text-sm text-white font-semibold rounded-lg
+                     hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all
+                     flex items-center justify-center gap-2">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span id="submitText">Enviar</span>
+              <svg
+                id="loader"
+                class="hidden animate-spin w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Preview del SMS -->
+      <div class="glass-effect border border-white/10 rounded-2xl shadow-xl p-4 flex flex-col order-1 lg:order-2">
+        <div class="flex items-center gap-2 mb-2 pb-2 border-b border-gray-700/50">
+          <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center">
+            <i data-lucide="building-2" class="w-4 h-4 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-white">Los Quilmes S.A.</p>
+            <p class="text-xs text-gray-500">Vista previa del SMS</p>
+          </div>
+        </div>
+
+        <!-- Simulación de chat -->
+        <div class="flex-1 space-y-2 min-h-[220px] flex flex-col justify-center">
+          <!-- Mensaje del sistema -->
+          <div class="flex justify-start">
+            <div class="max-w-[95%] bg-gray-800/60 border border-gray-700/50 rounded-2xl rounded-tl-sm px-4 py-3">
+              <p class="text-sm text-gray-300 leading-relaxed mb-2">
+                <span class="text-gray-500">Tu código es: </span>
+                <span id="previewCode" class="font-bold text-emerald-400 text-lg">----</span>
+              </p>
+              <p id="previewSucursalInfo" class="text-xs text-gray-400">
+                <span id="previewSucursalFull">Sucursal - DNI: --------</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Indicador de estado -->
+          <div class="flex justify-start">
+            <div class="flex items-center gap-1.5 px-3 py-1 bg-gray-900/40 rounded-full">
+              <div id="previewStatus" class="w-1.5 h-1.5 bg-gray-600 rounded-full"></div>
+              <span id="previewStatusText" class="text-xs text-gray-500">En espera</span>
             </div>
           </div>
         </div>
 
-        <!-- Estado del mensaje -->
-        <div
-          id="lastMessageContainer"
-          class="bg-gray-800/40 border border-gray-700 rounded-xl px-4 py-3.5 flex items-start gap-3 transition-all duration-300">
-          <i id="statusIcon" data-lucide="info" class="w-5 h-5 mt-0.5 text-gray-400 flex-shrink-0"></i>
-          <div id="lastMessage" class="flex-1 text-sm text-gray-300 font-medium">
-            No hay mensajes aún
+        <!-- Info del destinatario -->
+        <div class="mt-2 pt-2 border-t border-gray-700/50">
+          <div class="flex items-center gap-2 text-xs">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5 text-gray-500"></i>
+            <span class="text-gray-500">Celular:</span>
+            <span id="previewPhone" class="text-gray-400 font-mono">----------</span>
           </div>
         </div>
-
-        <!-- Hidden input -->
-        <input type="hidden" id="verificationCode" />
-
-        <!-- Actions -->
-        <div class="flex flex-col sm:flex-row justify-end gap-4 pt-2">
-          <button
-            id="cancelBtn"
-            type="button"
-            class="order-2 sm:order-1 px-8 py-3.5 rounded-xl border-2 border-gray-600 text-gray-300 font-semibold
-                   hover:bg-gray-700/50 hover:border-gray-500 hover:text-white
-                   transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-500/30">
-            <i data-lucide="x-circle" class="w-4 h-4 inline-block mr-2"></i>
-            Cancelar
-          </button>
-
-          <button
-            id="submitBtn"
-            type="submit"
-            disabled
-            class="order-1 sm:order-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-bold
-                   hover:from-emerald-500 hover:to-emerald-400
-                   shadow-lg shadow-emerald-600/40 hover:shadow-xl hover:shadow-emerald-500/50
-                   disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none
-                   hover:scale-105 active:scale-95
-                   transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-400/50
-                   flex items-center justify-center gap-2">
-            <i data-lucide="send" class="w-5 h-5"></i>
-            <span id="submitText">Enviar SMS</span>
-            <svg
-              id="loader"
-              class="hidden animate-spin w-5 h-5 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-            </svg>
-          </button>
-        </div>
-
-      </form>
+      </div>
 
     </div>
 
@@ -205,6 +182,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="/static/js/verificarSms.js?v=5.0"></script>
+  <script src="/static/js/verificarSms.js?v=6.0"></script>
   <script>lucide.createIcons();</script>
 {% endblock %}

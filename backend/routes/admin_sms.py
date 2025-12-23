@@ -67,7 +67,7 @@ def obtener_sms(
             "codigo": v.verification_code,
             "usuario_nombre": nombre_usuario,
             "fecha": v.fecha.isoformat(),
-            "estado": "enviado"
+            "estado": v.estado if v.estado else "enviado"
         })
 
     return {"sms": resultado, "total": total}

@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./usuarios.db"
     
     # 📱 SMS API
-    SMS_API_URL: str = "http://servicio.smsmasivos.com.ar/enviar_sms.asp"
+    SMS_API_URL: str = "http://servicio.smsmasivos.com.ar/enviar_sms.asp?api=1"
     SMS_API_KEY: Optional[str] = None
     SMS_MODO_SIMULADO: bool = False
     

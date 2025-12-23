@@ -116,7 +116,7 @@ async function cargarPagina() {
         <td class="px-4 py-2">
   ${new Date(s.fecha).toLocaleDateString()} ${new Date(s.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 </td>
-        <td class="px-4 py-2 capitalize">${s.estado}</td>
+        <td class="px-4 py-2">${getEstadoBadge(s.estado)}</td>
       `;
       fragment.appendChild(tr);
     });
@@ -141,6 +141,38 @@ async function cargarPagina() {
     tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Error inesperado: ${error.message}</td></tr>`;
     console.error("Error inesperado:", error);
   }
+}
+
+// 🎨 Función para generar badge de estado con color
+function getEstadoBadge(estado) {
+  const estadoLower = (estado || "").toLowerCase();
+  
+  if (estadoLower === "test") {
+    return `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">
+      <span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+      Test
+    </span>`;
+  }
+  
+  if (estadoLower === "enviado") {
+    return `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/40">
+      <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+      Enviado
+    </span>`;
+  }
+  
+  if (estadoLower === "fallido") {
+    return `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/40">
+      <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+      Fallido
+    </span>`;
+  }
+  
+  // Estado desconocido
+  return `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-gray-500/20 text-gray-300 border border-gray-500/40">
+    <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+    ${estado}
+  </span>`;
 }
 
 // ⏮️⏭️ Controlar botones de paginación
@@ -205,7 +237,7 @@ async function exportarExcel() {
             <td>${r.codigo}</td>
             <td>${r.usuario_nombre}</td>
             <td>${r.fecha}</td>
-            <td>${r.estado}</td>
+            <td>${r.estado || 'N/A'}</td>
           </tr>
         `).join("")}
       </tbody>

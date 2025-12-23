@@ -2,7 +2,7 @@
 import requests
 import random
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
 from typing import Dict, List, Optional, Tuple
@@ -185,10 +185,15 @@ class SMSService:
         
         total = query.count()
         
+        # SMS de hoy (compatible con PostgreSQL)
+        hoy_inicio = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        hoy_fin = hoy_inicio + timedelta(days=1)
+        
         # Aquí puedes agregar más métricas según necesites
         return {
             "total_sms": total,
             "sms_hoy": query.filter(
-                func.date(Verificacion.fecha) == datetime.now().date()
+                Verificacion.fecha >= hoy_inicio,
+                Verificacion.fecha < hoy_fin
             ).count()
         }

@@ -184,13 +184,14 @@ async def obtener_metricas(
         ahora = datetime.now()
         hace_24h = ahora - timedelta(hours=24)
         
+        # Usar extract() para PostgreSQL (compatible con SQLite también)
         sms_por_hora = db.query(
-            func.strftime('%H', Verificacion.fecha).label('hora'),
+            func.extract('hour', Verificacion.fecha).label('hora'),
             func.count(Verificacion.id).label('total')
         ).filter(
             Verificacion.fecha >= hace_24h
         ).group_by(
-            func.strftime('%H', Verificacion.fecha)
+            func.extract('hour', Verificacion.fecha)
         ).all()
         
         return {
@@ -208,7 +209,7 @@ async def obtener_metricas(
                     "total": total_sms
                 },
                 "sms_por_hora": [
-                    {"hora": f"{s.hora}:00", "total": s.total}
+                    {"hora": f"{int(s.hora):02d}:00", "total": s.total}
                     for s in sms_por_hora
                 ]
             }

@@ -11,6 +11,12 @@ from backend.config import settings, get_db
 from backend.models import Usuario, Verificacion
 from backend.core import get_current_user
 from backend.middleware import LoggingMiddleware
+from backend.middleware.rate_limiting import (
+    limiter,
+    rate_limit_exceeded_handler,
+    check_ip_restrictions
+)
+from slowapi.errors import RateLimitExceeded
 
 # --- Inicializar app FastAPI ---
 app = FastAPI(
@@ -18,6 +24,10 @@ app = FastAPI(
     description="Sistema de verificación SMS para Los Quilmes S.A.",
     version="2.0.0"
 )
+
+# --- Rate Limiting ---
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # --- Middlewares ---
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
@@ -30,6 +40,9 @@ app.add_middleware(
 # 🆕 Agregar middleware de logging
 if settings.DEBUG:
     app.add_middleware(LoggingMiddleware)
+
+# 🚦 Middleware de rate limiting (whitelist/blacklist)
+app.middleware("http")(check_ip_restrictions)
 
 # --- Archivos estáticos y plantillas ---
 app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
@@ -47,6 +60,7 @@ from backend.routes.registros import router as registros_router
 from backend.routes.password_reset import router as password_reset_router
 from backend.routes.sucursales import router as sucursales_router
 from backend.routes.sesiones import router as sesiones_router
+from backend.routes.rate_limits import router as rate_limits_router
 
 app.include_router(usuarios_router)
 app.include_router(sms_router)
@@ -55,6 +69,36 @@ app.include_router(registros_router)
 app.include_router(password_reset_router)
 app.include_router(sucursales_router)
 app.include_router(sesiones_router)
+app.include_router(rate_limits_router)  # 🚦 Admin de rate limits
+
+# ============================
+# 🏥 HEALTH CHECK (para Docker)
+# ============================
+@app.get("/health")
+def health_check(db: Session = Depends(get_db)):
+    """
+    Endpoint de salud para health checks de Docker y monitoring.
+    Verifica conectividad con base de datos.
+    """
+    try:
+        # Verificar conexión a base de datos
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
+        
+        return {
+            "status": "healthy",
+            "service": "VerificarSms API",
+            "version": "2.0.0",
+            "database": "connected"
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "VerificarSms API",
+            "version": "2.0.0",
+            "database": "disconnected",
+            "error": str(e)
+        }
 
 # ============================
 # 💡 AUXILIAR PARA PLANTILLAS

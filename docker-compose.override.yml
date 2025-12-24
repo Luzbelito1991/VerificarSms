@@ -1,0 +1,39 @@
+# docker-compose.override.yml
+# Este archivo se aplica automáticamente en desarrollo
+# Sobrescribe configuraciones de docker-compose.yml
+
+version: '3.8'
+
+services:
+  app:
+    # Hot reload - monta código fuente como volumen
+    volumes:
+      - ./backend:/app/backend:ro
+      - ./templates:/app/templates:ro
+      - ./static/js:/app/static/js:ro
+    
+    # Variables de desarrollo
+    environment:
+      DEBUG: "true"
+      ENVIRONMENT: "development"
+      SMS_MODO_SIMULADO: "true"
+    
+    # Comando con auto-reload
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+    
+    # En desarrollo, no necesitamos health checks tan frecuentes
+    healthcheck:
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Exponemos PostgreSQL para herramientas externas
+  postgres:
+    ports:
+      - "5432:5432"
+
+  # Exponemos Redis para herramientas externas
+  redis:
+    ports:
+      - "6379:6379"

@@ -64,6 +64,9 @@ class Settings(BaseSettings):
     
     # 🔑 Recuperación de contraseñas
     RESET_TOKEN_EXPIRE_HOURS: int = 2  # Token válido por 2 horas
+    
+    # 🔴 Redis (para caché y rate limiting)
+    REDIS_URL: Optional[str] = None
 
     class Config:
         env_file = ".env"

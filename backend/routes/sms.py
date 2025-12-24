@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, Response
 from pydantic import BaseModel, constr
 from sqlalchemy.orm import Session
 
@@ -7,6 +7,8 @@ from backend.config import get_db, settings
 from backend.models import Usuario
 from backend.core import get_current_user
 from backend.services import SMSService
+from backend.middleware.rate_limiting import limiter
+from backend.config.rate_limits import get_rate_limit_string
 
 router = APIRouter()
 
@@ -21,8 +23,12 @@ class SmsRequest(BaseModel):
 
 # 📲 Enviar y registrar SMS en la base
 @router.post("/send-sms", response_model=None)
+@limiter.limit(get_rate_limit_string("sms_enviar"))  # 🚦 5 SMS por minuto
+@limiter.limit(get_rate_limit_string("sms_enviar_por_hora"))  # 🚦 30 SMS por hora
+@limiter.limit(get_rate_limit_string("sms_enviar_por_dia"))  # 🚦 200 SMS por día
 def handle_sms(
     request: Request,
+    response: Response,  # Required by slowapi
     data: SmsRequest,
     db: Session = Depends(get_db),
     user = Depends(get_current_user)

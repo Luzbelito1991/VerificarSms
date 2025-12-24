@@ -1,5 +1,5 @@
 # 📦 Importaciones necesarias
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,8 @@ from backend.models import Usuario
 from backend.services import AuthService, UserService
 from backend.services.session_service import session_store
 from backend.core.security import verify_password
+from backend.middleware.rate_limiting import limiter
+from backend.config.rate_limits import get_rate_limit_string
 
 # 🚪 Inicializar el router
 router = APIRouter()
@@ -67,32 +69,58 @@ def crear_usuario(data: UsuarioCreate, db: Session = Depends(get_db)):
 
 # 🔓 Iniciar sesión: validar credenciales y guardar sesión en Redis
 @router.post("/login")
-async def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
-    # Autenticar usando el servicio
-    user = AuthService.authenticate_user(db, data.usuario, data.password)
-
-    if not user:
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
-
-    # Crear sesión en Redis
-    session_id = session_store.create_session({
-        "usuario": user.usuario,
-        "rol": user.rol,
-        "id": user.id,
-        "email": user.email
-    })
+@limiter.limit(get_rate_limit_string("login_intentos"))  # 🚦 5 intentos cada 5 minutos
+async def login(
+    request: Request,
+    response: Response,  # Required by slowapi
+    data: LoginRequest,
+    db: Session = Depends(get_db)
+):
+    import logging
+    import traceback
+    logger = logging.getLogger(__name__)
     
-    # Guardar session_id en cookie (mantener compatibilidad)
-    request.session["session_id"] = session_id
-    request.session["usuario"] = user.usuario
-    request.session["rol"] = user.rol
+    try:
+        logger.info(f"Intento de login para usuario: {data.usuario}")
+        
+        # Autenticar usando el servicio
+        user = AuthService.authenticate_user(db, data.usuario, data.password)
 
-    return {
-        "ok": True,
-        "usuario": user.usuario,
-        "rol": user.rol,
-        "mensaje": "Inicio de sesión exitoso"
-    }
+        if not user:
+            logger.warning(f"Credenciales inválidas para: {data.usuario}")
+            raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+        logger.info(f"Usuario autenticado: {user.usuario}")
+        
+        # Crear sesión en Redis
+        session_id = session_store.create_session({
+            "usuario": user.usuario,
+            "rol": user.rol,
+            "id": user.id,
+            "email": user.email
+        })
+        
+        logger.info(f"Sesión creada en Redis: {session_id[:20]}...")
+        
+        # Guardar session_id en cookie (mantener compatibilidad)
+        request.session["session_id"] = session_id
+        request.session["usuario"] = user.usuario
+        request.session["rol"] = user.rol
+
+        logger.info(f"Login exitoso para: {user.usuario}")
+        
+        return {
+            "ok": True,
+            "usuario": user.usuario,
+            "rol": user.rol,
+            "mensaje": "Inicio de sesión exitoso"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error en login: {type(e).__name__}: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
 
 # ✏️ Editar usuario: nombre, contraseña y rol
 @router.put("/editar-usuario/{nombre}")

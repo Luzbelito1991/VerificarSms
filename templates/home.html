@@ -76,65 +76,86 @@
 
   </section>
 
-  <!-- Gráficos de actividad -->
-  <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <!-- SMS por Sucursal (Top 5) -->
-    <div class="glass-effect border border-white/10 rounded-2xl p-5 shadow-xl hover-lift">
-      <h3 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-          <i data-lucide="building" class="w-4 h-4 text-white"></i>
+  <!-- Vencimiento del Paquete -->
+  <section>
+    <div class="glass-effect border border-white/20 rounded-2xl p-4 sm:p-5 shadow-xl hover-lift">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <i data-lucide="calendar-clock" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
+          </div>
+          <div>
+            <h3 class="text-white font-semibold text-base sm:text-lg">Vencimiento del Paquete</h3>
+            <p class="text-gray-400 text-xs sm:text-sm">Fecha de expiración del plan prepago</p>
+          </div>
         </div>
-        SMS por Sucursal (Top 5)
-      </h3>
-      <div class="space-y-3">
-        {% if sms_por_sucursal %}
-          {% for item in sms_por_sucursal %}
-            {% set porcentaje = (item.total / total_exitosos * 100) if total_exitosos > 0 else 0 %}
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-300">Sucursal {{ item.sucursal }}</span>
-                <span class="text-white font-semibold">{{ item.total }}</span>
-              </div>
-              <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500" style="width: {{ porcentaje }}%"></div>
-              </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <p class="text-gray-400 text-sm text-center py-4">No hay datos disponibles</p>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- SMS Últimos 7 Días -->
-    <div class="glass-effect border border-white/10 rounded-2xl p-5 shadow-xl hover-lift">
-      <h3 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-          <i data-lucide="trending-up" class="w-4 h-4 text-white"></i>
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <div id="vencimientoInfo" class="text-right flex-1 sm:flex-none">
+            <div class="text-xl sm:text-2xl font-bold text-purple-300" id="fechaVencimiento">--/--/----</div>
+            <div class="text-[10px] sm:text-xs text-gray-400 mt-0.5" id="diasRestantes">Cargando...</div>
+          </div>
+          <button onclick="consultarVencimiento()" 
+                  id="btnConsultarVencimiento"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-xs
+                         bg-purple-600 hover:bg-purple-500 text-white shadow-lg hover:shadow-purple-500/50
+                         transition-all duration-200 hover-lift">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            Consultar
+          </button>
         </div>
-        SMS Últimos 7 Días
-      </h3>
-      <div class="space-y-2">
-        {% if ultimos_7_dias %}
-          {% set max_cantidad = ultimos_7_dias | map(attribute='cantidad') | max %}
-          {% for item in ultimos_7_dias %}
-            {% set altura = (item.cantidad / max_cantidad * 100) if max_cantidad > 0 else 0 %}
-            <div class="flex items-center gap-3">
-              <span class="text-xs text-gray-400 w-12">{{ item.fecha }}</span>
-              <div class="flex-1 h-7 bg-gray-800 rounded-lg overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-end pr-2 transition-all duration-500" style="width: {{ altura }}%">
-                  {% if item.cantidad > 0 %}
-                    <span class="text-xs text-white font-semibold">{{ item.cantidad }}</span>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <p class="text-gray-400 text-sm text-center py-4">No hay datos disponibles</p>
-        {% endif %}
       </div>
     </div>
   </section>
 </div>
+
+<script>
+async function consultarVencimiento() {
+  const btn = document.getElementById('btnConsultarVencimiento');
+  const fechaEl = document.getElementById('fechaVencimiento');
+  const diasEl = document.getElementById('diasRestantes');
+  
+  try {
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Consultando...';
+    lucide.createIcons();
+    
+    const response = await fetch('/admin/sms/vencimiento');
+    const data = await response.json();
+    
+    if (data.ok) {
+      fechaEl.textContent = data.fecha_vencimiento || '--/--/----';
+      
+      if (data.dias_restantes !== null) {
+        const dias = data.dias_restantes;
+        if (dias > 30) {
+          diasEl.innerHTML = `<span class="text-green-400">✓ ${dias} días restantes</span>`;
+        } else if (dias > 7) {
+          diasEl.innerHTML = `<span class="text-yellow-400">⚠ ${dias} días restantes</span>`;
+        } else if (dias >= 0) {
+          diasEl.innerHTML = `<span class="text-red-400">⚠ ${dias} días restantes</span>`;
+        } else {
+          diasEl.innerHTML = `<span class="text-red-500">✗ Vencido hace ${Math.abs(dias)} días</span>`;
+        }
+      } else {
+        diasEl.textContent = data.mensaje || 'No disponible';
+      }
+    } else {
+      fechaEl.textContent = '--/--/----';
+      diasEl.textContent = data.mensaje || 'Error al consultar';
+    }
+  } catch (error) {
+    fechaEl.textContent = '--/--/----';
+    diasEl.textContent = 'Error de conexión';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Consultar';
+    lucide.createIcons();
+  }
+}
+
+// Consultar automáticamente al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+  consultarVencimiento();
+});
+</script>
 {% endblock %}

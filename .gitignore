@@ -3,7 +3,14 @@
 .env.local
 .env.*.local
 *.env
+!.env.docker
+!.env.example
 postgres_config.txt
+
+# Docker
+docker-compose.override.yml.local
+*.log
+.docker/
 
 # Python
 __pycache__/

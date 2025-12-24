@@ -33,8 +33,43 @@ def handle_sms(
     db: Session = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    # Generar código si no se proporciona
+    # Generar código PRIMERO (antes de validar saldo)
     code = data.verificationCode or SMSService.generar_codigo()
+    
+    # 🔍 Validar saldo antes de enviar (solo si no está en modo simulado)
+    if not settings.SMS_MODO_SIMULADO:
+        try:
+            import requests as req
+            url = "https://servicio.smsmasivos.com.ar/obtener_saldo.asp"
+            params = {"apikey": settings.SMS_API_KEY}
+            response_saldo = req.get(url, params=params, timeout=5)
+            
+            if response_saldo.status_code == 200:
+                try:
+                    saldo = int(response_saldo.text.strip())
+                    if saldo <= 0:
+                        # Registrar como fallido CON EL CÓDIGO GENERADO
+                        SMSService.registrar_verificacion(
+                            db=db,
+                            person_id=data.personId,
+                            phone_number=data.phoneNumber,
+                            merchant_code=data.merchantCode,
+                            verification_code=code,
+                            usuario_id=user.id,
+                            estado="fallido",
+                            error_mensaje="Saldo insuficiente"
+                        )
+                        raise HTTPException(
+                            status_code=402,
+                            detail="❌ MENSAJE NO ENVIADO - Saldo insuficiente. Contacte con su proveedor para recargar."
+                        )
+                except ValueError:
+                    pass  # Si no es un número, continuar con el envío
+        except HTTPException:
+            raise  # Re-lanzar la excepción 402
+        except Exception as e:
+            # Si falla la validación de saldo, continuar de todos modos
+            print(f"⚠️ No se pudo validar saldo: {e}")
     
     # Obtener nombre de sucursal desde los datos o desde la configuración
     merchant_name = data.merchantName or SMSService.get_nombre_sucursal(data.merchantCode)
@@ -73,13 +108,20 @@ def handle_sms(
     if not resultado["ok"]:
         raise HTTPException(status_code=500, detail=resultado["mensaje"])
 
+    # Determinar mensaje según el modo
+    if settings.SMS_MODO_SIMULADO:
+        mensaje_respuesta = "SMS Test enviado correctamente"
+    else:
+        mensaje_respuesta = "SMS enviado correctamente"
+
     return {
-        "message": "SMS enviado correctamente",
+        "message": mensaje_respuesta,
         "verificationCode": code,
         "personId": data.personId,
         "merchantCode": data.merchantCode,
         "smsBody": SMSService.normalizar_texto(texto),
         "modoSimulado": settings.SMS_MODO_SIMULADO,
+        "esTest": settings.SMS_MODO_SIMULADO,
         "detalles": resultado.get("detalles", "")
     }
 
@@ -119,4 +161,55 @@ def obtener_vencimiento_paquete(user = Depends(get_current_user)):
         raise HTTPException(
             status_code=500,
             detail=f"Error al consultar vencimiento: {str(e)}"
+        )
+
+
+# 📊 Consultar saldo de SMS disponibles
+@router.get("/obtener-saldo")
+def obtener_saldo_sms(user = Depends(get_current_user)):
+    """
+    Consulta el saldo de SMS disponibles en la cuenta de SMS Masivos.
+    Disponible para todos los usuarios autenticados.
+    """
+    if settings.SMS_MODO_SIMULADO:
+        return {
+            "ok": True,
+            "mensaje": "Modo simulado activado",
+            "saldo": 9999,
+            "simulado": True
+        }
+    
+    try:
+        import requests
+        url = "https://servicio.smsmasivos.com.ar/obtener_saldo.asp"
+        params = {"apikey": settings.SMS_API_KEY}
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        
+        # La respuesta debería ser un número
+        saldo_texto = response.text.strip()
+        
+        # Intentar convertir a número
+        try:
+            saldo = int(saldo_texto)
+            return {
+                "ok": True,
+                "saldo": saldo,
+                "mensaje": f"Saldo: {saldo} SMS disponibles",
+                "simulado": False,
+                "alerta": saldo < 10  # Alerta si quedan menos de 10 SMS
+            }
+        except ValueError:
+            # Si no es un número, puede ser un mensaje de error
+            return {
+                "ok": False,
+                "mensaje": f"Respuesta inesperada: {saldo_texto}",
+                "saldo": 0,
+                "simulado": False
+            }
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al consultar saldo: {str(e)}"
         )

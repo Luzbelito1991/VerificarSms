@@ -79,18 +79,46 @@ class SMSService:
             print(f"✅ Respuesta HTTP {response.status_code}")
             print(f"📄 Contenido: {response.text}")
             
-            if response.status_code == 200:
-                return {
-                    "ok": True,
-                    "mensaje": "SMS enviado exitosamente",
-                    "detalles": response.text
-                }
-            else:
+            # Verificar status code
+            if response.status_code != 200:
                 return {
                     "ok": False,
                     "mensaje": f"Error HTTP {response.status_code}",
                     "detalles": response.text
                 }
+            
+            # Verificar contenido de la respuesta
+            respuesta_texto = response.text.strip().lower()
+            
+            # Detectar errores comunes en la respuesta
+            errores_conocidos = [
+                "error",
+                "credito insuficiente",
+                "creditos agotados",
+                "sin credito",
+                "apikey invalida",
+                "apikey incorrecta",
+                "no autorizado",
+                "unauthorized",
+                "failed",
+                "fallo"
+            ]
+            
+            # Si la respuesta contiene algún error conocido
+            for error in errores_conocidos:
+                if error in respuesta_texto:
+                    return {
+                        "ok": False,
+                        "mensaje": "Error al enviar SMS",
+                        "detalles": response.text
+                    }
+            
+            # Si llegamos aquí, el SMS se envió correctamente
+            return {
+                "ok": True,
+                "mensaje": "SMS enviado exitosamente",
+                "detalles": response.text
+            }
         
         except requests.RequestException as e:
             return {

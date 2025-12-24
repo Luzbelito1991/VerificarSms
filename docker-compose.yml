@@ -81,6 +81,7 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}
     
     volumes:
+      - ./.env:/app/.env:rw  # Montar .env con permisos de escritura
       - ./backups:/app/backups
       - ./logs:/app/logs
       - app_static:/app/static/css  # CSS compilado de Tailwind

@@ -163,15 +163,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (res.ok) {
         mostrarResultadoEnvio(true, msgPlano);
-        mostrarToast("SMS enviado correctamente", "success");
+        
+        // Si es modo test, mostrar toast amarillo
+        if (result.esTest || result.modoSimulado) {
+          mostrarToast("⚠️ SMS Test enviado correctamente", "warning");
+        } else {
+          mostrarToast("✅ SMS enviado correctamente", "success");
+        }
       } else {
         mostrarResultadoEnvio(false, msgPlano);
-        mostrarToast("No se pudo enviar el SMS. Verificá los datos.", "error");
+        // Extraer mensaje de error del detail
+        const errorMsg = result.detail || result.mensaje || "No se pudo enviar el SMS";
+        
+        // Mostrar en ROJO con el mensaje específico
+        mostrarToast(`🔴 ${errorMsg}`, "error");
       }
 
     } catch (error) {
       mostrarResultadoEnvio(false, msgPlano);
-      mostrarToast("Error de red al enviar el SMS", "error");
+      mostrarToast("🔴 Error de red al enviar el SMS", "error");
     } finally {
       submitText.textContent = "Enviar";
       loader.classList.add("hidden");

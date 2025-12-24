@@ -261,27 +261,29 @@ async def cambiar_modo_simulado(
         data = await request.json()
         activar = data.get("activar", False)
         
-        # Actualizar archivo .env
-        env_path = ".env"
+        # 🔄 Actualizar variable de entorno en memoria
+        import os
+        os.environ["SMS_MODO_SIMULADO"] = str(activar).lower()
+        
+        # 🔄 Actualizar settings para que todos los módulos vean el cambio
+        from backend.config.settings import settings
+        settings.SMS_MODO_SIMULADO = activar
+        
+        # 📝 Actualizar archivo .env (ahora está montado como volumen)
+        env_path = "/app/.env"
         if os.path.exists(env_path):
-            set_key(env_path, "SMS_MODO_SIMULADO", str(activar).lower())
-            
-            # Recargar variables de entorno
-            load_dotenv(override=True)
-            
-            # 🔄 CRÍTICO: Actualizar la instancia global de settings
-            # Para que TODOS los módulos vean el cambio inmediatamente
-            from backend.config.settings import settings
-            settings.SMS_MODO_SIMULADO = activar
-            
-            return {
-                "ok": True,
-                "mensaje": f"✅ Modo simulado {'activado' if activar else 'desactivado'} correctamente.\n\n{'🟡 SMS en modo TEST - No se consumirán SMS reales' if activar else '🟢 SMS en modo PRODUCCIÓN - Se enviarán SMS reales'}",
-                "modo_simulado": activar,
-                "requiere_reinicio": False
-            }
-        else:
-            return {"ok": False, "mensaje": "Archivo .env no encontrado"}
+            try:
+                set_key(env_path, "SMS_MODO_SIMULADO", str(activar).lower())
+            except Exception as e:
+                # Si falla escribir, continuar (el cambio en memoria ya está hecho)
+                pass
+        
+        return {
+            "ok": True,
+            "mensaje": f"✅ Modo simulado {'activado' if activar else 'desactivado'} correctamente.\n\n{'🟡 SMS en modo TEST - No se consumirán SMS reales' if activar else '🟢 SMS en modo PRODUCCIÓN - Se enviarán SMS reales'}",
+            "modo_simulado": activar,
+            "requiere_reinicio": False
+        }
     except Exception as e:
         return {"ok": False, "mensaje": f"Error al cambiar configuración: {str(e)}"}
 
@@ -302,20 +304,27 @@ async def actualizar_api_key(
         if not nueva_api_key:
             return {"ok": False, "mensaje": "La API Key no puede estar vacía"}
         
-        # Actualizar archivo .env
-        env_path = ".env"
+        # 🔄 Actualizar variable de entorno en memoria
+        import os
+        os.environ["SMS_API_KEY"] = nueva_api_key
+        
+        # 🔄 Actualizar settings
+        from backend.config.settings import settings
+        settings.SMS_API_KEY = nueva_api_key
+        
+        # 📝 Actualizar archivo .env (ahora está montado como volumen)
+        env_path = "/app/.env"
         if os.path.exists(env_path):
-            set_key(env_path, "SMS_API_KEY", nueva_api_key)
-            
-            # Recargar variables de entorno
-            load_dotenv(override=True)
-            
-            return {
-                "ok": True,
-                "mensaje": "API Key actualizada correctamente"
-            }
-        else:
-            return {"ok": False, "mensaje": "Archivo .env no encontrado"}
+            try:
+                set_key(env_path, "SMS_API_KEY", nueva_api_key)
+            except Exception as e:
+                # Si falla escribir, continuar (el cambio en memoria ya está hecho)
+                pass
+        
+        return {
+            "ok": True,
+            "mensaje": "✅ API Key actualizada correctamente"
+        }
     except Exception as e:
         return {"ok": False, "mensaje": f"Error al actualizar API Key: {str(e)}"}
 

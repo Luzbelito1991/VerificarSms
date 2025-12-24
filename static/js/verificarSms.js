@@ -20,6 +20,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewStatusText = document.getElementById("previewStatusText");
 
   let sucursales = {}; // Se cargará desde la BD
+  let saldoDisponible = null; // Se verificará al cargar
+
+  // 💰 Verificar saldo disponible
+  async function verificarSaldo() {
+    try {
+      const res = await fetch('/obtener-saldo');
+      if (res.ok) {
+        const data = await res.json();
+        saldoDisponible = data.saldo;
+        
+        // Si no hay saldo, mostrar advertencia y deshabilitar envío
+        if (saldoDisponible === 0) {
+          mostrarToast('⚠️ Sin crédito disponible. No se pueden enviar SMS hasta recargar.', 'warning');
+          // Deshabilitar botón de generar código
+          if (generateBtn) {
+            generateBtn.disabled = true;
+            generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('No se pudo verificar saldo:', error);
+    }
+  }
 
   // 🔄 Actualizar preview en tiempo real
   function actualizarPreview() {
@@ -83,6 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cargar sucursales al iniciar
   cargarSucursales();
+  
+  // 💰 Verificar saldo al iniciar
+  verificarSaldo();
 
   personId.addEventListener("input", () => {
     personId.value = personId.value.replace(/\D/g, "").slice(0, 8);
@@ -138,6 +165,12 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // 🚫 Prevenir envío si no hay saldo
+    if (saldoDisponible === 0) {
+      mostrarToast('🔴 Sin crédito disponible. No se puede enviar SMS.', 'error');
+      return;
+    }
+
     submitText.textContent = "Enviando...";
     loader.classList.remove("hidden");
     submitBtn.disabled = true;
@@ -172,8 +205,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } else {
         mostrarResultadoEnvio(false, msgPlano);
-        // Extraer mensaje de error del detail
-        const errorMsg = result.detail || result.mensaje || "No se pudo enviar el SMS";
+        
+        // Extraer mensaje de error garantizando que sea string
+        let errorMsg = "No se pudo enviar el SMS";
+        
+        // 🚦 Manejo especial para rate limit (429)
+        if (res.status === 429) {
+          errorMsg = "⏱️ Límite de envíos alcanzado. Esperá un momento antes de intentar nuevamente.";
+        } 
+        // 💳 Manejo especial para sin saldo (402)
+        else if (res.status === 402) {
+          errorMsg = result.detail || "Saldo insuficiente. Contacte con su proveedor para recargar.";
+        }
+        // Otros errores
+        else if (result.detail) {
+          errorMsg = typeof result.detail === 'string' ? result.detail : JSON.stringify(result.detail);
+        } else if (result.mensaje) {
+          errorMsg = typeof result.mensaje === 'string' ? result.mensaje : JSON.stringify(result.mensaje);
+        } else if (result.message) {
+          errorMsg = typeof result.message === 'string' ? result.message : JSON.stringify(result.message);
+        }
+        
+        console.log("🔴 Error recibido:", errorMsg, "Status:", res.status);
         
         // Mostrar en ROJO con el mensaje específico
         mostrarToast(`🔴 ${errorMsg}`, "error");
@@ -181,7 +234,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (error) {
       mostrarResultadoEnvio(false, msgPlano);
-      mostrarToast("🔴 Error de red al enviar el SMS", "error");
+      console.error("🔴 Error catch:", error);
+      
+      let errorMsg = "Error de red al enviar el SMS";
+      if (error && typeof error === 'object') {
+        if (error.message) errorMsg = error.message;
+        else errorMsg = String(error);
+      }
+      
+      mostrarToast(`🔴 ${errorMsg}`, "error");
     } finally {
       submitText.textContent = "Enviar";
       loader.classList.add("hidden");

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from starlette.middleware.sessions import SessionMiddleware
 
 # 🆕 Importar configuración centralizada
@@ -155,15 +156,18 @@ def home(request: Request, user = Depends(get_current_user), db: Session = Depen
     from sqlalchemy import func
     from datetime import datetime, timedelta
     
-    enviados = db.query(Verificacion).filter(Verificacion.verification_code != None).count()
-    no_enviados = db.query(Verificacion).filter(Verificacion.verification_code == None).count()
+    # Contar por estado
+    enviados = db.query(Verificacion).filter(
+        or_(Verificacion.estado == "enviado", Verificacion.estado == "test")
+    ).count()
+    fallidos = db.query(Verificacion).filter(Verificacion.estado == "fallido").count()
     
-    # SMS por sucursal (top 5)
+    # SMS por sucursal (top 5) - solo exitosos
     sms_por_sucursal = db.query(
         Verificacion.merchant_code,
         func.count(Verificacion.id).label('total')
     ).filter(
-        Verificacion.verification_code != None  # Solo exitosos
+        or_(Verificacion.estado == "enviado", Verificacion.estado == "test")
     ).group_by(
         Verificacion.merchant_code
     ).order_by(
@@ -183,7 +187,7 @@ def home(request: Request, user = Depends(get_current_user), db: Session = Depen
         count = db.query(Verificacion).filter(
             Verificacion.fecha >= inicio_dia,
             Verificacion.fecha < fin_dia,
-            Verificacion.verification_code != None  # Solo exitosos
+            or_(Verificacion.estado == "enviado", Verificacion.estado == "test")
         ).count()
         
         sms_ultimos_7_dias.append({
@@ -194,10 +198,11 @@ def home(request: Request, user = Depends(get_current_user), db: Session = Depen
     return render_template_protegido("home.html", request, {
         "user": user,
         "enviados": enviados,
-        "no_enviados": no_enviados,
+        "no_enviados": fallidos,
         "sms_por_sucursal": [{"sucursal": s.merchant_code, "total": s.total} for s in sms_por_sucursal],
         "ultimos_7_dias": sms_ultimos_7_dias,
-        "total_exitosos": enviados  # Para calcular porcentajes en el template
+        "total_exitosos": enviados,
+        "total_fallidos": fallidos
     })
 
 @app.get("/verificar")

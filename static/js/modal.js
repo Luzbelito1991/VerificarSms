@@ -13,6 +13,19 @@ let modalConfirmCallback = null;
  * @param {number} duracion - Tiempo en ms antes de auto-cerrar (0 = no auto-cerrar)
  */
 function mostrarModal(mensaje, tipo = 'info', duracion = 0) {
+  // Asegurar que mensaje sea siempre un string
+  if (typeof mensaje !== 'string') {
+    if (mensaje && typeof mensaje === 'object') {
+      // Si es un objeto con message, usar eso
+      if (mensaje.message) mensaje = mensaje.message;
+      else if (mensaje.detail) mensaje = mensaje.detail;
+      else if (mensaje.mensaje) mensaje = mensaje.mensaje;
+      else mensaje = JSON.stringify(mensaje);
+    } else {
+      mensaje = String(mensaje);
+    }
+  }
+  
   const modal = crearModalMensaje(mensaje, tipo);
   document.body.appendChild(modal);
   

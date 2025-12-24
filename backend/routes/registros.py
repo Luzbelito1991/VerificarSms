@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import func, case
+from sqlalchemy import func, case, or_
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv, set_key
@@ -95,6 +95,31 @@ async def obtener_uso_sms(
                 "cantidad": count
             })
         
+        # Obtener saldo real de SMS Masivos (SIEMPRE consultar API real aquí)
+        sms_disponibles_real = 0
+        try:
+            import requests
+            from backend.config.settings import settings
+            
+            url = "https://servicio.smsmasivos.com.ar/obtener_saldo.asp"
+            params = {"apikey": settings.SMS_API_KEY}
+            response_saldo = requests.get(url, params=params, timeout=10)
+            
+            if response_saldo.status_code == 200:
+                texto_respuesta = response_saldo.text.strip()
+                try:
+                    sms_disponibles_real = int(texto_respuesta)
+                except ValueError:
+                    # Si no es un número, es un mensaje de error
+                    print(f"⚠️ Respuesta de API saldo: {texto_respuesta}")
+                    sms_disponibles_real = 0
+            else:
+                print(f"⚠️ Error HTTP {response_saldo.status_code} al consultar saldo")
+                sms_disponibles_real = 0
+        except Exception as e:
+            print(f"⚠️ Error al consultar saldo: {e}")
+            sms_disponibles_real = 0
+        
         return {
             "ok": True,
             "datos": {
@@ -106,13 +131,13 @@ async def obtener_uso_sms(
                     for s in sms_por_sucursal
                 ],
                 "ultimos_7_dias": sms_ultimos_7_dias,
-                # Datos simulados del plan (se pueden ajustar según API real)
+                # Datos reales del plan consultados de SMS Masivos
                 "plan_contratado": {
-                    "nombre": "Plan Empresarial",
-                    "sms_incluidos": 10000,
+                    "nombre": "Plan Prepago SMS Masivos",
+                    "sms_incluidos": sms_disponibles_real + total_enviados,
                     "sms_usados": total_enviados,
-                    "sms_disponibles": max(0, 10000 - total_enviados),
-                    "porcentaje_uso": min(100, (total_enviados / 10000) * 100) if total_enviados > 0 else 0
+                    "sms_disponibles": sms_disponibles_real,
+                    "porcentaje_uso": min(100, (total_enviados / (sms_disponibles_real + total_enviados)) * 100) if (sms_disponibles_real + total_enviados) > 0 else 100
                 }
             }
         }
@@ -169,13 +194,14 @@ async def obtener_metricas(
         # Tasa de éxito/fallo
         total_sms = db.query(Verificacion).count()
         
-        # Simulamos éxitos/fallos basándonos en si tienen código
-        # (ajustar según tu lógica real)
+        # Contar por estado real
         exitosos = db.query(Verificacion).filter(
-            Verificacion.verification_code.isnot(None)
+            or_(Verificacion.estado == "enviado", Verificacion.estado == "test")
         ).count()
         
-        fallidos = total_sms - exitosos
+        fallidos = db.query(Verificacion).filter(
+            Verificacion.estado == "fallido"
+        ).count()
         
         tasa_exito = (exitosos / total_sms * 100) if total_sms > 0 else 0
         tasa_fallo = (fallidos / total_sms * 100) if total_sms > 0 else 0

@@ -106,7 +106,10 @@ def handle_sms(
 
     # ❌ Si falló, lanzar excepción DESPUÉS de registrar
     if not resultado["ok"]:
-        raise HTTPException(status_code=500, detail=resultado["mensaje"])
+        error_detail = resultado.get("mensaje", "Error al enviar SMS")
+        if isinstance(error_detail, dict):
+            error_detail = str(error_detail)
+        raise HTTPException(status_code=500, detail=str(error_detail))
 
     # Determinar mensaje según el modo
     if settings.SMS_MODO_SIMULADO:

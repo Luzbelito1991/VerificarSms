@@ -27,20 +27,20 @@ class RateLimitConfig(BaseModel):
 RATE_LIMITS: Dict[str, RateLimitConfig] = {
     # 📱 SMS - El más crítico (prevenir spam y costos)
     "sms_enviar": RateLimitConfig(
-        limit=5,
-        period=60,  # 5 SMS por minuto por IP/usuario
+        limit=50,
+        period=60,  # 50 SMS por minuto por IP/usuario
         description="Envío de SMS de verificación"
     ),
     
     "sms_enviar_por_hora": RateLimitConfig(
-        limit=30,
-        period=3600,  # 30 SMS por hora
+        limit=90,
+        period=3600,  # 90 SMS por hora
         description="Límite por hora para SMS"
     ),
     
     "sms_enviar_por_dia": RateLimitConfig(
-        limit=200,
-        period=86400,  # 200 SMS por día
+        limit=500,
+        period=86400,  # 500 SMS por día
         description="Límite diario para SMS"
     ),
     

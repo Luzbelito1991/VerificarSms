@@ -33,9 +33,9 @@ def create_default_admin():
         password_hash = hashlib.sha256("admin123".encode()).hexdigest()
         admin = Usuario(
             usuario="admin",
-            password=password_hash,
+            hash_password=password_hash,
             rol="admin",
-            sucursal="776"  # Sucursal por defecto
+            email="admin@losquilmes.com"
         )
         
         db.add(admin)

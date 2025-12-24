@@ -21,7 +21,7 @@ print("=" * 60)
 
 # ========== CONFIGURACIÓN ==========
 SQLITE_URL = "sqlite:///./usuarios.db"
-POSTGRES_URL = "postgresql://verificarsms_user:VerificarSMS2025!@localhost:5432/verificarsms"
+POSTGRES_URL = "postgresql://admin:admin123@localhost:5432/verificarsms"
 
 print(f"\n📂 Origen: {SQLITE_URL}")
 print(f"🐘 Destino: {POSTGRES_URL}")
@@ -36,7 +36,11 @@ SqliteSession = sessionmaker(bind=sqlite_engine)
 sqlite_session = SqliteSession()
 
 # Conexión PostgreSQL (destino)
-postgres_engine = create_engine(POSTGRES_URL, echo=False)
+postgres_engine = create_engine(
+    POSTGRES_URL, 
+    echo=False,
+    connect_args={"client_encoding": "utf8"}
+)
 PostgresSession = sessionmaker(bind=postgres_engine)
 postgres_session = PostgresSession()
 

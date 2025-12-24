@@ -184,8 +184,13 @@ def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     Returns:
         HTTPException con mensaje personalizado
     """
-    # Calcular tiempo de retry
-    retry_after = int(exc.detail.split("Retry after ")[1].split(" seconds")[0])
+    # Calcular tiempo de retry con manejo de error
+    try:
+        retry_after = int(exc.detail.split("Retry after ")[1].split(" seconds")[0])
+    except (IndexError, ValueError):
+        # Si no se puede parsear, usar 60 segundos por defecto
+        retry_after = 60
+    
     retry_formatted = format_retry_after(retry_after)
     
     # Determinar tipo de error según endpoint

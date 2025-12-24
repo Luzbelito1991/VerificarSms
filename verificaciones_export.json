@@ -1,0 +1,62 @@
+[
+  {
+    "id": 3,
+    "person_id": "14300166",
+    "phone_number": "3815899445",
+    "merchant_code": "777",
+    "merchant_name": "Lules",
+    "verification_code": "5525",
+    "fecha": "2025-12-20 12:49:01.652129",
+    "usuario_id": 4
+  },
+  {
+    "id": 4,
+    "person_id": "14300166",
+    "phone_number": "3815899445",
+    "merchant_code": "561",
+    "merchant_name": "Oregon Jeans",
+    "verification_code": "6255",
+    "fecha": "2025-12-20 12:49:25.563325",
+    "usuario_id": 4
+  },
+  {
+    "id": 5,
+    "person_id": "36049884",
+    "phone_number": "3814123693",
+    "merchant_code": "777",
+    "merchant_name": "Lules",
+    "verification_code": "6566",
+    "fecha": "2025-12-22 09:17:50.697540",
+    "usuario_id": 3
+  },
+  {
+    "id": 6,
+    "person_id": "36049884",
+    "phone_number": "3814123693",
+    "merchant_code": "776",
+    "merchant_name": "Limite Deportes Alberdi",
+    "verification_code": "9259",
+    "fecha": "2025-12-22 09:47:34.078769",
+    "usuario_id": 4
+  },
+  {
+    "id": 7,
+    "person_id": "14300166",
+    "phone_number": "3814588888",
+    "merchant_code": "776",
+    "merchant_name": "Limite Deportes Alberdi",
+    "verification_code": "7644",
+    "fecha": "2025-12-22 11:23:48.365675",
+    "usuario_id": 6
+  },
+  {
+    "id": 8,
+    "person_id": "36049884",
+    "phone_number": "3814123693",
+    "merchant_code": "123",
+    "merchant_name": "Sucursal 123",
+    "verification_code": "6582",
+    "fecha": "2025-12-22 12:39:13.700516",
+    "usuario_id": 6
+  }
+]

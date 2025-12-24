@@ -1,0 +1,37 @@
+[
+  {
+    "id": 3,
+    "usuario": "Fernando",
+    "hash_password": "$2b$12$oISX8YvhoH0ym8dniCUNbegv6UzeonsBkTvCI1ntDTkjy3B2yVUya",
+    "rol": "admin",
+    "email": null
+  },
+  {
+    "id": 4,
+    "usuario": "Andrea",
+    "hash_password": "$2b$12$QrLwzhLxrE69ARExp8JRHuvIKweLIZCBMK66PRk/yspKaDE1h4kvm",
+    "rol": "operador",
+    "email": null
+  },
+  {
+    "id": 5,
+    "usuario": "admin",
+    "hash_password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "rol": "admin",
+    "email": null
+  },
+  {
+    "id": 6,
+    "usuario": "fernando",
+    "hash_password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "rol": "admin",
+    "email": null
+  },
+  {
+    "id": 7,
+    "usuario": "Norita",
+    "hash_password": "$2b$12$7XaYPz4eJV0Ya4lwQHchfOoxtwBGKG0ddCIeAQQM5QuoB9LmDv3Vm",
+    "rol": "operador",
+    "email": "vallefernando884@gmail.com"
+  }
+]

@@ -47,7 +47,16 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = `/home?user=${encodeURIComponent(result.usuario)}`;
       } else {
         // ❌ Si el login falló, mostrar mensaje
-        mostrarToast(result.detail || "Credenciales inválidas.");
+        // El detail puede ser string o objeto con propiedad 'mensaje'
+        let errorMsg = "Credenciales inválidas.";
+        if (result.detail) {
+          errorMsg = typeof result.detail === 'string' 
+            ? result.detail 
+            : (result.detail.mensaje || result.mensaje || "Credenciales inválidas.");
+        } else if (result.mensaje) {
+          errorMsg = result.mensaje;
+        }
+        mostrarToast(errorMsg);
       }
     } catch (error) {
       // ⚠️ Error de red u otra excepción

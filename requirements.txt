@@ -11,6 +11,7 @@ requests==2.31.0
 
 # Environment Variables
 python-dotenv==1.0.0
+pydantic-settings==2.1.0
 
 # Database
 sqlalchemy==2.0.25
@@ -30,7 +31,8 @@ redis==5.0.1
 slowapi==0.1.9  # Rate limiting con Redis backend
 
 # Email
-aiosmtplib==3.0.1
+aiosmtplib==2.0.2
+fastapi-mail==1.4.1
 
 # Utilities
 python-multipart==0.0.6  # Para forms

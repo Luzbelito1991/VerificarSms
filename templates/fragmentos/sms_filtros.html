@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
   <!-- 👤 Usuario -->
   <div class="group">
     <label for="usuarioSelect" class="block mb-1.5 text-xs font-medium text-gray-200">Usuario</label>
@@ -12,6 +12,29 @@
                      group-hover:border-gray-600 transition-all duration-200 cursor-pointer">
         <option value="">Todos los usuarios</option>
         <!-- Opciones dinámicas desde JS -->
+      </select>
+    </div>
+  </div>
+
+  <!-- 🏢 Sucursal -->
+  <div class="group">
+    <label for="sucursalSelect" class="block mb-1.5 text-xs font-medium text-gray-200">Sucursal</label>
+    <div class="relative">
+      <span class="absolute inset-y-0 left-2 flex items-center text-gray-400 pointer-events-none">
+        <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+      </span>
+      <select id="sucursalSelect" 
+              class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-lg pl-8 pr-3 py-2 text-sm
+                     focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none
+                     group-hover:border-gray-600 transition-all duration-200 cursor-pointer">
+        <option value="">Todas las sucursales</option>
+        <option value="389">Los Quilmes - Casa Central (389)</option>
+        <option value="561">Los Quilmes - Sucursal Centro (561)</option>
+        <option value="776">Limite Deportes Alberdi (776)</option>
+        <option value="777">Limite Deportes Lules (777)</option>
+        <option value="778">Limite Deportes Famaillá (778)</option>
+        <option value="779">Limite Deportes Alderetes (779)</option>
+        <option value="781">Limite Deportes Banda de Río Salí (781)</option>
       </select>
     </div>
   </div>

@@ -27,6 +27,7 @@ def listar_usuarios(
 @admin_router.get("/api/admin/sms")
 def obtener_sms(
     usuario_id: int | None = None,
+    sucursal: str | None = None,
     fecha_inicio: str | None = None,
     fecha_fin: str | None = None,
     estado: str | None = None,
@@ -46,6 +47,7 @@ def obtener_sms(
     verifs, total = SMSService.get_verificaciones(
         db=db,
         usuario_id=usuario_id,
+        sucursal=sucursal,
         fecha_inicio=fecha_inicio_dt,
         fecha_fin=fecha_fin_dt,
         estado=estado,
@@ -77,6 +79,7 @@ def obtener_sms(
 @admin_router.get("/api/admin/sms/total")
 def contar_sms(
     usuario_id: int | None = None,
+    sucursal: str | None = None,
     fecha_inicio: str | None = None,
     fecha_fin: str | None = None,
     estado: str | None = None,
@@ -94,6 +97,7 @@ def contar_sms(
     _, total = SMSService.get_verificaciones(
         db=db,
         usuario_id=usuario_id,
+        sucursal=sucursal,
         fecha_inicio=fecha_inicio_dt,
         fecha_fin=fecha_fin_dt,
         estado=estado,
@@ -108,6 +112,7 @@ def contar_sms(
 @admin_router.get("/api/admin/sms/todos")
 def obtener_todos_sms(
     usuario_id: int | None = None,
+    sucursal: str | None = None,
     fecha_inicio: str | None = None,
     fecha_fin: str | None = None,
     estado: str | None = None,
@@ -125,6 +130,7 @@ def obtener_todos_sms(
     verifs, total = SMSService.get_verificaciones(
         db=db,
         usuario_id=usuario_id,
+        sucursal=sucursal,
         fecha_inicio=fecha_inicio_dt,
         fecha_fin=fecha_fin_dt,
         estado=estado,

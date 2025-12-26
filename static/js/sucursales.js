@@ -36,54 +36,68 @@ async function cargarSucursales() {
       return;
     }
     
-    // Renderizar tabla desktop (más compacta)
+// Renderizar tabla desktop (más compacta y moderna)
     tbody.innerHTML = sucursales.map(s => `
-      <tr class="hover:bg-white/5 transition-colors">
-        <td class="px-3 py-2.5">
-          <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
-            <span class="font-mono text-emerald-400 font-semibold text-sm">${s.codigo}</span>
-          </span>
+      <tr class="hover:bg-gray-800/50 transition-colors duration-150">
+        <td class="px-4 py-2.5 text-sm">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-purple-600/20 border border-purple-500/30">
+            <i data-lucide="hash" class="w-3 h-3 text-purple-300"></i>
+            <span class="font-mono text-purple-300 font-semibold text-xs">${s.codigo}</span>
+          </div>
         </td>
-        <td class="px-3 py-2.5">
-          <span class="text-gray-200 text-sm">${s.nombre}</span>
+        <td class="px-4 py-2.5 text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="building-2" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+            <span class="text-gray-100 font-medium">${s.nombre}</span>
+          </div>
         </td>
-        <td class="px-3 py-2.5">
-          <div class="flex items-center justify-center gap-1">
+        <td class="px-4 py-2.5">
+          <div class="flex items-center justify-center gap-2">
             <button
-              onclick="editarSucursal('${s.codigo}', '${s.nombre.replace(/'/g, "\\'")}')"
-              class="p-1.5 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
+              onclick="editarSucursal('${s.codigo}', '${s.nombre.replace(/'/g, "\\'")}')" 
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 transition-all duration-200 hover:scale-105"
               title="Editar"
             >
-              <i data-lucide="edit" class="w-4 h-4"></i>
+              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+              <span>Editar</span>
             </button>
             <button
               onclick="eliminarSucursal('${s.codigo}')"
-              class="p-1.5 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 transition-all duration-200 hover:scale-105"
               title="Eliminar"
             >
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>Eliminar</span>
             </button>
           </div>
         </td>
       </tr>
     `).join('');
     
-    // Renderizar cards mobile
+    // Renderizar cards mobile (mejorados)
     listaMobile.innerHTML = sucursales.map(s => `
-      <div class="p-3 hover:bg-white/5 transition-colors">
+      <div class="p-3 hover:bg-gray-800/50 transition-colors">
         <div class="flex items-center justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <div class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 mb-1">
-              <span class="font-mono text-emerald-400 font-semibold text-xs">${s.codigo}</span>
+            <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-purple-600/20 border border-purple-500/30 mb-2">
+              <i data-lucide="hash" class="w-3 h-3 text-purple-300"></i>
+              <span class="font-mono text-purple-300 font-semibold text-xs">${s.codigo}</span>
             </div>
-            <p class="text-gray-200 text-sm truncate">${s.nombre}</p>
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="building-2" class="w-3 h-3 text-emerald-400"></i>
+              </div>
+              <p class="text-gray-100 text-sm font-medium truncate">${s.nombre}</p>
+            </div>
           </div>
-          <div class="flex items-center gap-1 flex-shrink-0">
+          <div class="flex flex-col gap-1 flex-shrink-0">
             <button
-              onclick="editarSucursal('${s.codigo}', '${s.nombre.replace(/'/g, "\\'")}')"
+              onclick="editarSucursal('${s.codigo}', '${s.nombre.replace(/'/g, "\\'")}')" 
               class="p-2 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"
             >
-              <i data-lucide="edit" class="w-4 h-4"></i>
+              <i data-lucide="edit-2" class="w-4 h-4"></i>
             </button>
             <button
               onclick="eliminarSucursal('${s.codigo}')"

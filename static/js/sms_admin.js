@@ -4,6 +4,7 @@ const registrosPorPagina = 5;
 
 // 🥪 Filtros activos
 let filtroUsuario = "";
+let filtroSucursal = "";
 let filtroFechaInicio = "";
 let filtroFechaFin = "";
 let filtroEstado = "";
@@ -39,6 +40,7 @@ async function cargarUsuarios() {
 function aplicarFiltros() {
   paginaActual = 1;
   filtroUsuario     = document.getElementById("usuarioSelect").value;
+  filtroSucursal    = document.getElementById("sucursalSelect").value;
   filtroFechaInicio = document.getElementById("fechaInicio").value;
   filtroFechaFin    = document.getElementById("fechaFin").value;
   filtroEstado      = document.getElementById("estadoSelect").value;
@@ -52,6 +54,7 @@ function aplicarFiltros() {
 async function obtenerTotalRegistros() {
   const filtroParams = [
     filtroUsuario     && `usuario_id=${filtroUsuario}`,
+    filtroSucursal    && `sucursal=${filtroSucursal}`,
     filtroFechaInicio && `fecha_inicio=${filtroFechaInicio}`,
     filtroFechaFin    && `fecha_fin=${filtroFechaFin}`,
     filtroEstado      && `estado=${filtroEstado}`
@@ -74,6 +77,7 @@ async function cargarPagina() {
   let url = `/api/admin/sms?skip=${(paginaActual - 1) * registrosPorPagina}&limit=${registrosPorPagina}`;
 
   if (filtroUsuario)     url += `&usuario_id=${filtroUsuario}`;
+  if (filtroSucursal)    url += `&sucursal=${filtroSucursal}`;
   if (filtroFechaInicio) url += `&fecha_inicio=${filtroFechaInicio}`;
   if (filtroFechaFin)    url += `&fecha_fin=${filtroFechaFin}`;
   if (filtroEstado)      url += `&estado=${filtroEstado}`;
@@ -99,30 +103,37 @@ async function cargarPagina() {
     sms.forEach((s, index) => {
       const tr = document.createElement("tr");
 
-      // ✨ Resaltamos la primera fila (último mensaje enviado)
-          tr.className = index === 0
-            ? "animate-fadeInUp"
-            : "hover:bg-gray-900 transition";
-
-
-
+      // ✨ Filas más compactas con hover suave
+      tr.className = "hover:bg-gray-800/50 transition-colors duration-150";
 
       tr.innerHTML = `
-        <td class="px-4 py-2">${s.dni}</td>
-        <td class="px-4 py-2">${s.celular}</td>
-        <td class="px-4 py-2">${s.sucursal}</td>
-        <td class="px-4 py-2">${s.codigo}</td>
-        <td class="px-4 py-2">${s.usuario_nombre}</td>
-        <td class="px-4 py-2">
-  ${new Date(s.fecha).toLocaleDateString()} ${new Date(s.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-</td>
-        <td class="px-4 py-2">${getEstadoBadge(s.estado)}</td>
+        <td class="px-3 py-2.5 text-xs">${s.dni}</td>
+        <td class="px-3 py-2.5 text-xs">${s.celular}</td>
+        <td class="px-3 py-2.5 text-xs">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-300 font-medium">
+            <i data-lucide="building-2" class="w-3 h-3"></i>
+            ${s.sucursal}
+          </span>
+        </td>
+        <td class="px-3 py-2.5 text-xs">
+          <span class="font-mono font-semibold text-emerald-300">${s.codigo}</span>
+        </td>
+        <td class="px-3 py-2.5 text-xs">
+          <span class="text-gray-200">${s.usuario_nombre}</span>
+        </td>
+        <td class="px-3 py-2.5 text-xs text-gray-300">
+          ${new Date(s.fecha).toLocaleDateString()} ${new Date(s.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </td>
+        <td class="px-3 py-2.5 text-center">${getEstadoBadge(s.estado)}</td>
       `;
       fragment.appendChild(tr);
     });
 
     tbody.innerHTML = "";
     tbody.appendChild(fragment);
+    
+    // Reiniciar iconos de Lucide
+    lucide.createIcons();
 
     // 🔢 Actualización visual de controles de paginación
     const paginaActualEl   = document.getElementById("paginaActual");
@@ -203,6 +214,7 @@ function iniciarPaginacion() {
 async function exportarExcel() {
   const filtroParams = [
     filtroUsuario     && `usuario_id=${filtroUsuario}`,
+    filtroSucursal    && `sucursal=${filtroSucursal}`,
     filtroFechaInicio && `fecha_inicio=${filtroFechaInicio}`,
     filtroFechaFin    && `fecha_fin=${filtroFechaFin}`,
     filtroEstado      && `estado=${filtroEstado}`
@@ -256,12 +268,14 @@ async function exportarExcel() {
 function limpiarFiltros() {
   // Reset visual de inputs
   document.getElementById("usuarioSelect").selectedIndex = 0;
+  document.getElementById("sucursalSelect").selectedIndex = 0;
   document.getElementById("fechaInicio").value = "";
   document.getElementById("fechaFin").value = "";
   document.getElementById("estadoSelect").selectedIndex = 0;
 
   // Reset de variables globales
   filtroUsuario = "";
+  filtroSucursal = "";
   filtroFechaInicio = "";
   filtroFechaFin = "";
   filtroEstado = "";

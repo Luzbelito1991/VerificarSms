@@ -1,10 +1,25 @@
 <div class="rounded-xl border border-white/10 bg-gray-900/40 overflow-hidden">
-  <table id="tablaUsuarios" class="w-full text-sm text-white table-fixed">
+  <table id="tablaUsuarios" class="w-full text-white table-fixed">
     <thead class="bg-gradient-to-r from-gray-800 to-gray-900 text-gray-200 text-xs uppercase border-b border-white/20 tracking-wide">
       <tr>
-        <th class="px-5 py-4 text-left w-[40%] font-semibold">Usuario</th>
-        <th class="px-5 py-4 text-left w-[30%] font-semibold">Rol</th>
-        <th class="px-5 py-4 text-center w-[30%] font-semibold">Acciones</th>
+        <th class="px-4 py-2.5 text-left w-[35%] font-semibold text-xs">
+          <div class="flex items-center gap-2">
+            <i data-lucide="user" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Usuario</span>
+          </div>
+        </th>
+        <th class="px-4 py-2.5 text-left w-[25%] font-semibold text-xs">
+          <div class="flex items-center gap-2">
+            <i data-lucide="shield" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>Rol</span>
+          </div>
+        </th>
+        <th class="px-4 py-2.5 text-center w-[40%] font-semibold text-xs">
+          <div class="flex items-center justify-center gap-2">
+            <i data-lucide="settings" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Acciones</span>
+          </div>
+        </th>
       </tr>
     </thead>
     <tbody id="tablaUsuariosBody" class="divide-y divide-white/5">

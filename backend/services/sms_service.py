@@ -162,6 +162,7 @@ class SMSService:
     def get_verificaciones(
         db: Session,
         usuario_id: Optional[int] = None,
+        sucursal: Optional[str] = None,
         fecha_inicio: Optional[datetime] = None,
         fecha_fin: Optional[datetime] = None,
         estado: Optional[str] = None,
@@ -179,6 +180,10 @@ class SMSService:
         # Filtrar por usuario
         if usuario_id:
             query = query.filter(Verificacion.usuario_id == usuario_id)
+        
+        # Filtrar por sucursal
+        if sucursal:
+            query = query.filter(Verificacion.merchant_code == sucursal)
         
         # Filtrar por rango de fechas
         if fecha_inicio:

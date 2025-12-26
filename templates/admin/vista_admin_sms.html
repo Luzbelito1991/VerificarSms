@@ -45,39 +45,48 @@
 
   <!-- 📊 Tabla + paginación -->
   <div class="glass-effect border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
-    <div class="p-4 space-y-3">
-      {% include "fragmentos/sms_tabla.html" %}
-
-      <div id="rangoRegistros" class="text-center text-gray-300 text-xs italic pt-1 border-t border-white/10">
-        Mostrando registros 1–5
+    <div class="flex flex-col">
+      
+      <!-- 📋 Tabla con altura fija sin scroll -->
+      <div class="p-4">
+        <div class="h-[320px] flex items-start">
+          {% include "fragmentos/sms_tabla.html" %}
+        </div>
       </div>
 
-      <!-- 🔁 Paginación moderna -->
-      <div class="flex flex-col sm:flex-row justify-center items-center gap-4 text-white text-sm pt-4">
-        <button id="prevPagina" 
-                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
-                       bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
-                       disabled:opacity-40 disabled:cursor-not-allowed
-                       transition-all duration-200 hover-lift" 
-                disabled>
-          <i data-lucide="chevron-left" class="w-4 h-4"></i>
-          Anterior
-        </button>
-
-        <div class="inline-flex items-center gap-2 px-5 py-2 rounded-xl glass-effect border border-emerald-500/40">
-          <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
-          <span class="text-gray-300">Página</span>
-          <span id="paginaActual" class="font-bold text-emerald-300">1</span>
+      <!-- Información de registros y paginación fija -->
+      <div class="flex flex-col items-center space-y-3 px-4 py-4 border-t border-white/10 bg-gray-900/20">
+        <div id="rangoRegistros" class="text-center text-gray-300 text-xs font-medium">
+          Mostrando registros 1–5
         </div>
 
-        <button id="nextPagina" 
-                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
-                       bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
-                       disabled:opacity-40 disabled:cursor-not-allowed
-                       transition-all duration-200 hover-lift">
-          Siguiente
-          <i data-lucide="chevron-right" class="w-4 h-4"></i>
-        </button>
+        <!-- 🔁 Paginación moderna -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 text-white text-sm">
+          <button id="prevPagina" 
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                         bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
+                         disabled:opacity-40 disabled:cursor-not-allowed
+                         transition-all duration-200 hover-lift" 
+                  disabled>
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            Anterior
+          </button>
+
+          <div class="inline-flex items-center gap-2 px-5 py-2 rounded-xl glass-effect border border-emerald-500/40">
+            <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
+            <span class="text-gray-300">Página</span>
+            <span id="paginaActual" class="font-bold text-emerald-300">1</span>
+          </div>
+
+          <button id="nextPagina" 
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                         bg-gray-700 hover:bg-gray-600 text-white border border-gray-600
+                         disabled:opacity-40 disabled:cursor-not-allowed
+                         transition-all duration-200 hover-lift">
+            Siguiente
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>

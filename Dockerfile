@@ -33,6 +33,12 @@ COPY --from=dependencies /usr/local/bin /usr/local/bin
 # Copiar código de la aplicación
 COPY --chown=appuser:appuser . .
 
+# Copiar y preparar script de entrada (antes de cambiar a usuario no-root)
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+# Convertir finales de línea CRLF a LF y dar permisos de ejecución
+RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && \
+    chown appuser:appuser /docker-entrypoint.sh
+
 # Crear directorios necesarios con permisos correctos
 RUN mkdir -p /app/static/css /app/backups /app/logs && \
     chown -R appuser:appuser /app
@@ -48,8 +54,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=5)" || exit 1
 
 # Script de entrada
-COPY --chown=appuser:appuser docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

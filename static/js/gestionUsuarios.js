@@ -244,36 +244,55 @@ function renderizarPagina(pagina) {
  */
 function crearFilaUsuario(user) {
   const fila = document.createElement("tr");
-  fila.className = "border-b border-white/5 hover:bg-white/5 transition";
+  fila.className = "border-b border-white/5 hover:bg-gray-800/50 transition-colors duration-150";
   fila.dataset.usuario = user.usuario;
 
   // Columna: Usuario
   const tdNombre = document.createElement("td");
-  tdNombre.className = "px-4 py-2 nombre-usuario";
-  tdNombre.textContent = user.usuario;
+  tdNombre.className = "px-4 py-2.5 text-sm";
+  
+  const divUsuario = document.createElement("div");
+  divUsuario.className = "flex items-center gap-2";
+  divUsuario.innerHTML = `
+    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 flex items-center justify-center">
+      <i data-lucide="user" class="w-4 h-4 text-emerald-400"></i>
+    </div>
+    <span class="font-medium text-gray-100">${user.usuario}</span>
+  `;
+  tdNombre.appendChild(divUsuario);
 
   // Columna: Rol
   const tdRol = document.createElement("td");
-  tdRol.className = "px-4 py-2 capitalize";
-  tdRol.textContent = user.rol;
+  tdRol.className = "px-4 py-2.5 text-sm";
+  
+  const esAdmin = user.rol.toLowerCase() === 'admin';
+  const badgeColor = esAdmin ? 'from-purple-500/20 to-purple-600/20 border-purple-500/30 text-purple-300' : 'from-blue-500/20 to-blue-600/20 border-blue-500/30 text-blue-300';
+  const iconoRol = esAdmin ? 'shield-check' : 'user-check';
+  
+  tdRol.innerHTML = `
+    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r ${badgeColor} border text-xs font-semibold">
+      <i data-lucide="${iconoRol}" class="w-3 h-3"></i>
+      <span class="capitalize">${user.rol}</span>
+    </div>
+  `;
 
   // Columna: Acciones
   const tdAcciones = document.createElement("td");
-  tdAcciones.className = "px-6 py-3 w-[180px]";
+  tdAcciones.className = "px-4 py-2.5";
 
   const divAcciones = document.createElement("div");
-  divAcciones.className = "flex justify-center gap-4";
+  divAcciones.className = "flex justify-center gap-2";
 
   // Botón Editar
   const btnEditar = document.createElement("button");
-  btnEditar.className = "text-emerald-400 hover:text-emerald-300 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition";
-  btnEditar.innerHTML = '<i data-lucide="edit" class="w-4 h-4"></i><span>Editar</span>';
+  btnEditar.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition-all duration-200 hover:scale-105";
+  btnEditar.innerHTML = '<i data-lucide="edit-2" class="w-3.5 h-3.5"></i><span>Editar</span>';
   btnEditar.addEventListener("click", () => editarUsuario(user.usuario));
 
   // Botón Eliminar
   const btnEliminar = document.createElement("button");
-  btnEliminar.className = "text-red-500 hover:text-red-400 text-sm font-medium flex items-center gap-2 px-2 py-1 rounded-md transition";
-  btnEliminar.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i><span>Eliminar</span>';
+  btnEliminar.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 transition-all duration-200 hover:scale-105";
+  btnEliminar.innerHTML = '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>Eliminar</span>';
   btnEliminar.addEventListener("click", () => eliminarUsuario(user.usuario));
 
   divAcciones.appendChild(btnEditar);

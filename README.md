@@ -71,7 +71,7 @@ El script automáticamente:
 - ✅ Crea el entorno virtual
 - ✅ Instala todas las dependencias
 - ✅ Configura el archivo .env con una SECRET_KEY única
-- ✅ Inicializa la base de datos SQLite
+- ✅ Inicializa la base de datos PostgreSQL (si usas Docker)
 - ✅ Crea el usuario administrador por defecto
 - ✅ Compila el CSS de Tailwind
 
@@ -183,7 +183,7 @@ uvicorn backend.main:app --reload
 | Variable | Descripción | Valor por Defecto |
 |----------|-------------|-------------------|
 | `SECRET_KEY` | Clave para sesiones | (generada automáticamente) |
-| `DATABASE_URL` | URL de conexión a BD | `sqlite:///./usuarios.db` |
+| `DATABASE_URL` | URL de conexión a BD PostgreSQL | `postgresql://admin:admin123@postgres:5432/verificarsms` |
 | `SMS_API_KEY` | API Key de SMS Masivos | `tu-api-key-aqui` |
 | `SMS_MODO_SIMULADO` | Modo prueba (true/false) | `true` |
 | `DEBUG` | Modo debug | `true` |

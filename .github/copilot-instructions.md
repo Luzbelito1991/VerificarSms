@@ -7,7 +7,7 @@ FastAPI-based SMS verification system for "Los Quilmes S.A." retail stores. Send
 
 ### Backend Structure
 - **Entry Point**: `backend/main.py` - FastAPI app with session middleware, static files, and router registration
-- **Database**: SQLite (`usuarios.db`) using SQLAlchemy ORM with two models:
+- **Database**: PostgreSQL using SQLAlchemy ORM with models:
   - `Usuario`: user accounts with SHA-256 hashed passwords and roles
   - `Verificacion`: SMS records linked to users via ForeignKey
 - **Auth**: Session-based (not JWT) via `SessionMiddleware`. `get_current_user()` dependency checks `request.session["usuario"]`
@@ -145,8 +145,8 @@ Each feature has dedicated JS: `login.js`, `verificarSms.js`, `sms_admin.js`, `g
 
 ### Adding Database Column
 1. Update model in `backend/models.py`
-2. Delete `usuarios.db` (dev only)
-3. Run `python -m backend.init_db` to recreate
+2. Create and run Alembic migration (production)
+3. For dev: drop tables and run `python -m backend.init_db`
 
 ### Styling Updates
 Edit `static/css/input.css` → `npm run dev` auto-compiles → refresh browser

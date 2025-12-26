@@ -1,8 +1,9 @@
 """Configuración centralizada de la aplicación"""
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import Optional, Union
 import os
 from pathlib import Path
+import json
 
 
 class Settings(BaseSettings):
@@ -14,7 +15,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 horas
     
     # 🗄️ Base de datos
-    DATABASE_URL: str = "sqlite:///./usuarios.db"
+    DATABASE_URL: str
     
     # 📱 SMS API
     SMS_API_URL: str = "http://servicio.smsmasivos.com.ar/enviar_sms.asp?api=1"
@@ -36,7 +37,16 @@ class Settings(BaseSettings):
     }
     
     # 🌐 CORS
-    CORS_ORIGINS: list = ["*"]
+    CORS_ORIGINS: Union[list, str] = ["*"]
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        # Convertir CORS_ORIGINS a lista si es string
+        if isinstance(self.CORS_ORIGINS, str):
+            try:
+                self.CORS_ORIGINS = json.loads(self.CORS_ORIGINS)
+            except:
+                self.CORS_ORIGINS = ["*"]
     
     # 📁 Paths
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
